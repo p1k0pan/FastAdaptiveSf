@@ -1,0 +1,2 @@
+# FastAdaptiveSf
+FastAPI Adaptive Storyfinder
