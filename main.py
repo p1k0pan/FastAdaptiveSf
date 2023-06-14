@@ -1,4 +1,3 @@
-import experiments.medium_embeddings as me
 from contextlib import asynccontextmanager
 import pandas as pd
 import controller as con
@@ -38,7 +37,7 @@ async def search_query(query:str=""):
 
     query_corpus_result= con.search_query(query,corpus_embeddings=corpus_embeddings, df=df)
 
-    return {"m": query_corpus_result["title"].tolist()}
+    return {"title": query_corpus_result["title"].tolist(), "urls": query_corpus_result['url'].tolist()}
 
 @app.get("/search_his")
 async def search_query_history(query:str=""):
@@ -46,5 +45,5 @@ async def search_query_history(query:str=""):
 
     query_corpus_result= con.search_query_history(query,corpus_embeddings=corpus_embeddings, df=df)
 
-    return {"m": query_corpus_result["title"].tolist()}
+    return {"title": query_corpus_result["title"].tolist(), "urls": query_corpus_result['url'].tolist()}
 
