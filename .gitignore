@@ -8,7 +8,7 @@ __pycache__/
 *.csv
 
 # database data
-postgres_data/
+postgres-data/
 
 # C extensions
 *.so
