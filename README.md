@@ -6,7 +6,10 @@ Please download the model and dataset from https://huggingface.co/spaces/Adaptiv
 and put it on root.
 
 ## start
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 
+pip install uvicorn <br />
 run `uvicorn main:app --reload`
 
 ## search
