@@ -6,7 +6,11 @@ Please download the model and dataset from https://huggingface.co/spaces/Adaptiv
 and put it on root.
 
 ## start
-
+( python -m pip install --upgrade pip ) <br />
+pip install -r requirements.txt <br />
+<br />
+( pip install uvicorn ) <br />
+python -m nltk.downloader stopwords <br />
 run `uvicorn main:app --reload`
 
 ## search
