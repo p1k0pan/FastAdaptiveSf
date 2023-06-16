@@ -7,6 +7,9 @@ __pycache__/
 *.pt
 *.csv
 
+# database data
+postgres_data/
+
 # C extensions
 *.so
 

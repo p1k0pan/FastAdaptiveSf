@@ -1,12 +1,13 @@
 from contextlib import asynccontextmanager
 import pandas as pd
-import controller as con
+from modules import controller as con
 
 from fastapi import FastAPI
 
 df = pd.DataFrame() # all data from maindataset
 
 corpus_embeddings = None # model from main dataset
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,13 +22,17 @@ async def lifespan(app: FastAPI):
     yield # ctrl-c stop the program would run code below
     print("end lifespan")
 
-
 app = FastAPI(lifespan=lifespan)
-# app = FastAPI()
+
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+@app.get("/docker_test")
+async def docker_test():
+    print("test success")
+    return {"message": "test success"}
 
 @app.get("/search")
 async def search_query(query:str=""):

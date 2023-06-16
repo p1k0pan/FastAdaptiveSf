@@ -1,6 +1,6 @@
 import pandas as pd
 import torch
-import clean_dataset
+from . import clean_dataset
 import json
 from sentence_transformers import SentenceTransformer, util, CrossEncoder
 
