@@ -3,3 +3,4 @@ pandas
 transformers
 sentence-transformers
 fastapi[all]
+gradio_client

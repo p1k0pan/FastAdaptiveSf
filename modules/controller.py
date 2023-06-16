@@ -3,6 +3,8 @@ import torch
 from . import clean_dataset
 import json
 from sentence_transformers import SentenceTransformer, util, CrossEncoder
+from gradio_client import Client
+from io import StringIO
 
 if torch.cuda.is_available():
     device = 'cuda'
@@ -29,20 +31,20 @@ def load_corpus_tensor():
     corpus_embeddings = torch.load(tensor_path, map_location=torch.device(device))
     return corpus_embeddings
 
-def search_query(query:str, corpus_embeddings, df)->pd.DataFrame:
+def search_query(query:str, corpus_embeddings, client)->pd.DataFrame:
     print(query)
     query_embedding = _embed_text(query)
     # print(f'query shape: {query_embedding.shape}')
 
     # query_corpus_result:pd.DataFrame = getTopResult(query_embedding, corpus_embeddings, 10, df)
-    query_corpus_result = _get_hits(query_embedding, corpus_embeddings, 10,df)
+    query_corpus_result = _get_hits(query_embedding, corpus_embeddings, 10,client)
 
     rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
     return rerank_result
 
-def search_query_history(query:str, corpus_embeddings, df)->pd.DataFrame:
+def search_query_history(query:str, corpus_embeddings, client)->pd.DataFrame:
 
-    query_corpus_result = search_query(query,corpus_embeddings,df)
+    query_corpus_result = search_query(query,corpus_embeddings, client)
 
     query_corpus_result_embedding = _embed_text(query_corpus_result.clean_sentence.values)
 
@@ -50,11 +52,11 @@ def search_query_history(query:str, corpus_embeddings, df)->pd.DataFrame:
     user_keyword_embeddings = _embed_text(user_history.clean_sentence.values)
     # print(f'user history shape: {user_keyword_embeddings.shape}')
 
-    history_rank = _rank_hits_history(user_keyword_embeddings, query_corpus_result_embedding, 10, query_corpus_result)
+    history_rank = _rank_hits_history(user_keyword_embeddings, query_corpus_result_embedding, query_corpus_result)
 
     return history_rank
 
-def _get_hits(question_embedding, corpus_embeddings, top_k, df):
+def _get_hits(question_embedding, corpus_embeddings, top_k, client):
     hits = util.semantic_search(question_embedding, corpus_embeddings, top_k=top_k)
     hits = hits[0]  # Get the hits for the first query
 
@@ -63,11 +65,20 @@ def _get_hits(question_embedding, corpus_embeddings, top_k, df):
     for item in hits:
         idx = item["corpus_id"]
         result_index.append(idx)
-        print(f"{idx}: {df[['title']].iloc[idx].values}")
 
+    index_str = ' '.join(map(str, result_index))
+    print(index_str)
+
+    result = client.predict(
+                    index_str,
+                    api_name="/predict"
+    )
+    df_str = StringIO(result)
+    df_result = pd.read_csv(df_str, sep='\t')
+    print(df_result[["Unnamed: 0","title"]].values)
     # df.iloc[result_index].copy().to_csv('hits.csv',',')
     
-    return df.iloc[result_index].copy()
+    return df_result
 
 def _rank_hits_cross_encoder(hits_df,query):
     cross_inp = [[query, value] for value in hits_df.clean_sentence.values]
@@ -81,27 +92,23 @@ def _rank_hits_cross_encoder(hits_df,query):
     print(f"{hits_df[['title']].values}")
     return hits_df.copy()
 
-def _rank_hits_history(history_emb, rerank_emb, topk, df) -> pd.DataFrame:
+def _rank_hits_history(history_emb, rerank_emb, df) -> pd.DataFrame:
     cos_scores = util.pytorch_cos_sim(rerank_emb, history_emb)
     # print(f"cos: {type(cos_scores)}")
     doc_average_score = torch.mean(cos_scores, dim=1)
-    # print(f'history_score: {doc_average_score.shape}')
+    print(f'history_score: {doc_average_score.shape}')
 
-    top_results = torch.topk(doc_average_score, k=topk)
+    # top_results = torch.topk(doc_average_score, k=topk)
 
     print("\nhistory Hits:")
 
-    # result = top_results.indices.tolist()
-    result_index = [] # get the top10 item from df
+    df['Cosine Similarity'] = doc_average_score.tolist()   
+    df = df.sort_values(by='Cosine Similarity', ascending=False)
+    df = df.reset_index(drop=True)
 
-    for score, idx in zip(top_results[0], top_results[1]):
-        score = score.cpu().data.numpy() 
-        idx = idx.cpu().data.numpy()
-        print(f"{idx}: {df[['title']].iloc[idx].values}")
-        result_index.append(idx)
-        # result.append(df[['clean_sentence']].iloc[idx].item())
+    print(df[["Unnamed: 0","title"]].values)
 
-    return df.iloc[result_index].copy()
+    return df
 
 def _read_history() -> pd.DataFrame:
     with open('food_health_data.json') as f:
