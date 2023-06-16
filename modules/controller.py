@@ -37,7 +37,7 @@ def search_query(query:str, corpus_embeddings, client)->pd.DataFrame:
     # print(f'query shape: {query_embedding.shape}')
 
     # query_corpus_result:pd.DataFrame = getTopResult(query_embedding, corpus_embeddings, 10, df)
-    query_corpus_result = _get_hits(query_embedding, corpus_embeddings, 10,client)
+    query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, 10,client)
 
     rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
     return rerank_result
@@ -56,7 +56,7 @@ def search_query_history(query:str, corpus_embeddings, client)->pd.DataFrame:
 
     return history_rank
 
-def _get_hits(question_embedding, corpus_embeddings, top_k, client):
+def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client):
     hits = util.semantic_search(question_embedding, corpus_embeddings, top_k=top_k)
     hits = hits[0]  # Get the hits for the first query
 
@@ -79,6 +79,23 @@ def _get_hits(question_embedding, corpus_embeddings, top_k, client):
     # df.iloc[result_index].copy().to_csv('hits.csv',',')
     
     return df_result
+
+def _get_hits(question_embedding, corpus_embeddings, top_k, df):
+    """
+    this function abandon, replaced with _get_hits_from_HF
+    loading huge dataset consume too much resources
+    """
+    hits = util.semantic_search(question_embedding, corpus_embeddings, top_k=top_k)
+    hits = hits[0]  # Get the hits for the first query
+
+    result_index = [] # get the top10 item from df
+    print("\nHits by bi_encoder:")
+    for item in hits:
+        idx = item["corpus_id"]
+        result_index.append(idx)
+
+    print(df[["Unnamed: 0","title"]].values)
+    return df.iloc[result_index].copy()
 
 def _rank_hits_cross_encoder(hits_df,query):
     cross_inp = [[query, value] for value in hits_df.clean_sentence.values]
