@@ -10,6 +10,7 @@ and put it on root.
 pip install -r requirements.txt <br />
 <br />
 ( pip install uvicorn ) <br />
+python -m nltk.downloader stopwords <br />
 run `uvicorn main:app --reload`
 
 ## search
