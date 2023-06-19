@@ -2,13 +2,27 @@ from contextlib import asynccontextmanager
 import pandas as pd
 from modules import controller as con
 
-from fastapi import FastAPI
+from sqlalchemy import text
+from db import config, schema, crud, model
+from sqlalchemy.orm import Session
+
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from gradio_client import Client
 
 corpus_embeddings = None # model from main dataset
 client=None
 
+# connect database
+model.Base.metadata.create_all(bind=config.engine)
+def get_db():
+    db = config.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+app = FastAPI()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -62,4 +76,21 @@ async def search_query_history(query:str=""):
     query_corpus_result= con.search_query_history(query,corpus_embeddings=corpus_embeddings, client=client)
 
     return {"title": query_corpus_result["title"].tolist(), "urls": query_corpus_result['url'].tolist()}
+
+@app.get('/user')
+async def get_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    _users = crud.get_all_user(db, skip, limit)
+    return schema.Response(status="Ok", code="200", message="Success fetch all data", result=_users)
+
+@app.post("/user")
+async def create_user(request: schema.UserSchema, db: Session = Depends(get_db)):
+    _user = crud.create_user(db, user=request)
+    return schema.Response(status="Ok",
+                    code="200",
+                    message="Book created successfully", result=_user)
+
+@app.patch("/user")
+async def update_histories(request: schema.UserSchema, db: Session = Depends(get_db)):
+    _user = crud.update_history(db, user_name=request.user_name, histories=request.histories)
+    return schema.Response(status="Ok", code="200", message="Success update data", result=_user)
 
