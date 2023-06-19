@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-
+import axios from 'axios';
 
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
@@ -39,7 +39,8 @@ Vue.use(PrimeVue)
 Vue.use(ToastService)
 
 
-
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = 'http://127.0.0.1:8000/'; // 'http://localhost:5000/';  // the FastAPI backend
 Vue.config.productionTip = false
 
 new Vue({

@@ -3,6 +3,7 @@ import pandas as pd
 from modules import controller as con
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from gradio_client import Client
 
 corpus_embeddings = None # model from main dataset
@@ -24,6 +25,15 @@ async def lifespan(app: FastAPI):
     print("end lifespan")
 
 app = FastAPI(lifespan=lifespan)
+
+# NEW
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8080"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")

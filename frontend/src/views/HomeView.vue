@@ -132,7 +132,7 @@
       </div>
     </main>
 
-
+    <p>{{ msg }}</p>
   </div>
 </template>
 
@@ -174,9 +174,26 @@ export default Vue.extend({
         file: {},
         fileSelected: false,
         showFileSelect: true,
+
+        msg: [],
       }
     },
 
+    async created() {
+      this.getMessage();
+
+      this.handleView();
+      window.addEventListener('resize', this.handleView);
+
+      const searchQuery = ref("");
+      const results = ref([]);
+      //await this.handleView();
+
+      return {
+        searchQuery,
+        results,
+      }
+    },
 
     beforeMount () {
       // this.fetch()
@@ -184,6 +201,110 @@ export default Vue.extend({
 
 
     methods: {
+      getMessage() {
+      axios.get('/')
+        .then((res) => {
+          this.msg = res.data["message"];
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      },
+
+
+
+
+      async handleSearch() {
+        console.log("generating results ...")
+
+        var query = this.searchQuery
+        if (query != null){
+          query = query.split(' ').join('_')
+        }
+
+        var endpoint = `http://127.0.0.1:8000/search_his?query=${query}`
+        //endpoint = `https://api.adviceslip.com/advice/search/${query}` // TODO
+
+
+        // ------------------
+        // ------------------
+        // ------------------
+        axios.get('/' + `search_his?query=${query}`)
+        .then((res) => {
+          this.results = res.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+
+        console.log("-------------")
+        console.log("-------------")
+        console.log("-------------")
+        console.log("-------------")
+        console.log("-------------")
+        console.log(this.results)
+        console.log("-------------")
+        console.log("-------------")
+        console.log("-------------")
+        console.log("-------------")
+        console.log("-------------")
+        console.log("-------------")
+        // ------------------
+
+
+        await axios.get(endpoint, {
+          headers: {
+            //'Access-Control-Allow-Origin': '*', // NOT WORKING
+            //'Content-type': 'application/json', // NOT WORKING
+            // Authorization: 'Bearer ' + token //the token is a variable which holds the token
+          }
+        })
+        .then((response)=>{
+
+          if (response.data) {
+          // return success
+            if (response.status === 200 || response.status === 201) {
+              this.results = response.data
+              console.log(this.results)
+
+              this.noResult = false
+            }
+            // reject errors & warnings
+          }
+        })
+        .catch((error)=>{
+          console.log(error)
+        })
+      
+      console.log("send to: " + (endpoint))
+      console.log(this.results)
+
+      /*
+      axios.post('https://example.com/postSomething', {
+ email: varEmail, //varEmail is a variable which holds the email
+ password: varPassword
+},
+{
+  headers: {
+    Authorization: 'Bearer ' + varToken
+  }
+}) */
+
+
+/*
+axios({
+  method: 'post', //you can set what request you want to be
+  url: 'https://example.com/request',
+  data: {id: varID},
+  headers: {
+    Authorization: 'Bearer ' + varToken
+  }
+})
+*/
+      },
+
+
+
       onUpload(){
         console.log("uploaded")
       },
@@ -292,49 +413,10 @@ export default Vue.extend({
       console.log("history uploaded")
     },*/
 
-    async handleSearch() {
-      console.log("search results: ")
-      var query = this.searchQuery
-      if (query != null){
-        query = query.split(' ').join('_')
-      }
+    
 
-      var endpoint = `http://127.0.0.1:8000/search_his?query=${query}`
-      endpoint = `https://api.adviceslip.com/advice/search/${query}` // TODO
-
-      await axios.get(endpoint)
-      .then((response)=>{
-        this.results = response.data.slips
-        console.log(this.results)
-
-        this.noResult = false
-      })
-      .catch((error)=>{
-        console.log(error)
-      })
-
-      
-      //this.results.value = fetch(`https://api/?q=${this.searchQuery.value}`)
-      //  .then(res => res.json())
-      //  .then(data => data.results);
-      //this.searchQuery = "";
-      },
 
     },
-
-    async created() {
-      this.handleView();
-      window.addEventListener('resize', this.handleView);
-
-      const searchQuery = ref("");
-      const results = ref([]);
-      //await this.handleView();
-
-      return {
-        searchQuery,
-        results,
-      }
-  },
 
 
   })
