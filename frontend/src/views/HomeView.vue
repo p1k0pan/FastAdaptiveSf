@@ -231,7 +231,7 @@ export default Vue.extend({
         // ------------------
         axios.get('/' + `search_his?query=${query}`)
         .then((res) => {
-          this.results = res.data;
+          this.results = res.data["title"];
         })
         .catch((error) => {
           console.error(error);
