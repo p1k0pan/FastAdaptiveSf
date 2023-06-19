@@ -61,5 +61,7 @@ async def search_query_history(query:str=""):
 
     query_corpus_result= con.search_query_history(query,corpus_embeddings=corpus_embeddings, client=client)
 
-    return {"title": query_corpus_result["title"].tolist(), "title": query_corpus_result["title"].tolist(), "urls": query_corpus_result['url'].tolist()}
+    # return {"title": query_corpus_result["title"].tolist(), "urls": query_corpus_result['url'].tolist()}
+    return {"title": "test"}
+
 
