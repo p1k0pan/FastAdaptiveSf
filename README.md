@@ -14,6 +14,16 @@ pip install -r requirements.txt <br />
 python -m nltk.downloader stopwords <br />
 run `uvicorn main:app --reload`
 
+## docker
+docker compose build
+--> docker compose up
+
+
+python manage.py makemigrations
+python manage.py migrate
+
+python manage.py createsuperuser
+
 ## search
 
 example: http://127.0.0.1:8000/search_his?query=start_my_own_restaurant
