@@ -2,8 +2,7 @@ version: "3.8"
 services:
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile
+      dockerfile: ./deploy/server/Dockerfile
     # command: uvicorn main:app --reload --host 0.0.0.0
     ports:
       - 8000:8000
@@ -18,7 +17,8 @@ services:
     image: redis:6.2-alpine
 
   postgres:
-    image: postgres:13.4
+    build:
+      dockerfile: ./deploy/database/Dockerfile
     restart: always
     environment:
       POSTGRES_USER: admin

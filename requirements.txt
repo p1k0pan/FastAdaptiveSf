@@ -4,3 +4,5 @@ transformers
 sentence-transformers
 fastapi[all]
 gradio_client
+sqlalchemy
+psycopg2-binary
