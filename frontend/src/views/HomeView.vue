@@ -102,8 +102,8 @@
             <div class="container"></div>
           </div>
 
-          <div class="col-xs-6 col-md-7 ms-auto" v-if="noResult != null">
-            <div class="cards" v-if="results && results.length > 0">
+          <div class="col-xs-6 col-md-7 ms-auto">
+            <div class="cards" v-if="results.length > 0">
               <ul class="list-group">
                 <li
                   class="list-group-item"
@@ -135,7 +135,6 @@
                   </div>
                 </li>
               </ul>
-
               <!-- <Card v-for="result in results" :key="result" :result="result" /> -->
             </div>
 
@@ -144,46 +143,44 @@
             </div>
           </div>
 
-          <div class="col-xs-6 col-md-7 ms-auto" v-else></div>
-
           <div class="col-xs-6 col-md-3">Recommendations</div>
         </div>
       </div>
     </main>
 
     <p>{{ msg }}</p>
-    <p>{{ title }}</p>
+
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-// Imports
-import { ref } from "vue";
-import axios from "axios";
-import FileUpload from "primevue/fileupload";
-import FileUploadField from "@/components/FileUploadField.vue";
-//import FileUpload from "primevue/fileupload"
-//import Navigation from "@/components/NavigationBar.vue";
-//import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
+  // Imports
+  import Vue from 'vue'
+  import { ref } from "vue";
+  import axios from "axios";
+  import FileUpload from "primevue/fileupload";
+  import FileUploadField from "@/components/FileUploadField.vue";
+  //import FileUpload from "primevue/fileupload"
+  //import Navigation from "@/components/NavigationBar.vue";
+  //import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
 
-const dropzoneOpen = ref(false);
+  const dropzoneOpen = ref(false);
 
-export default Vue.extend({
-  name: "Home",
+  export default Vue.extend({
+    name: 'Home',
 
-  components: {
-    FileUpload,
-    FileUploadField,
-  },
+    components: {
+      FileUpload,
+      FileUploadField,
+    },
 
-  data() {
+    data() {
     return {
       results: [],
       searchQuery: "",
+      firstSearch: true,
       exampleThumbnail:
         "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-      noResult: false,
 
       history: [],
 
@@ -195,11 +192,11 @@ export default Vue.extend({
       showFileSelect: true,
 
       msg: [],
-      title: [],
     };
-  },
+    },
 
-  async created() {
+
+    created() { // async --> API ERROR WITH AXIOS
     this.getMessage();
 
     this.handleView();
@@ -213,13 +210,15 @@ export default Vue.extend({
       searchQuery,
       results,
     };
-  },
+    },
 
-  beforeMount() {
-    // this.fetch()
-  },
+    beforeMount() {
+      // this.fetch()
+    },
 
-  methods: {
+
+    methods: {
+
     getMessage() {
       axios
         .get("/")
@@ -231,7 +230,7 @@ export default Vue.extend({
         });
     },
 
-    async handleSearch() {
+    async handleSearch() { // async 
       console.log("generating results ...");
 
       var query = this.searchQuery;
@@ -239,38 +238,13 @@ export default Vue.extend({
         query = query.split(" ").join("_");
       }
 
-      var endpoint = `http://127.0.0.1:8000/search_his?query=${query}`;
-      //endpoint = `https://api.adviceslip.com/advice/search/${query}` // TODO
-
       // ------------------
-      // ------------------
-      // ------------------
-      axios
-        .get("/" + `search_his?query=${query}`)
-        .then((res) => {
-          this.results = res.data;
-          this.title = res.data["title"];
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-
-      console.log("-------------");
-      console.log("-------------");
-      console.log("-------------");
-      console.log("-------------");
-      console.log("-------------");
-      console.log(this.results);
-      console.log("-------------");
-      console.log("-------------");
-      console.log("-------------");
-      console.log("-------------");
-      console.log("-------------");
-      console.log("-------------");
+      var endpoint = "/" + `search_his?query=${query}` // `http://127.0.0.1:8000/search_his?query=${query}`;
+      //endpoint = `https://api.adviceslip.com/advice/search/${query}` // placeholder
       // ------------------
 
-      await axios
-        .get(endpoint, {
+      await axios // await
+      .get(endpoint, {
           headers: {
             //'Access-Control-Allow-Origin': '*', // NOT WORKING
             //'Content-type': 'application/json', // NOT WORKING
@@ -282,9 +256,14 @@ export default Vue.extend({
             // return success
             if (response.status === 200 || response.status === 201) {
               this.results = response.data;
-              console.log(this.results);
-
-              this.noResult = false;
+              this.firstSearch = false;
+              console.log(response.data["title"])
+              console.log("---")
+              console.log(response.data["urls"])
+              console.log("---")
+              console.log("full:")
+              console.log(response.data)
+              console.log("----------")
             }
             // reject errors & warnings
           }
@@ -293,32 +272,17 @@ export default Vue.extend({
           console.log(error);
         });
 
-      console.log("send to: " + endpoint);
-      console.log(this.results);
+        console.log("print this when the request is finished!")
+        console.log(this.results.length)
+        console.log(this.results === undefined || this.results.length == 0)
+        console.log("---")
+        console.log(this.results)
+        console.log("----------")
 
-      /*
-      axios.post('https://example.com/postSomething', {
- email: varEmail, //varEmail is a variable which holds the email
- password: varPassword
-},
-{
-  headers: {
-    Authorization: 'Bearer ' + varToken
-  }
-}) */
+      },
+      
 
-      /*
-axios({
-  method: 'post', //you can set what request you want to be
-  url: 'https://example.com/request',
-  data: {id: varID},
-  headers: {
-    Authorization: 'Bearer ' + varToken
-  }
-})
-*/
-    },
-
+    
     onUpload() {
       console.log("uploaded");
     },
@@ -348,36 +312,6 @@ axios({
       this.history = [];
     },
 
-    /*onUpload({
-      event: Event) {
-      // EventTarget; // currentTarget
-
-      if ((event.target as HTMLInputElement) != null && (event.target as HTMLInputElement).files != null) {
-
-        this.history = (event.target as HTMLInputElement).files[0]; //event.files;
-        return;
-      }
-
-
-
-
-      const target = event.target as Element;
-      if (target) console.log(target.value);
-      this.history = event.files[0]; //event.files;
-      let file = (event.target as HTMLInputElement).files[0];
-
-      const formData = new FormData();
-        formData.append('history', this.history);
-        const headers = { 'Content-Type': 'multipart/form-data' };// "application/json"
-        axios.post('https://httpbin.org/post', formData, { headers }).then((res) => {
-          console.log(res)
-          res.data.files; // binary representation of the file
-          res.status; // HTTP status
-        });
-
-      console.log(this.history)
-      console.log("history uploaded")
-    },*/
 
     fetch() {
       this.$store.dispatch("websocketChangeFunctionality", "all vaccinations");
@@ -390,46 +324,12 @@ axios({
     toggleDropzone() {
       this.dropzoneOpen = !dropzoneOpen;
       console.log("dropzone: " + String(this.dropzoneOpen));
+    }, 
+
     },
-
-    /*handleHistoryUpload(event) {
-      this.history = this.$refs.history.files[0];
-
-      const formData = new FormData();
-        formData.append('history', this.history);
-        const headers = { 'Content-Type': 'multipart/form-data' };
-        axios.post('https://httpbin.org/post', formData, { headers }).then((res) => {
-          res.data.files; // binary representation of the file
-          res.status; // HTTP status
-        });
-
-      console.log(this.history)
-      console.log("history uploaded")
-      for (let i = 0; i < this.history.length; i++) {
-        console.log(this.history[i])
-      }
-
-      this.$refs.dropzoneOpen = false
-    },
-
-    handleHistoryUploadWithEvent(event) {
-      this.history = event.target.files[0]; //event.files;
-
-      const formData = new FormData();
-        formData.append('history', this.history);
-        const headers = { 'Content-Type': 'multipart/form-data' };
-        axios.post('https://httpbin.org/post', formData, { headers }).then((res) => {
-          console.log(res)
-          res.data.files; // binary representation of the file
-          res.status; // HTTP status
-        });
-
-      console.log(this.history)
-      console.log("history uploaded")
-    },*/
-  },
-});
+  })
 </script>
+
 
 <style lang="scss">
 @import url("https://use.fontawesome.com/releases/v5.9.0/css/all.css");
