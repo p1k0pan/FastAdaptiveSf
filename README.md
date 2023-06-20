@@ -47,3 +47,85 @@ return:
   ]
 }
 ```
+
+## Crud
+### get all user
+example: http://127.0.0.1:8000/user (GET)
+
+response:
+```json
+{
+    "code": "200",
+    "status": "Ok",
+    "message": "Success fetch all data",
+    "result": [
+        {
+            "user_name": "user2",
+            "password": "user1_1234",
+            "histories": null
+        },
+        {
+            "user_name": "user1",
+            "password": "u1_1234",
+            "histories": [
+                "1234",
+                "gjsodng",
+                "bnon4reo"
+            ]
+        }
+    ]
+}
+```
+### create a user
+example: http://127.0.0.1:8000/user (POST)
+
+request:
+```json
+{
+    "user_name": "user5",
+    "password" : "user5_1234",
+    "histories": null
+}
+```
+
+response:
+```json
+{
+    "code": "200",
+    "status": "Ok",
+    "message": "User created successfully",
+    "result": {
+        "user_name": "user5",
+        "password": "user5_1234",
+        "histories": null
+    }
+}
+```
+### update histories
+example: http://127.0.0.1:8000/user (patch)
+
+request: 
+```json
+{
+    "user_name": "user5",
+    "histories": ["file1", "file2", "file3"]
+}
+```
+
+response:
+```json
+{
+    "code": "200",
+    "status": "Ok",
+    "message": "Success update data",
+    "result": {
+        "user_name": "user5",
+        "password": "user5_1234",
+        "histories": [
+            "file1",
+            "file2",
+            "file3"
+        ]
+    }
+}
+```
