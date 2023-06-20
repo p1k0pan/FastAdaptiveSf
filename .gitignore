@@ -9,6 +9,7 @@ __pycache__/
 
 # database data
 postgres-data/
+my-project/
 
 # C extensions
 *.so
