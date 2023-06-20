@@ -89,7 +89,7 @@ async def create_user(request: schema.UserSchema, db: Session = Depends(get_db))
     _user = crud.create_user(db, user=request)
     return schema.Response(status="Ok",
                     code="200",
-                    message="Book created successfully", result=_user)
+                    message="User created successfully", result=_user)
 
 @app.patch("/user")
 async def update_histories(request: schema.UserSchema, db: Session = Depends(get_db)):
