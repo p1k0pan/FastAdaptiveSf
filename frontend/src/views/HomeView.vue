@@ -111,8 +111,8 @@
               <ul class="list-group">
                 <li
                   class="list-group-item"
-                  v-for="item in results"
-                  :key="item.id"
+                  v-for="itemDict in results"
+                  :key="itemDict[0]"
                 >
                   <div class="card text-bg-white mb-3" style="max-width: 700px">
                     <div class="row g-0">
@@ -123,15 +123,17 @@
                           alt="..."
                         />
                       </div>
+                      
                       <div class="col-md-8">
-                        <div class="card-header">{{ item.advice }}</div>
+                        <div class="card-header">{{ itemDict[5] }}</div>
                         <div class="card-body">
-                          <h5 class="card-title">{{ item.advice }}</h5>
-                          <p class="card-text">{{ item.views }}</p>
+                          <h5 class="card-title">{{ itemDict[1] }}</h5>
+                          <p class="card-text">{{ itemDict[0] }}</p>
                           <p class="card-text">
                             <small class="text-body-secondary">
-                              {{ item.date }}</small
-                            >
+                              {{ itemDict[3] }}</small>
+                            <small class="text-body-secondary">
+                              {{ itemDict[4] }}</small>
                           </p>
                         </div>
                       </div>
@@ -279,14 +281,46 @@
           if (response.data) {
             // return success
             if (response.status === 200 || response.status === 201) {
-              this.results = response.data;
+              //this.results = response.data;
+              
+              this.results = []
+              const result: any[] = [];
+
+              var titles = response.data["title"];
+              var urls = response.data["urls"];
+              var authors = response.data["authors"];
+              var timestamps = response.data["timestamp"];
+              var tags = response.data["tags"];
+              // var texts = response.data["text"];
+
+              for (let i = 0; i < titles.length; i++) {
+                var dict = {
+                  "id": i,
+                  "title": titles[i],
+                  "urls": urls[i],
+                  "authors": authors[i],
+                  "timestamps": timestamps[i],
+                  "tags": tags[i],
+                  //"texts": texts[0],
+                };
+
+                result.push(dict);
+              } 
+              this.results = result
               this.firstSearch = false;
-              console.log(response.data["title"])
+              
+              console.log("----------")
+              console.log(titles)
               console.log("---")
-              console.log(response.data["urls"])
+              console.log(urls)
               console.log("---")
-              console.log("full:")
-              console.log(response.data)
+              console.log(authors)
+              console.log("---")
+              console.log(timestamps)
+              console.log("---")
+              console.log(tags)
+              //console.log("---")
+              //console.log(texts)
               console.log("----------")
             }
             // reject errors & warnings
