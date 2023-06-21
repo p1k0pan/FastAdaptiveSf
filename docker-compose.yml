@@ -1,17 +1,17 @@
 version: "3.8"
 services:
-  backend:
-    build:
-      dockerfile: ./deploy/server/Dockerfile
-    # command: uvicorn main:app --reload --host 0.0.0.0
-    ports:
-      - 8000:8000
-    depends_on:
-      - redis
-      - postgres
-    links:
-      - redis
-      - postgres
+  # backend:
+  #   build:
+  #     dockerfile: ./deploy/server/Dockerfile
+  #   # command: uvicorn main:app --reload --host 0.0.0.0
+  #   ports:
+  #     - 8000:8000
+  #   depends_on:
+  #     - redis
+  #     - postgres
+  #   links:
+  #     - redis
+  #     - postgres
 
   redis:
     image: redis:6.2-alpine
