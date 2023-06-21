@@ -39,8 +39,13 @@ Vue.use(PrimeVue)
 Vue.use(ToastService)
 
 
-axios.defaults.withCredentials = true;
+var userDocker = false
+
+var local = 'http://127.0.0.1:8000/';
+var docker = 'http://localhost:5432/';
+//axios.defaults.baseURL = userDocker ? docker : local; // 'http://localhost:5000/';  // the FastAPI backend
 axios.defaults.baseURL = 'http://127.0.0.1:8000/'; // 'http://localhost:5000/';  // the FastAPI backend
+axios.defaults.withCredentials = true;
 Vue.config.productionTip = false
 
 new Vue({

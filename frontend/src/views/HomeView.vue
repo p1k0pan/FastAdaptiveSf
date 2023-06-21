@@ -100,7 +100,7 @@
     </nav>
 
     <main>
-      <div class="container-fluid" v-if="isLoggedIn" id="logout">
+      <div class="container-fluid" v-if="!isLoggedIn" id="logout">
         <div class="row display-flex no-gutters">
           <div class="col-xs-6 col-md-2">
             <div class="container"></div>
