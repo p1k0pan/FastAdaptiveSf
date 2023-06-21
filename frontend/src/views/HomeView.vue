@@ -66,6 +66,10 @@
               </b-dropdown-item>
             </b-nav-item-dropdown>
           </li>
+
+          <li class="nav-item active">
+              <a class="nav-link" @click="logout">Log Out</a>
+          </li>
         </ul>
 
         <div class="container">
@@ -96,7 +100,7 @@
     </nav>
 
     <main>
-      <div class="container-fluid">
+      <div class="container-fluid" v-if="isLoggedIn" id="logout">
         <div class="row display-flex no-gutters">
           <div class="col-xs-6 col-md-2">
             <div class="container"></div>
@@ -146,8 +150,13 @@
           <div class="col-xs-6 col-md-3">Recommendations</div>
         </div>
       </div>
+
+      <div class="container-fluid" v-else>
+        <LoginForm />
+      </div>
     </main>
 
+    <p>{{ loginStatus }}</p>
     <p>{{ msg }}</p>
 
   </div>
@@ -160,6 +169,7 @@
   import axios from "axios";
   import FileUpload from "primevue/fileupload";
   import FileUploadField from "@/components/FileUploadField.vue";
+  import LoginForm from "@/components/LoginForm.vue";
   //import FileUpload from "primevue/fileupload"
   //import Navigation from "@/components/NavigationBar.vue";
   //import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
@@ -172,6 +182,7 @@
     components: {
       FileUpload,
       FileUploadField,
+      LoginForm,
     },
 
     data() {
@@ -192,6 +203,7 @@
       showFileSelect: true,
 
       msg: [],
+      loginStatus: false,
     };
     },
 
@@ -212,12 +224,24 @@
     };
     },
 
+    computed: {
+      isLoggedIn: function() {
+        this.loginStatus = this.$store.getters.isAuthenticated;
+        return this.$store.getters.isAuthenticated;
+      }
+    },
+
     beforeMount() {
       // this.fetch()
     },
 
 
     methods: {
+
+    async logout () {
+      await this.$store.dispatch('logOut');
+      this.$router.push('/');
+    },
 
     getMessage() {
       axios
@@ -387,7 +411,8 @@ body {
   margin-right: 10px;
 }
 
-.dropzone {
+a{
+  cursor: pointer;
 }
 
 .file-drop-area {
