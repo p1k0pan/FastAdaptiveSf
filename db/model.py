@@ -1,5 +1,6 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, ARRAY
-from sqlalchemy.orm import relationship
+from sqlalchemy import  Column, String
+
+from sqlalchemy.dialects.postgresql import JSONB
 
 from . import config 
 
@@ -10,4 +11,4 @@ class User(Base):
 
     user_name = Column(String, primary_key=True)
     password = Column(String)
-    histories = Column(ARRAY(String))
+    histories = Column(JSONB)

@@ -155,14 +155,18 @@ response:
 
 ### update histories
 
-example: http://127.0.0.1:8000/user (patch)
+example: http://127.0.0.1:8000/user (PATCH)
 
 request:
 
 ```json
 {
-  "user_name": "user5",
-  "histories": ["file1", "file2", "file3"]
+  "user_name": "user1",
+  "upload_urls": [
+    "https://www.aljazeera.com/news/2023/4/19/thousands-try-to-flee-sudan-as-truce-fails",
+    "https://www.aljazeera.com/news/2023/4/19/diplomats-aid-workers-under-attack-in-nightmare-sudan-violence",
+    "https://english.alarabiya.net/News/world/2023/04/19/Russia-s-private-Wagner-Group-denies-it-is-operating-in-Sudan"
+  ]
 }
 ```
 
@@ -170,13 +174,12 @@ response:
 
 ```json
 {
-  "code": "200",
-  "status": "Ok",
-  "message": "Success update data",
-  "result": {
-    "user_name": "user5",
-    "password": "user5_1234",
-    "histories": ["file1", "file2", "file3"]
-  }
-}
+    "code": "200",
+    "status": "Ok",
+    "message": "Success update data",
+    "result": {
+        "password": "u1_1234",
+        "user_name": "user1"
+        "histories":"{\n  \"https://www.aljazeera.com/news/2023/4/19/thousands-try-to-flee-sudan-as-truce-fails\": \"Khartoum residents struggle with power cuts, water shortage as fighting rages for fifth day.\\n\\nA new ceasefire\", \n  \"https://www.aljazeera.com/news/2023/4/19/diplomats-aid-workers-under-attack-in-nightmare-sudan-violence\": \"Endre Stiansen, the Norwegian ambassador to Sudan, said the \‘urban warfare\’ in Khartoum is unprecedented.\"
+    }
 ```
