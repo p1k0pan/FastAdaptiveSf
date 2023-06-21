@@ -1,5 +1,5 @@
-from typing import List, Optional, Generic, TypeVar
-from pydantic import BaseModel , Field
+from typing import List, Optional, Generic, TypeVar, Dict
+from pydantic import BaseModel  
 from pydantic.generics import GenericModel
 
 T = TypeVar('T')
@@ -8,7 +8,8 @@ T = TypeVar('T')
 class UserSchema(BaseModel):
     user_name: Optional[str] = None
     password: Optional[str] = None
-    histories: Optional[List[str]] = None
+    histories: Optional[Dict] = None
+    upload_urls: Optional[List[str]]= None
 
     class Config:
         orm_mode = True

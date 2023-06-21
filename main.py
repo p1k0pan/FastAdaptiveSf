@@ -97,6 +97,6 @@ async def create_user(request: schema.UserSchema, db: Session = Depends(get_db))
 
 @app.patch("/user")
 async def update_histories(request: schema.UserSchema, db: Session = Depends(get_db)):
-    _user = crud.update_history(db, user_name=request.user_name, histories=request.histories)
+    _user = crud.update_history(db, user_name=request.user_name, upload_urls=request.upload_urls)
     return schema.Response(status="Ok", code="200", message="Success update data", result=_user)
 
