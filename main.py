@@ -68,7 +68,7 @@ async def search_query(query:str=""):
     query_corpus_result= con.search_query(query,corpus_embeddings=corpus_embeddings, client=client)
 
     return {"title": query_corpus_result["title"].tolist(), "urls": query_corpus_result['url'].tolist(),
-            "authors": query_corpus_result['authors'].tolist(), "timestamps":query_corpus_result['timestamps'].tolist(),
+            "authors": query_corpus_result['authors'].tolist(), "timestamp":query_corpus_result['timestamp'].tolist(),
             "tags": query_corpus_result['tags'].tolist(), "text": query_corpus_result['text'].tolist()}
 
 @app.get("/search_his")
