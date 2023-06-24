@@ -14,6 +14,7 @@ corpus_embeddings = None # model from main dataset
 client=None
 
 # connect database
+"""
 model.Base.metadata.create_all(bind=config.engine)
 def get_db():
     db = config.SessionLocal()
@@ -21,7 +22,7 @@ def get_db():
         yield db
     finally:
         db.close()
-
+"""
 app = FastAPI()
 
 @asynccontextmanager
@@ -82,7 +83,7 @@ async def search_query_history(query:str=""):
             "tags": query_corpus_result['tags'].tolist(), "text": query_corpus_result['text'].tolist()}
     # return {"title": "test"}
 
-
+"""
 @app.get('/user')
 async def get_user(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     _users = crud.get_all_user(db, skip, limit)
@@ -99,4 +100,4 @@ async def create_user(request: schema.UserSchema, db: Session = Depends(get_db))
 async def update_histories(request: schema.UserSchema, db: Session = Depends(get_db)):
     _user = crud.update_history(db, user_name=request.user_name, upload_urls=request.upload_urls)
     return schema.Response(status="Ok", code="200", message="Success update data", result=_user)
-
+"""

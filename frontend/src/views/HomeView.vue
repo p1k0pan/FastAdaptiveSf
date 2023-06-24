@@ -66,10 +66,6 @@
               </b-dropdown-item>
             </b-nav-item-dropdown>
           </li>
-
-          <li class="nav-item active">
-            <a class="nav-link" @click="logout">Log Out</a>
-          </li>
         </ul>
 
         <div class="container">
@@ -96,6 +92,10 @@
             <!-- </form> -->
           </div>
         </div>
+
+        <li class="nav-item active">
+          <a class="nav-link" @click="logout">Log Out</a>
+        </li>
       </div>
     </nav>
 
@@ -111,9 +111,10 @@
               <ul class="list-group">
                 <li
                   class="list-group-item"
-                  v-for="itemDict in results"
-                  :key="itemDict[0]"
+                  v-for="(itemDict, index) in results"
+                  :key="index"
                 >
+                  <!--
                   <div class="card text-bg-white mb-3" style="max-width: 700px">
                     <div class="row g-0">
                       <div class="col-md-4">
@@ -125,22 +126,57 @@
                       </div>
 
                       <div class="col-md-8">
-                        <div class="card-header">{{ itemDict[5] }}</div>
+                        <div class="card-header">{{ itemDict["tags"] }}</div>
                         <div class="card-body">
-                          <h5 class="card-title">{{ itemDict[1] }}</h5>
-                          <p class="card-text">{{ itemDict[0] }}</p>
+                          <h5 class="card-title">{{ itemDict["title"] }}</h5>
+                          <p class="card-text">{{ itemDict["summary"] }}</p>
                           <p class="card-text">
                             <small class="text-body-secondary">
-                              {{ itemDict[3] }}</small
+                              {{ itemDict["authors"] }}</small
                             >
                             <small class="text-body-secondary">
-                              {{ itemDict[4] }}</small
+                              {{ itemDict["timestamp"] }}</small
                             >
                           </p>
                         </div>
                       </div>
                     </div>
                   </div>
+                  -->
+
+                  <b-card no-body class="overflow-hidden mb-3" img-src="https://placekitten.com/300/300" img-alt="Card image" img-left>
+                    <b-row no-gutters>
+                        <b-card-header>
+                          <div class="tag-input">
+                            <ul class="tags">
+                              <li v-for='(tag, index) in formatTags(itemDict["tags"])' :key="tag + index" class="tag">
+                                {{ tag.replace("'", "").replace("'", "") }}
+                              </li>
+                            </ul>
+                          </div>
+                        </b-card-header>
+                        <b-card-body class="h-100 d-flex flex-column">
+                          <b-card-title title-tag="h5" :href="itemDict['url']">{{itemDict["title"]}}</b-card-title>
+                          <b-card-text>
+                          <p>{{ itemDict["summary"] }}</p>
+                          </b-card-text>
+                        </b-card-body>
+                        
+                        
+                        <b-card-text class="small text-muted">
+                            <div style="display: flex; justify-content: space-between;">
+                              <li v-for='(author, index) in formatAuthors(itemDict["authors"])' :key="author + index" class="author">
+                                {{ author.replace("'", "").replace("'", "") }}
+                              </li>
+                              <p> {{ formatDate(itemDict["timestamp"]) }} </p>
+                            </div>
+                        </b-card-text>
+
+                        <b-card-footer>
+                        </b-card-footer>
+                    </b-row>
+                  </b-card>
+
                 </li>
               </ul>
               <!-- <Card v-for="result in results" :key="result" :result="result" /> -->
@@ -170,6 +206,8 @@
 import Vue from "vue";
 import { ref } from "vue";
 import axios from "axios";
+import dayjs from 'dayjs';
+
 import FileUpload from "primevue/fileupload";
 import FileUploadField from "@/components/FileUploadField.vue";
 import LoginForm from "@/components/LoginForm.vue";
@@ -244,6 +282,33 @@ export default Vue.extend({
       this.$router.push("/");
     },
 
+    formatDate(date: any) {
+      const dateToFormat = dayjs(date);
+      return dateToFormat.format('dddd MMMM D, YYYY');
+    },
+
+    formatTags(tags: any) {
+      let temp = new Array(tags);
+      let tagsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
+      console.log(tagsArray )
+      for (let i = 0; i < tagsArray.length; i++) {
+        console.log(tagsArray [i])
+      }
+      return tagsArray
+    },
+
+    formatAuthors(authors: any){
+      //authors = JSON.parse(authors.replace(/,]$/, ']').replace(/'/g, '"'))
+      //authors.replace(/\[|\]/g,'').split(',')
+      let temp = new Array(authors);
+      let authorsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
+      console.log(authorsArray)
+      for (let i = 0; i < authorsArray.length; i++) {
+        console.log(authorsArray[i])
+      }
+      return authorsArray
+    },
+
     getMessage() {
       axios
         .get("/")
@@ -294,14 +359,23 @@ export default Vue.extend({
               // var texts = response.data["text"];
 
               for (let i = 0; i < titles.length; i++) {
+                titles[i] = JSON.stringify(titles[i])
+                urls[i] = JSON.stringify(urls[i])
+                authors[i] = JSON.stringify(authors[i])
+                timestamps[i] = JSON.stringify(timestamps[i])
+                tags[i] = JSON.stringify(tags[i])
+                // texts[i] = JSON.parse(text[i])
+
                 var dict = {
                   id: i,
                   title: titles[i],
-                  urls: urls[i],
+                  url: urls[i],
                   authors: authors[i],
-                  timestamps: timestamps[i],
+                  timestamp: timestamps[i],
                   tags: tags[i],
                   //"texts": texts[0],
+                  summary: 
+                  "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
                 };
 
                 result.push(dict);
@@ -322,6 +396,8 @@ export default Vue.extend({
               //console.log("---")
               //console.log(texts)
               console.log("----------");
+              
+              
             }
             // reject errors & warnings
           }
@@ -493,6 +569,39 @@ a {
   transform: translateY(-50%);
   margin-right: 0 !important;
 }
+
+.cards
+{
+    display: inline;
+}
+
+.tag-input {
+  position: relative;
+}
+
+ul{
+  top: 0;
+  bottom: 0;
+  left: 10px;
+  list-style: none;
+  list-style-position: outside;
+  display: flex;
+  gap: 6px;
+  max-width: 100%;
+}
+
+
+.tag {
+  background: rgb(250, 104, 104);
+  padding: 5px;
+  border-radius: 4px;
+  color: white;
+  white-space: nowrap;
+  transition: 0.1s ease background;
+}
+
+
+
 
 /* Small devices (landscape phones, 544px and up) */
 @media (min-width: 544px) {
