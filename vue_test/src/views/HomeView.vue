@@ -68,7 +68,7 @@
           </li>
 
           <li class="nav-item active">
-              <a class="nav-link" @click="logout">Log Out</a>
+            <a class="nav-link" @click="logout">Log Out</a>
           </li>
         </ul>
 
@@ -99,42 +99,34 @@
       </div>
     </nav>
 
-    <main>
-    </main>
+    <main></main>
 
     <p>{{ msg }}</p>
-
   </div>
 </template>
 
-
-
-
-
-
-
 <script lang="ts">
-  // Imports
-  import Vue from 'vue'
-  import { ref } from "vue";
-  import axios from "axios";
-  import FileUpload from "primevue/fileupload";
-  import FileUploadField from "@/components/FileUploadField.vue";
-  //import FileUpload from "primevue/fileupload"
-  //import Navigation from "@/components/NavigationBar.vue";
-  //import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
+// Imports
+import Vue from "vue";
+import { ref } from "vue";
+import axios from "axios";
+import FileUpload from "primevue/fileupload";
+import FileUploadField from "@/components/FileUploadField.vue";
+//import FileUpload from "primevue/fileupload"
+//import Navigation from "@/components/NavigationBar.vue";
+//import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
 
-  const dropzoneOpen = ref(false);
+const dropzoneOpen = ref(false);
 
-  export default Vue.extend({
-    name: 'Home',
+export default Vue.extend({
+  name: "Home",
 
-    components: {
-      FileUpload,
-      FileUploadField,
-    },
+  components: {
+    FileUpload,
+    FileUploadField,
+  },
 
-    data() {
+  data() {
     return {
       results: [],
       searchQuery: "",
@@ -154,24 +146,21 @@
       msg: [],
       loginStatus: false,
     };
-    },
+  },
 
+  created() {
+    // async --> API ERROR WITH AXIOS
+    this.getMessage();
+  },
 
-    created() { // async --> API ERROR WITH AXIOS
-      this.getMessage();
-    },
+  computed: {
+    isLoggedIn: function () {},
+  },
 
-    computed: {
-      isLoggedIn: function() {
-      }
-    },
-
-
-    methods: {
-
-    async logout () {
-      await this.$store.dispatch('logOut');
-      this.$router.push('/');
+  methods: {
+    async logout() {
+      await this.$store.dispatch("logOut");
+      this.$router.push("/");
     },
 
     getMessage() {
@@ -185,7 +174,8 @@
         });
     },
 
-    async handleSearch() { // TODO for tests: remove async
+    async handleSearch() {
+      // TODO for tests: remove async
       console.log("generating results ...");
 
       var query = this.searchQuery;
@@ -194,20 +184,19 @@
       }
 
       // ------------------
-      var endpoint = "/" + `search_his?query=${query}`
+      var endpoint = "/" + `search_his?query=${query}`;
       // ------------------
 
       await axios // TODO for tests: remove await
-      .get(endpoint, {
-          headers: {
-          },
+        .get(endpoint, {
+          headers: {},
         })
         .then((response) => {
           if (response.data) {
             // return success
             if (response.status === 200 || response.status === 201) {
-              console.log("request successful")
-              this.results = []
+              console.log("request successful");
+              this.results = [];
               const result: any[] = [];
 
               var titles = response.data["title"];
@@ -219,37 +208,37 @@
 
               for (let i = 0; i < titles.length; i++) {
                 var dict = {
-                  "id": i,
-                  "title": titles[i],
-                  "urls": urls[i],
-                  "authors": authors[i],
-                  "timestamps": timestamps[i],
-                  "tags": tags[i],
+                  id: i,
+                  title: titles[i],
+                  urls: urls[i],
+                  authors: authors[i],
+                  timestamps: timestamps[i],
+                  tags: tags[i],
                   //"texts": texts[0],
                 };
 
                 result.push(dict);
-              } 
-              this.results = result
+              }
+              this.results = result;
               this.firstSearch = false;
-              
-              console.log("----------")
-              console.log("titles:")
-              console.log(titles)
-              console.log("---")
-              console.log("urls:")
-              console.log(urls)
-              console.log("---")
-              console.log("authors:")
-              console.log(authors)
-              console.log("---")
-              console.log("timestamps:")
-              console.log(timestamps)
-              console.log("---")
-              console.log(tags)
+
+              console.log("----------");
+              console.log("titles:");
+              console.log(titles);
+              console.log("---");
+              console.log("urls:");
+              console.log(urls);
+              console.log("---");
+              console.log("authors:");
+              console.log(authors);
+              console.log("---");
+              console.log("timestamps:");
+              console.log(timestamps);
+              console.log("---");
+              console.log(tags);
               //console.log("---")
               //console.log(texts)
-              console.log("----------")
+              console.log("----------");
             }
             // reject errors & warnings
           }
@@ -258,45 +247,31 @@
           console.log(error);
         });
 
-        console.log("print this when the request is finished!")
-        console.log("length of results array: ")
-        console.log(this.results.length)
-        console.log("Empty condition of results array: ")
-        console.log(this.results === undefined || this.results.length == 0)
-        console.log("---")
-        console.log("Complete results array: ")
-        console.log(this.results)
-        console.log("----------")
+      console.log("print this when the request is finished!");
+      console.log("length of results array: ");
+      console.log(this.results.length);
+      console.log("Empty condition of results array: ");
+      console.log(this.results === undefined || this.results.length == 0);
+      console.log("---");
+      console.log("Complete results array: ");
+      console.log(this.results);
+      console.log("----------");
+    },
 
-      },
-      
-
-    
     onUpload() {
       console.log("uploaded");
     },
 
-    getUploadedData(file: any) {
-    },
+    getUploadedData(file: any) {},
 
+    fetch() {},
 
-    fetch() {
-    },
+    handleView() {},
 
-    handleView() {
-    },
-
-    toggleDropzone() {
-    }, 
-
-    },
-  })
+    toggleDropzone() {},
+  },
+});
 </script>
-
-
-
-
-
 
 <style lang="scss">
 @import url("https://use.fontawesome.com/releases/v5.9.0/css/all.css");
@@ -354,7 +329,7 @@ body {
   margin-right: 10px;
 }
 
-a{
+a {
   cursor: pointer;
 }
 

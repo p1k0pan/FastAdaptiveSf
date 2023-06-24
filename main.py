@@ -52,7 +52,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Hello World from FastAPI"}
 
 @app.get("/docker_test")
 async def docker_test():

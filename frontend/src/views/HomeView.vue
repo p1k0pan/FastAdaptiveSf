@@ -68,7 +68,7 @@
           </li>
 
           <li class="nav-item active">
-              <a class="nav-link" @click="logout">Log Out</a>
+            <a class="nav-link" @click="logout">Log Out</a>
           </li>
         </ul>
 
@@ -85,15 +85,15 @@
             </form>
           </div>
           <div class="item">
-            <form class="form-inline">
-              <button
-                class="btn btn-outline-success my-2 my-sm-0"
-                type="submit"
-                @click="handleSearch"
-              >
-                Search
-              </button>
-            </form>
+            <!-- <form class="form-inline"> -->
+            <button
+              class="btn btn-outline-success my-2 my-sm-0"
+              type="submit"
+              @click="handleSearch"
+            >
+              Search
+            </button>
+            <!-- </form> -->
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@
                           alt="..."
                         />
                       </div>
-                      
+
                       <div class="col-md-8">
                         <div class="card-header">{{ itemDict[5] }}</div>
                         <div class="card-body">
@@ -131,9 +131,11 @@
                           <p class="card-text">{{ itemDict[0] }}</p>
                           <p class="card-text">
                             <small class="text-body-secondary">
-                              {{ itemDict[3] }}</small>
+                              {{ itemDict[3] }}</small
+                            >
                             <small class="text-body-secondary">
-                              {{ itemDict[4] }}</small>
+                              {{ itemDict[4] }}</small
+                            >
                           </p>
                         </div>
                       </div>
@@ -160,34 +162,33 @@
 
     <p>{{ loginStatus }}</p>
     <p>{{ msg }}</p>
-
   </div>
 </template>
 
 <script lang="ts">
-  // Imports
-  import Vue from 'vue'
-  import { ref } from "vue";
-  import axios from "axios";
-  import FileUpload from "primevue/fileupload";
-  import FileUploadField from "@/components/FileUploadField.vue";
-  import LoginForm from "@/components/LoginForm.vue";
-  //import FileUpload from "primevue/fileupload"
-  //import Navigation from "@/components/NavigationBar.vue";
-  //import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
+// Imports
+import Vue from "vue";
+import { ref } from "vue";
+import axios from "axios";
+import FileUpload from "primevue/fileupload";
+import FileUploadField from "@/components/FileUploadField.vue";
+import LoginForm from "@/components/LoginForm.vue";
+//import FileUpload from "primevue/fileupload"
+//import Navigation from "@/components/NavigationBar.vue";
+//import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
 
-  const dropzoneOpen = ref(false);
+const dropzoneOpen = ref(false);
 
-  export default Vue.extend({
-    name: 'Home',
+export default Vue.extend({
+  name: "Home",
 
-    components: {
-      FileUpload,
-      FileUploadField,
-      LoginForm,
-    },
+  components: {
+    FileUpload,
+    FileUploadField,
+    LoginForm,
+  },
 
-    data() {
+  data() {
     return {
       results: [],
       searchQuery: "",
@@ -207,10 +208,10 @@
       msg: [],
       loginStatus: false,
     };
-    },
+  },
 
-
-    created() { // async --> API ERROR WITH AXIOS
+  created() {
+    // async --> API ERROR WITH AXIOS
     this.getMessage();
 
     this.handleView();
@@ -224,25 +225,23 @@
       searchQuery,
       results,
     };
+  },
+
+  computed: {
+    isLoggedIn: function () {
+      this.loginStatus = this.$store.getters.isAuthenticated;
+      return this.$store.getters.isAuthenticated;
     },
+  },
 
-    computed: {
-      isLoggedIn: function() {
-        this.loginStatus = this.$store.getters.isAuthenticated;
-        return this.$store.getters.isAuthenticated;
-      }
-    },
+  beforeMount() {
+    // this.fetch()
+  },
 
-    beforeMount() {
-      // this.fetch()
-    },
-
-
-    methods: {
-
-    async logout () {
-      await this.$store.dispatch('logOut');
-      this.$router.push('/');
+  methods: {
+    async logout() {
+      await this.$store.dispatch("logOut");
+      this.$router.push("/");
     },
 
     getMessage() {
@@ -256,7 +255,8 @@
         });
     },
 
-    async handleSearch() { // async 
+    async handleSearch() {
+      // async
       console.log("generating results ...");
 
       var query = this.searchQuery;
@@ -265,12 +265,12 @@
       }
 
       // ------------------
-      var endpoint = "/" + `search_his?query=${query}` // `http://127.0.0.1:8000/search_his?query=${query}`;
+      var endpoint = "/" + `search_his?query=${query}`; // `http://127.0.0.1:8000/search_his?query=${query}`;
       //endpoint = `https://api.adviceslip.com/advice/search/${query}` // placeholder
       // ------------------
 
       await axios // await
-      .get(endpoint, {
+        .get(endpoint, {
           headers: {
             //'Access-Control-Allow-Origin': '*', // NOT WORKING
             //'Content-type': 'application/json', // NOT WORKING
@@ -282,8 +282,8 @@
             // return success
             if (response.status === 200 || response.status === 201) {
               //this.results = response.data;
-              
-              this.results = []
+
+              this.results = [];
               const result: any[] = [];
 
               var titles = response.data["title"];
@@ -295,33 +295,33 @@
 
               for (let i = 0; i < titles.length; i++) {
                 var dict = {
-                  "id": i,
-                  "title": titles[i],
-                  "urls": urls[i],
-                  "authors": authors[i],
-                  "timestamps": timestamps[i],
-                  "tags": tags[i],
+                  id: i,
+                  title: titles[i],
+                  urls: urls[i],
+                  authors: authors[i],
+                  timestamps: timestamps[i],
+                  tags: tags[i],
                   //"texts": texts[0],
                 };
 
                 result.push(dict);
-              } 
-              this.results = result
+              }
+              this.results = result;
               this.firstSearch = false;
-              
-              console.log("----------")
-              console.log(titles)
-              console.log("---")
-              console.log(urls)
-              console.log("---")
-              console.log(authors)
-              console.log("---")
-              console.log(timestamps)
-              console.log("---")
-              console.log(tags)
+
+              console.log("----------");
+              console.log(titles);
+              console.log("---");
+              console.log(urls);
+              console.log("---");
+              console.log(authors);
+              console.log("---");
+              console.log(timestamps);
+              console.log("---");
+              console.log(tags);
               //console.log("---")
               //console.log(texts)
-              console.log("----------")
+              console.log("----------");
             }
             // reject errors & warnings
           }
@@ -330,17 +330,14 @@
           console.log(error);
         });
 
-        console.log("print this when the request is finished!")
-        console.log(this.results.length)
-        console.log(this.results === undefined || this.results.length == 0)
-        console.log("---")
-        console.log(this.results)
-        console.log("----------")
+      console.log("print this when the request is finished!");
+      console.log(this.results.length);
+      console.log(this.results === undefined || this.results.length == 0);
+      console.log("---");
+      console.log(this.results);
+      console.log("----------");
+    },
 
-      },
-      
-
-    
     onUpload() {
       console.log("uploaded");
     },
@@ -370,7 +367,6 @@
       this.history = [];
     },
 
-
     fetch() {
       this.$store.dispatch("websocketChangeFunctionality", "all vaccinations");
     },
@@ -382,12 +378,10 @@
     toggleDropzone() {
       this.dropzoneOpen = !dropzoneOpen;
       console.log("dropzone: " + String(this.dropzoneOpen));
-    }, 
-
     },
-  })
+  },
+});
 </script>
-
 
 <style lang="scss">
 @import url("https://use.fontawesome.com/releases/v5.9.0/css/all.css");
@@ -445,7 +439,7 @@ body {
   margin-right: 10px;
 }
 
-a{
+a {
   cursor: pointer;
 }
 
