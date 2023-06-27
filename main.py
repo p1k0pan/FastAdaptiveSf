@@ -129,10 +129,18 @@ async def login_to_create_token( user: schema.UserSchema, db: Session =db_sessio
                         message="login success", result=token)
 
 @app.get("/token_verify")
-async def token_verif(request:Request):
+async def token_verif(request:Request,db: Session =db_session):
     try:
         token = request.headers['authorization']
         status, code, msg, result = auth.token_decode(token)
+        if result:
+            # if token not expired, check username
+            _user = crud.get_user(db, result)
+            if not _user:
+                return schema.Response(status="credentials exception",
+                            code="400",
+                            message="token is invalid", result=None)
+
         return schema.Response(status=status, code=code, message=msg, result=result)
     except KeyError:
         return schema.Response(status="Failed", code='404', message="Token not found in Header", result=None)

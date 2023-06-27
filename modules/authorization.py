@@ -26,7 +26,7 @@ def token_decode(token:str):
 
         if current_time > expiration_time:
             # Token has expired
-            return ["Ok", '203', "Token is expired", "expired"]
+            return ["Ok", '203', "Token is expired", None]
         else:
             # Token is valid
             return ["Ok", '200', "Token is valid", payload["user_name"]]
