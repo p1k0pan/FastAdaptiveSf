@@ -2,7 +2,7 @@
   <div class="file-upload">
     <div class="file-upload__area">
       <div v-if="!file.isUploaded">
-        <input type="file" name="" id="" @change="handleFileChange($event)" />
+        <input type="file" name="selectFiles" ref="doc" id="selectFiles" @change="handleFileChange1()" /> <!-- ($event) -->
         <div v-if="errors.length > 0">
           <div
             class="file-upload__error"
@@ -26,9 +26,10 @@
           <button @click="resetFileInput">Change file</button>
         </div>
         <div class="" style="margin-top: 10px">
-          <button @click="sendDataToParent">Select File</button>
+          <button id="import" @click="sendDataToParent">Select File</button>
         </div>
 
+        <pre id="result"></pre>
       </div>
     </div>
   </div>
@@ -47,13 +48,14 @@
     },
     accept: {
       type: String,
-      default: "json,pdf,csv",
+      default: "json,pdf,csv,txt",
     },
     },
 
     data () {
     return {
       errors: [],
+      content: {},
 
       isLoading: false,
       uploadReady: true,
@@ -122,6 +124,73 @@
     
 
 
+    handleFileChange1(event) {
+      console.log("NEW TEST")
+      // https://masteringjs.io/tutorials/vue/file
+
+      // var file = event.target.files[0];
+      var file = this.$refs.doc.files[0];
+      const reader = new FileReader();
+
+      if (file.name.includes(".json")) {
+        console.log("json file is being processed ...")
+        reader.onload = (res) => {
+          //console.log(res.target.result);
+          this.content = res.target.result;
+          //this.content.push(res.target.result);
+        };
+
+        reader.onerror = (err) => console.log(err);
+        reader.readAsText(file);
+
+      } else if (file.name.includes(".csv")) {
+        console.log("csv file is being processed ...")
+        reader.onload = (res) => {
+          //console.log(res.target.result);
+          this.content = res.target.result;
+        };
+
+        reader.onerror = (err) => console.log(err);
+        reader.readAsText(file);
+
+      } else if (file.name.includes(".txt")) {
+        console.log("txt file is being processed ...")
+        reader.onload = (res) => {
+          //console.log(res.target.result);
+          this.content = res.target.result;
+        };
+
+        reader.onerror = (err) => console.log(err);
+        reader.readAsText(file);
+
+      } else if (file.name.includes(".pdf")) {
+        console.log("pdf file is being 6 ...")
+        reader.onload = (res) => {
+          //console.log(res.target.result);
+          this.content = res.target.result;
+        };
+
+        reader.onerror = (err) => console.log(err);
+        reader.readAsText(file);
+
+      } else {
+        console.log("error: wrong file format");
+        reader.onload = (res) => {
+          //console.log(res.target.result);
+        };
+
+      }
+
+      this.result = [];
+      //const result = JSON.parse(e.target.result);
+      //const formatted = JSON.stringify(result, null, 2);
+      //document.getElementById('result').innerHTML = formatted;
+      console.log(this.content)
+      for (let i = 0; i < this.content.length; i++) {
+        //result.push(this.content[i]);
+      } 
+      
+    },
 
     handleFileChange(e) {
       this.errors = [];
@@ -135,8 +204,6 @@
             userId = "0",
             // Get file size
             fileSize = Math.round((file.size / 1024 / 1024) * 100) / 100,
-            // HISTORY CONTENT
-            body = file,
             // Get file extension
             fileExtention = file.name.split(".").pop(),
             // Get file name
@@ -144,7 +211,30 @@
             // metadata
             metadata = [],
             // Check if file is of the correct type
-            isHistory = ["json", "pdf", "csv",].includes(fileExtention);
+            isHistory = ["json", "pdf", "csv", "txt"].includes(fileExtention);
+
+            var body = [];
+            // HISTORY CONTENT
+            if (file.type === "application/json") {
+              body = file
+              console.log("HERE")
+              console.log(e.target)
+
+            } else if (file.type === "application/csv") { // TODO
+              body = file
+
+            } else if (file.type === "application/pdf") { // TODO
+              body = file
+
+            } else if (file.type === "application/txt") { // TODO
+              body = file
+
+            } else {
+              body = null
+
+            }
+          
+
           // Print to console
           console.log(fileSize, fileExtention, fileName, isHistory);
 
@@ -194,8 +284,11 @@
 
 
     sendDataToParent() {
-      this.resetFileInput();
+      console.log("sendDataToParent")
+      console.log(this.file)
       this.$emit("file-uploaded", this.file);
+      this.resetFileInput();
+      this.$refs.form.reset();
     },
     
     },

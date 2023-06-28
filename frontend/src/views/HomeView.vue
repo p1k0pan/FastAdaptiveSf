@@ -44,14 +44,14 @@
 
                   <b-modal id="modal-1" title="Upload your history!">
                     <div>
-                      <button @click="showFileSelect = !showFileSelect">
+                      <button @click="showFileSelect = !showFileSelect" v-if="!fileSelected">
                         Select a file
                       </button>
                     </div>
                     <div v-show="showFileSelect">
                       <FileUploadField
                         :maxSize="1000000"
-                        accept="json,pdf,csv"
+                        accept="json,pdf,csv,txt"
                         @file-uploaded="getUploadedData"
                       />
                     </div>
@@ -419,11 +419,10 @@ export default Vue.extend({
     },
 
     getUploadedData(file: any) {
+      console.log("getUploadedData")
       this.fileSelected = true;
       this.showFileSelect = false;
       this.file = file;
-
-      console.log(file);
 
       var data = file.body; // TODO
       this.history = data; //event.files;
