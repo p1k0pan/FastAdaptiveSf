@@ -15,9 +15,9 @@ python -m nltk.downloader stopwords <br />
 run `uvicorn main:app --reload`
 
 ## docker
+
 docker compose build
 --> docker compose up
-
 
 python manage.py makemigrations
 python manage.py migrate
@@ -182,4 +182,93 @@ response:
         "user_name": "user1"
         "histories":"{\n  \"https://www.aljazeera.com/news/2023/4/19/thousands-try-to-flee-sudan-as-truce-fails\": \"Khartoum residents struggle with power cuts, water shortage as fighting rages for fifth day.\\n\\nA new ceasefire\", \n  \"https://www.aljazeera.com/news/2023/4/19/diplomats-aid-workers-under-attack-in-nightmare-sudan-violence\": \"Endre Stiansen, the Norwegian ambassador to Sudan, said the \‘urban warfare\’ in Khartoum is unprecedented.\"
     }
+```
+
+## Authorization
+
+### login to create token
+
+example: http://127.0.0.1:8000/login (POST)
+
+request body:
+
+```json
+{
+  "user_name": "user1",
+  "password": "u1_1234"
+}
+```
+
+response:
+
+success:
+
+```json
+{
+  "code": "200",
+  "status": "Ok",
+  "message": "login success",
+  "result": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJ1c2VyMSIsImV4cCI6MTY4Nzc5NTIxMH0.QqW_Idx2z9-jjZFauT5824Wryh7BMwXxLpkjcI2qgRk"
+}
+```
+
+user name error:
+
+```json
+{
+  "code": "400",
+  "status": "Bad Request",
+  "message": "Invalid user name or user not found",
+  "result": null
+}
+```
+
+password incorrect:
+
+```json
+{
+  "code": "400",
+  "status": "Bad Request",
+  "message": "Invalid password",
+  "result": null
+}
+```
+
+### token verify
+
+example: http://127.0.0.1:8000/token_verify (GET)
+
+**header should set a filed named `Authorization` with token value, every request should contain token**
+
+valid:
+
+```json
+{
+    "code": "200",
+    "status": "Ok",
+    "message": "Token is valid",
+    "result": "user1"(user_name)
+}
+```
+
+expired:
+
+```json
+{
+  "code": "203",
+  "status": "Ok",
+  "message": "Token is expired",
+  "result": "expired"
+}
+```
+
+error:
+
+```json
+{
+  "code": "400",
+  "status": "Failed",
+  "message": "some error",
+  "result": null
+}
 ```
