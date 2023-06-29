@@ -162,6 +162,3 @@ async def update_histories(request: schema.UserSchema, db: Session =db_session,t
 
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
-
-
-

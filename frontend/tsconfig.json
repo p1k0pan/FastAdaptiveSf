@@ -14,7 +14,7 @@
     "sourceMap": true,
     "baseUrl": ".",
     "allowJs": true,      
-    "noImplicitAny":true,
+    "noImplicitAny":false,
     "strictNullChecks": false,
     "types": [
       "webpack-env"
