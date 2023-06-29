@@ -16,6 +16,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 corpus_embeddings = None # model from main dataset
 client=None
+ACCESS_TOKEN_EXPIRED = 10
+REFRESH_TOKEN_EXPIRED = 30
 
 # connect database
 model.Base.metadata.create_all(bind=config.engine)
@@ -60,10 +62,28 @@ app.add_middleware(
 async def root():
     return {"message": "Hello World from FastAPI"}
 
-@app.get("/docker_test")
-async def docker_test():
-    print("test success")
-    return {"message": "test success"}
+@app.post("/login")
+async def login_to_create_token(response:Response, user: schema.UserSchema, db: Session =db_session):
+    _user = crud.get_user(db, user.user_name)
+    if not _user:
+        return schema.Response(status="Bad Request",
+                    code="400",
+                    message="Invalid user name or user not found", result=None)
+    else:
+        if _user.password !=user.password:
+            return schema.Response(status="Bad Request",
+                        code="400",
+                        message="Invalid password", result=None)
+        else:
+            # assign a token
+            access_token = auth.create_token(_user.user_name, ACCESS_TOKEN_EXPIRED)
+            refresh_token = auth.create_token(_user.user_name, REFRESH_TOKEN_EXPIRED)
+            response.headers["access_token"] = access_token
+            response.headers["refresh_token"] = refresh_token
+
+            return schema.Response(status="Ok",
+                        code="200",
+                        message="login success", result=user.user_name)
 
 @app.get("/token_verify")
 async def token_verify(response: Response, request:Request,db: Session =db_session, refresh:bool=False):
@@ -79,8 +99,8 @@ async def token_verify(response: Response, request:Request,db: Session =db_sessi
                             message="token is invalid", result=None)
             if code=="201":
                 # assign a token
-                access_token = auth.create_token(_user.user_name, 10)
-                refresh_token = auth.create_token(_user.user_name, 30)
+                access_token = auth.create_token(_user.user_name, ACCESS_TOKEN_EXPIRED)
+                refresh_token = auth.create_token(_user.user_name, REFRESH_TOKEN_EXPIRED)
                 response.headers["access_token"] = access_token
                 response.headers["refresh_token"] = refresh_token
 
@@ -143,27 +163,5 @@ async def update_histories(request: schema.UserSchema, db: Session =db_session,t
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
-@app.post("/login")
-async def login_to_create_token(response:Response, user: schema.UserSchema, db: Session =db_session):
-    _user = crud.get_user(db, user.user_name)
-    if not _user:
-        return schema.Response(status="Bad Request",
-                    code="400",
-                    message="Invalid user name or user not found", result=None)
-    else:
-        if _user.password !=user.password:
-            return schema.Response(status="Bad Request",
-                        code="400",
-                        message="Invalid password", result=None)
-        else:
-            # assign a token
-            access_token = auth.create_token(_user.user_name, 1)
-            refresh_token = auth.create_token(_user.user_name, 5)
-            response.headers["access_token"] = access_token
-            response.headers["refresh_token"] = refresh_token
-
-            return schema.Response(status="Ok",
-                        code="200",
-                        message="login success", result=user.user_name)
 
 
