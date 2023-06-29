@@ -26,7 +26,7 @@ def load_corpus():
     return df
 
 def load_corpus_tensor():
-    tensor_path= 'corpus_embeddings.pt'
+    tensor_path= 'corpus_embeddings_v2.pt'
     print("load corpus embedding")
     corpus_embeddings = torch.load(tensor_path, map_location=torch.device(device))
     return corpus_embeddings
@@ -75,7 +75,7 @@ def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client):
     )
     df_str = StringIO(result)
     df_result = pd.read_csv(df_str, sep='\t')
-    print(df_result[["Unnamed: 0","title"]].values)
+    print(df_result[["index","title"]].values)
     # df.iloc[result_index].copy().to_csv('hits.csv',',')
     
     return df_result
@@ -94,7 +94,7 @@ def _get_hits(question_embedding, corpus_embeddings, top_k, df):
         idx = item["corpus_id"]
         result_index.append(idx)
 
-    print(df[["Unnamed: 0","title"]].values)
+    print(df[["index","title"]].values)
     return df.iloc[result_index].copy()
 
 def _rank_hits_cross_encoder(hits_df,query):

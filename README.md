@@ -213,7 +213,13 @@ success:
   "code": "200",
   "status": "Ok",
   "message": "login success",
-  "result": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJ1c2VyMSIsImV4cCI6MTY4Nzc5NTIxMH0.QqW_Idx2z9-jjZFauT5824Wryh7BMwXxLpkjcI2qgRk"
+  "result": "user_name"
+}
+
+response header
+{
+    "access_token": "access_token",
+    "refresh_token": "refresh_token"
 }
 ```
 
@@ -256,14 +262,49 @@ valid:
 }
 ```
 
+access token expired, but valid refresh token:
+
+```json
+{
+  "code": "401",
+  "status": "Failed",
+  "message": "Token can be refresh",
+  "result": null
+}
+```
+
+Then request the same url agian but with refresh token and endpoint add `refresh=true`, example: http://127.0.0.1:8000/search_his?query=start_my_own_restaurant&refresh=true
+
+The request would success and meanwhile return refreshed token on header
+
+```json
+
+response header
+{
+    "access_token": "access_token",
+    "refresh_token": "refresh_token"
+}
+```
+
+if pass the expired access token by accident:
+
+```json
+{
+  "code": "400",
+  "status": "Failed",
+  "message": "Please pass the refresh token",
+  "result": null
+}
+```
+
 expired:
 
 ```json
 {
-  "code": "203",
-  "status": "Ok",
+  "code": "400",
+  "status": "Failed",
   "message": "Token is expired",
-  "result": "expired"
+  "result": null
 }
 ```
 

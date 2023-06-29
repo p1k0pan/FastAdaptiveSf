@@ -21,6 +21,7 @@ def create_user(db: Session, user: schema.UserSchema ):
 def update_history(db: Session, user_name: str,  upload_urls:List):
     _user = get_user(db=db, user_name = user_name)
     upload_count =0
+    # upload and clean
 
     # no previous uploaded histories
     if _user.histories == None:
