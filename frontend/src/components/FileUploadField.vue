@@ -26,7 +26,7 @@
           <button @click="resetFileInput">Change file</button>
         </div>
         <div class="" style="margin-top: 10px">
-          <button id="import" @click="sendDataToParent">Select File</button>
+          <button id="import" @click="sendHistory">Select File</button>
         </div>
 
         <pre id="result"></pre>
@@ -176,7 +176,7 @@
 
 
       } else if (file.name.includes(".pdf")) {
-        console.log("pdf file is being 6 ...")
+        console.log("pdf file is being processed ...")
         reader.onload = (res) => {
           //console.log(res.target.result);
           this.content = res.target.result;
@@ -274,15 +274,20 @@
 
 
 
-
-
-    sendDataToParent() {
-      console.log("sendDataToParent")
+    sendHistory() {
+      console.log("send history to server ...")
       console.log(this.file)
 
-      this.$emit("file-upload", this.file);
+      if (!this.file) return;
+      this.$store.dispatch("setHistory", this.file);
+      if(this.$store.getters.isHistoryValid) {
+        this.fileSelected = true;
+        this.showFileSelect = false;
+      }
+      
+      //this.$emit("file-upload", this.file);
       this.resetFileInput();
-      this.$refs.form.reset();
+      //this.$refs.form.reset(); RESET FORM TODO
     },
     
     },

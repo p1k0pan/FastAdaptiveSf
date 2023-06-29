@@ -40,7 +40,7 @@
 
               <b-dropdown-item href="#" @click="toggleDropzone">
                 <div>
-                  <b-button v-b-modal.modal-1>Dropzone</b-button>
+                  <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')">Dropzone</b-button>
 
                   <b-modal id="modal-1" title="Upload your history!">
                     <div>
@@ -52,8 +52,9 @@
                       <FileUploadField
                         :maxSize="1000000"
                         accept="json,csv"
-                        @file-upload="(file) => getUploadedFile(file)"
-                      /> <!-- json,pdf,csv,txt -->
+                      /> 
+                        <!-- json,pdf,csv,txt -->
+                        <!-- @file-upload="(file) => getUploadedFile(file)" -->
                     </div>
 
                     <div v-if="fileSelected">
