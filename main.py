@@ -17,7 +17,6 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 corpus_embeddings = None # model from main dataset
 client=None
 
-'''
 # connect database
 model.Base.metadata.create_all(bind=config.engine)
 def get_db():
@@ -28,7 +27,7 @@ def get_db():
         db.close()
 
 db_session = Depends(get_db)
-'''
+
 app = FastAPI()
 
 @asynccontextmanager
@@ -89,7 +88,7 @@ async def search_query_history(query:str=""):
             "tags": query_corpus_result['tags'].tolist(), "text": query_corpus_result['text'].tolist()}
     # return {"title": "test"}
 
-'''
+
 @app.get('/user')
 async def get_user(skip: int = 0, limit: int = 100, db: Session =db_session):
     _users = crud.get_all_user(db, skip, limit)
@@ -145,4 +144,3 @@ async def token_verif(request:Request,db: Session =db_session):
         return schema.Response(status=status, code=code, message=msg, result=result)
     except KeyError:
         return schema.Response(status="Failed", code='404', message="Token not found in Header", result=None)
-'''
