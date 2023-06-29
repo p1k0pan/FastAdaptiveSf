@@ -144,4 +144,3 @@ async def token_verif(request:Request,db: Session =db_session):
         return schema.Response(status=status, code=code, message=msg, result=result)
     except KeyError:
         return schema.Response(status="Failed", code='404', message="Token not found in Header", result=None)
-

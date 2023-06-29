@@ -2,7 +2,7 @@
   <div class="file-upload">
     <div class="file-upload__area">
       <div v-if="!file.isUploaded">
-        <input type="file" name="" id="" @change="handleFileChange($event)" />
+        <input type="file" name="selectFiles" ref="doc" id="selectFiles" @change="importFile($event)" /> <!-- ($event) -->
         <div v-if="errors.length > 0">
           <div
             class="file-upload__error"
@@ -26,9 +26,10 @@
           <button @click="resetFileInput">Change file</button>
         </div>
         <div class="" style="margin-top: 10px">
-          <button @click="sendDataToParent">Select File</button>
+          <button id="import" @click="sendHistory">Select File</button>
         </div>
 
+        <pre id="result"></pre>
       </div>
     </div>
   </div>
@@ -47,24 +48,25 @@
     },
     accept: {
       type: String,
-      default: "json,pdf,csv",
+      default: "json,pdf,csv,txt",
     },
     },
+    emits: ['file-upload'],
 
     data () {
     return {
       errors: [],
+      content: {},
 
       isLoading: false,
       uploadReady: true,
       file: {
-        userId: "",
         name: "",
+        urls: [],
         size: 0,
         type: "",
         body: [],
         fileExtention: "",
-        url: "",
         metadata: [],
         isHistory: false,
         isUploaded: false,
@@ -106,13 +108,12 @@
       this.$nextTick(() => {
         this.uploadReady = true;
         this.file = {
-          userId: "",
           name: "",
+          urls: [],
           size: 0,
           type: "",
           body: [],
           fileExtention: "",
-          url: "",
           metadata: [],
           isHistory: false,
           isUploaded: false,
@@ -122,21 +123,102 @@
     
 
 
+    async handleFileFormat(file) {
+      // https://masteringjs.io/tutorials/vue/file
+      const reader = new FileReader();
+      var urls= [];
 
-    handleFileChange(e) {
+      if (file.name.includes(".json")) {
+        console.log("json file is being processed ...")
+        reader.onload = (res) => {
+          //console.log(res.target.result);
+          this.content = JSON.parse(res.target.result);
+          console.log(this.content);
+          
+          if (("Browser History" in this.content)) {
+            console.log("Browser History from Google takeout")
+            
+          } else if (this.content instanceof Array) {
+            console.log("Browser History from Chrome Extension")
+            for (let i = 0; i < this.content.length; i++) {
+              urls.push(this.content[i]["url"]);
+            } 
+
+          } else {
+            console.log("Format not found.")
+
+          }
+        };
+        reader.onerror = (err) => console.log(err);
+        reader.readAsText(file);
+
+
+
+      } else if (file.name.includes(".csv")) {
+        console.log("csv file is being processed ...")
+        reader.onload = (res) => {
+          //console.log(res.target.result);
+          this.content = res.target.result;
+        };
+        reader.onerror = (err) => console.log(err);
+        reader.readAsText(file);
+
+
+
+      } else if (file.name.includes(".txt")) {
+        console.log("txt file is being processed ...")
+        reader.onload = (res) => {
+          //console.log(res.target.result);
+          this.content = res.target.result;
+        };
+        reader.onerror = (err) => console.log(err);
+        reader.readAsText(file);
+
+
+      } else if (file.name.includes(".pdf")) {
+        console.log("pdf file is being processed ...")
+        reader.onload = (res) => {
+          //console.log(res.target.result);
+          this.content = res.target.result;
+        };
+        reader.onerror = (err) => console.log(err);
+        reader.readAsText(file);
+
+
+      } else {
+        console.log("error: wrong file format");
+        reader.onload = (res) => {
+          //console.log(res.target.result);
+        };
+
+      }
+
+      //const result = JSON.parse(e.target.result);
+      //const formatted = JSON.stringify(result, null, 2);
+      //document.getElementById('result').innerHTML = formatted;
+      
+      return urls
+    },
+
+
+
+    async importFile(event) {
       this.errors = [];
+
       // Check if file is selected
-      if (e.target.files && e.target.files[0]) {
+      if (event.target.files && this.$refs.doc.files[0]) {
         // Check if file is valid
-        if (this.isFileValid(e.target.files[0])) {
-            // Get uploaded file
-            const file = e.target.files[0],
-            // user id
-            userId = "0",
+        if (this.isFileValid(event.target.files[0])) {
+            // history
+            var history = this.$refs.doc.files[0];
+            var urls = await this.handleFileFormat(history);
+
+
+            // Get uploaded file for more information
+            const file = event.target.files[0],
+
             // Get file size
             fileSize = Math.round((file.size / 1024 / 1024) * 100) / 100,
-            // HISTORY CONTENT
-            body = file,
             // Get file extension
             fileExtention = file.name.split(".").pop(),
             // Get file name
@@ -144,10 +226,12 @@
             // metadata
             metadata = [],
             // Check if file is of the correct type
-            isHistory = ["json", "pdf", "csv",].includes(fileExtention);
+            isHistory = ["json", "csv"].includes(fileExtention); // "json", "pdf", "csv", "txt"
+
           // Print to console
           console.log(fileSize, fileExtention, fileName, isHistory);
 
+          /*
           // Load the FileReader API (DOES NOT WORK)
           let reader = new FileReader();
           reader.addEventListener(
@@ -155,36 +239,33 @@
             () => {
               // Set file data
               this.file = {
-                userId: userId,
                 name: fileName,
                 size: fileSize,
                 type: file.type,
-                body: body,
+                body: file,
                 fileExtention: fileExtention,
                 metadata: metadata,
                 isHistory: isHistory,
-                url: reader.result,
+                fileUrl: reader.result,
                 isUploaded: true,
               };
             },
             false
           );
+          */
 
           // Set file data
           this.file = {
-                userId: userId,
                 name: fileName,
+                urls: urls,
                 size: fileSize,
                 type: file.type,
-                body: body,
+                body: file,
                 fileExtention: fileExtention,
                 metadata: metadata,
                 isHistory: isHistory,
-                url: reader.result,
                 isUploaded: true,
           };
-          console.log(this.file.isUploaded)
-          console.log(this.file.body)
         } else {
           console.log("Invalid file");
         }
@@ -193,9 +274,20 @@
 
 
 
-    sendDataToParent() {
+    sendHistory() {
+      console.log("send history to server ...")
+      console.log(this.file)
+
+      if (!this.file) return;
+      this.$store.dispatch("setHistory", this.file);
+      if(this.$store.getters.isHistoryValid) {
+        this.fileSelected = true;
+        this.showFileSelect = false;
+      }
+      
+      //this.$emit("file-upload", this.file);
       this.resetFileInput();
-      this.$emit("file-uploaded", this.file);
+      //this.$refs.form.reset(); RESET FORM TODO
     },
     
     },
