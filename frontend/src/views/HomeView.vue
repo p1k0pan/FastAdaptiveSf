@@ -25,7 +25,7 @@
             <b-nav-item-dropdown right>
               <!-- Using 'button-content' slot -->
               <template #button-content> Import History </template>
-              <b-dropdown-item href="#" disabled>
+              <!-- <b-dropdown-item href="#" disabled>
                 <FileUpload
                   mode="basic"
                   name="model[]"
@@ -33,10 +33,10 @@
                   :max-file-size="5000000000"
                   :auto="true"
                   :custom-upload="true"
-                  choose-label="Upload image"
+                  choose-label="Upload file"
                   @uploader="onUpload"
                 />
-              </b-dropdown-item>
+              </b-dropdown-item> -->
 
               <b-dropdown-item href="#" @click="toggleDropzone">
                 <div>
@@ -51,9 +51,9 @@
                     <div v-show="showFileSelect">
                       <FileUploadField
                         :maxSize="1000000"
-                        accept="json,pdf,csv,txt"
-                        @file-uploaded="getUploadedData"
-                      />
+                        accept="json,csv"
+                        @file-upload="(file) => getUploadedFile(file)"
+                      /> <!-- json,pdf,csv,txt -->
                     </div>
 
                     <div v-if="fileSelected">
@@ -234,12 +234,9 @@ export default Vue.extend({
       exampleThumbnail:
         "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
 
-      history: [],
-
       dropzoneOpen: false,
       mobileView: false,
 
-      file: {},
       fileSelected: false,
       showFileSelect: true,
 
@@ -418,29 +415,46 @@ export default Vue.extend({
       console.log("uploaded");
     },
 
-    getUploadedData(file: any) {
-      console.log("getUploadedData")
+    async getUploadedFile(file: any) {
+      console.log("received uploaded file from component")
       this.fileSelected = true;
       this.showFileSelect = false;
-      this.file = file;
 
-      var data = file.body; // TODO
-      this.history = data; //event.files;
+      var file = file;
+      var history = Array();
+      history = file.urls;
+      console.log("history")
+      console.log(history)
 
-      const formData = new FormData();
-      formData.append("history", data);
-      const headers = { "Content-Type": "multipart/form-data" };
-      axios
-        .post("https://httpbin.org/post", formData, { headers })
-        .then((res) => {
-          console.log(res);
-          res.data.files; // binary representation of the file
-          res.status; // HTTP status
+      //const formData = new FormData();
+      const data = JSON.stringify({
+        user_name: "user1",
+        upload_urls: history
+      })
+      const endpoint = "/" + `user`;
+      const headers = { 
+        // "Content-Type": "multipart/form-data",
+        // Authorization: 'Bearer ' + token //the token is a variable which holds the token
+      };
+
+      await axios
+        .post(endpoint, data, { headers })
+        .then((response) => {
+          if (response.data) {
+            // return success
+            if (response.status === 200 || response.status === 201) {
+              // do something
+              console.log("history uploaded successfully!")
+            }
+            // reject errors & warnings
+          }
+        })
+        .catch((error) => {
+          console.log(error);
         });
-      console.log("history uploaded");
-
-      this.history = [];
     },
+
+
 
     fetch() {
       this.$store.dispatch("websocketChangeFunctionality", "all vaccinations");
