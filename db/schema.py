@@ -28,3 +28,22 @@ class Response(GenericModel, Generic[T]):
     status: str
     message: str
     result: Optional[T]
+
+class ArticleResponse(BaseModel):
+    title: Optional[List[str]]
+    urls: Optional[List[str]]
+    authors: Optional[List[str]]
+    timestamp: Optional[List[str]]
+    tags: Optional[List[str]]
+    text: Optional[List[str]]
+    thumbnail: Optional[List[str]]  
+
+
+    def process_dataset(self, df):
+        self.title = df["title"].tolist()
+        self.urls = df['url'].tolist()
+        self.authors = df['authors'].tolist()
+        self.timestamp = df['timestamp'].tolist()
+        self.tags = df['tags'].tolist()
+        self.text = df['text'].tolist()
+        self.thumbnail= df['thumbnail'].tolist()
