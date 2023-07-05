@@ -1,18 +1,15 @@
 <template>
     <div>
+      RegisterView
 
       <form @submit.prevent="submit">
         <div class="mb-3">
           <label for="username" class="form-label">Username:</label>
-          <input type="text" name="username" v-model="user.username" class="form-control" />
-        </div>
-        <div class="mb-3">
-          <label for="full_name" class="form-label">Full Name:</label>
-          <input type="text" name="full_name" v-model="user.full_name" class="form-control" />
+          <input type="text" name="username" v-model="form.username" class="form-control" />
         </div>
         <div class="mb-3">
           <label for="password" class="form-label">Password:</label>
-          <input type="password" name="password" v-model="user.password" class="form-control" />
+          <input type="password" name="password" v-model="form.password" class="form-control" />
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
@@ -21,28 +18,39 @@
   
   <script>
   import { defineComponent } from 'vue';
-  import { mapActions } from 'vuex';
+  //import { mapActions } from 'vuex';
   
   export default defineComponent({
     name: 'Register',
     data() {
       return {
-        user: {
+        form: {
           username: '',
-          full_name: '',
           password: '',
         },
       };
     },
     methods: {
-      ...mapActions(['register']),
+
       async submit() {
+
         try {
-          await this.register(this.user);
-          this.$router.push('/');
+          const userForm = new FormData();
+          userForm.append('user_name', this.form.username);
+          userForm.append('password', this.form.password);
+
+          this.$store.dispatch("register", userForm);
+
+          if(this.$store.getters.isAuthenticated) {
+            this.$router.push('/');
+
+          } else {
+            console.log("Sign Up failed.")
+          }
         } catch (error) {
-          throw 'Username already exists. Please try again.';
+          throw 'Error while signing up.';
         }
+
       },
     },
   });

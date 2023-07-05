@@ -60,7 +60,7 @@
 
 <script>
 import { defineComponent } from 'vue';
-import { mapActions } from 'vuex';
+//import { mapActions } from 'vuex';
 
 export default defineComponent({
   name: 'Login',
@@ -73,13 +73,25 @@ export default defineComponent({
     };
   },
   methods: {
-    ...mapActions(['logIn']),
+    
     async submit() {
-      const User = new FormData();
-      User.append('username', this.form.username);
-      User.append('password', this.form.password);
-      await this.logIn(User);
-      this.$router.push('/');
+      try {
+        const userForm = new FormData();
+        userForm.append('user_name', this.form.username);
+        userForm.append('password', this.form.password);
+
+        this.$store.dispatch("logIn", userForm);
+
+        if(this.$store.getters.isAuthenticated) {
+          this.$router.push('/');
+
+        } else {
+          console.log("Login failed.")
+        }
+      } catch (error) {
+          throw 'Error while logging in.';
+      }
+
     }
   }
 });

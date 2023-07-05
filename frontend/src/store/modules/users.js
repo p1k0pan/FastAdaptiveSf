@@ -10,6 +10,9 @@ const state = {
 const getters = {
   isAuthenticated: state => !!state.user,
   stateUser: state => state.user,
+
+  getAccessToken: state => state.access_token,
+  getRefreshToken: state => state.refresh_token,
 };
 
 const actions = {
