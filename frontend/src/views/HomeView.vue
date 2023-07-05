@@ -94,7 +94,11 @@
           </div>
         </div>
 
-        <li class="nav-item active">
+        <li class="nav-item active" v-if="!isLoggedIn">
+          <a class="nav-link" @click="login">Log In/ Sign Up</a>
+        </li>
+
+        <li class="nav-item active" v-if="isLoggedIn">
           <a class="nav-link" @click="logout">Log Out</a>
         </li>
       </div>
@@ -193,7 +197,6 @@
       </div>
 
       <div class="container-fluid" v-else>
-        <LoginForm />
       </div>
     </main>
 
@@ -211,7 +214,6 @@ import dayjs from 'dayjs';
 
 import FileUpload from "primevue/fileupload";
 import FileUploadField from "@/components/FileUploadField.vue";
-import LoginForm from "@/components/LoginForm.vue";
 //import FileUpload from "primevue/fileupload"
 //import Navigation from "@/components/NavigationBar.vue";
 //import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
@@ -224,7 +226,6 @@ export default Vue.extend({
   components: {
     FileUpload,
     FileUploadField,
-    LoginForm,
   },
 
   data() {
@@ -275,6 +276,10 @@ export default Vue.extend({
   },
 
   methods: {
+    async login() {
+      this.$router.push("/login");
+    },
+
     async logout() {
       await this.$store.dispatch("logOut");
       //this.$router.push("/"); // ERROR
@@ -458,7 +463,7 @@ export default Vue.extend({
 
 
     fetch() {
-      this.$store.dispatch("websocketChangeFunctionality", "all vaccinations");
+      //this.$store.dispatch("websocketChangeFunctionality", "all vaccinations");
     },
 
     handleView() {
