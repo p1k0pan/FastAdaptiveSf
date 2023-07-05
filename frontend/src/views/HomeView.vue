@@ -277,7 +277,7 @@ export default Vue.extend({
   methods: {
     async logout() {
       await this.$store.dispatch("logOut");
-      this.$router.push("/");
+      //this.$router.push("/"); // ERROR
     },
 
     formatDate(date: any) {
