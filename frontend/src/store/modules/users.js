@@ -18,19 +18,10 @@ const getters = {
 const actions = {
 
   async register(context, userForm) {
-    //form: { // IN DATA SECTION
-    //  username: '',
-    //  password:'',
-    //}
-
-    //const User = new FormData();
-    //User.append('user_name', this.form.username);
-    //User.append('password', this.form.password);
-  
-    const res = await dispatch('createUser', userForm);
+    const res = await context.dispatch('createUser', userForm);
 
     if(res === 200) {
-      await dispatch('logIn', userForm);
+      await context.dispatch('logIn', userForm);
     } else {
       console.log("could not log in: there was an error while creating a user during the user registration")
 
@@ -41,8 +32,8 @@ const actions = {
 
   async createUser(userForm) {
     var res = 0
-    username = userForm.user_name
-    password = userForm.password
+    const username = userForm.user_name
+    const password = userForm.password
 
     const data = JSON.stringify({
             user_name: username,
@@ -83,8 +74,8 @@ const actions = {
       refresh_token: null,
     })
 
-    username = userForm.user_name
-    password = userForm.password
+    const username = userForm.user_name
+    const password = userForm.password
 
     const data = JSON.stringify({
             user_name: username,
