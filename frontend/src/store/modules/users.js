@@ -1,4 +1,8 @@
+import Vue from 'vue'
+import Vuex from 'vuex'
 import axios from 'axios';
+Vue.use(Vuex)
+
 
 const state = {
   user: null,
@@ -17,11 +21,11 @@ const getters = {
 
 const actions = {
 
-  async register(context, userForm) {
-    const res = await context.dispatch('createUser', userForm);
+  async register(context, formDict) {
+    const res = await context.dispatch('createUser', formDict);
 
     if(res === 200) {
-      await context.dispatch('logIn', userForm);
+      await context.dispatch('logIn', formDict);
     } else {
       console.log("could not log in: there was an error while creating a user during the user registration")
 
@@ -30,56 +34,60 @@ const actions = {
   },
   
 
-  async createUser(userForm) {
+  async createUser(context, formDict) {
     var res = 0
-    const username = userForm.user_name
-    const password = userForm.password
-
     const data = JSON.stringify({
-            user_name: username,
-            password: password,
+            user_name: formDict["username"],
+            password: formDict["password"],
             histories: null,
     })
     const endpoint = "/" + `user`;
     const headers = { 
-      // "Content-Type": "multipart/form-data",
+      //"Access-Control-Allow-Origin": "*",
+      //"Content-Type": "application/json",
       // Authorization: 'Bearer ' + token //the token is a variable which holds the token
     };
+    console.log("register data")
+    console.log(data)
 
     await axios
         .post(endpoint, data, { headers })
         .then((response) => {
+          console.log("Response:")
+          console.log(response.status)
 
         if (response.data) {
+          console.log("2")
           // return success
-          if (response.status === 200) {
+          if (response.status === 200 || response.status === 201) {
           console.log("created user successfully!")
           res = 200
           }
         // reject errors & warnings
+        console.log("22")
         }
       })
       .catch((error) => {
+        console.log("222")
         console.log(error);
     });
+
+    console.log("3")
 
     return res
   },
 
 
-  async logIn(context, userForm) {
-    const authorizationData = JSON.stringify({ // TODO: stringify?
-      username: userForm.user_name,
+  async logIn(context, formDict) {
+    const authorizationData = {
+      username: formDict["username"],
       access_token: null,
       refresh_token: null,
-    })
-
-    const username = userForm.user_name
-    const password = userForm.password
+    }
 
     const data = JSON.stringify({
-            user_name: username,
-            password: password,
+            user_name: formDict["username"],
+            password: formDict["password"],
     })
     const endpoint = "/" + `login`;
     const headers = { 
@@ -93,10 +101,10 @@ const actions = {
 
         if (response.data) {
           // return success
-          if (response.status === 200) {
+          if (response.status === 200 || response.status === 201) {
           console.log("user login successful!")
-          authorizationData.access_token = response.headers.access_token
-          authorizationData.refresh_token = response.headers.refresh_token
+          authorizationData["access_token"] = response.headers.access_token
+          authorizationData["refresh_token"] = response.headers.refresh_token
 
           } else if(response.status === 400) {
             console.log("user login not successful!")
@@ -145,10 +153,10 @@ const actions = {
 const mutations = {
   SET_USER(state, authorizationData) {
     console.log("setting user state")
-    state.user = authorizationData.username;
+    state.user = authorizationData["username"];
 
-    state.access_token = authorizationData.access_token;
-    state.refresh_token = authorizationData.refresh_token;
+    state.access_token = authorizationData["access_token"];
+    state.refresh_token = authorizationData["refresh_token"];
   },
   
   LOGOUT(state){

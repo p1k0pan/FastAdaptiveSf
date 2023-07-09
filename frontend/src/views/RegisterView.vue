@@ -2,17 +2,33 @@
     <div>
       RegisterView
 
-      <form @submit.prevent="submit">
-        <div class="mb-3">
-          <label for="username" class="form-label">Username:</label>
-          <input type="text" name="username" v-model="form.username" class="form-control" />
-        </div>
-        <div class="mb-3">
-          <label for="password" class="form-label">Password:</label>
-          <input type="password" name="password" v-model="form.password" class="form-control" />
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
+      <b-form  @submit.stop.prevent>
+        <label for="feedback-user">Username </label>
+        <b-form-input v-model="username" :state="validationUsername" id="feedback-user"></b-form-input>
+        <b-form-invalid-feedback :state="validationUsername">
+        Your username must be 3-16 characters long.
+      </b-form-invalid-feedback>
+      <b-form-valid-feedback :state="validationUsername">
+        This username is valid.
+      </b-form-valid-feedback>
+     </b-form>
+
+
+     <b-form  @submit.stop.prevent>
+        <label for="feedback-password">Password</label>
+        <b-form-input type="password" v-model="password" :state="validationPassword" id="feedback-password" aria-describedby="password-help-block"></b-form-input>
+        <b-form-invalid-feedback :state="validationPassword">
+        Your username must be 6-20 characters long.
+      </b-form-invalid-feedback>
+      <b-form-valid-feedback :state="validationPassword">
+        This password is valid.
+      </b-form-valid-feedback>
+     </b-form>
+
+     <b-button v-if="!validation" variant="outline-primary" type="submit" disabled >Sign up</b-button>
+     <b-button v-if="validation" variant="outline-primary" type="submit" @click="submit" >Sign up</b-button>
+
+
     </div>
   </template>
   
@@ -24,22 +40,56 @@
     name: 'Register',
     data() {
       return {
-        form: {
-          username: '',
-          password: '',
-        },
+        usernameValid: false,
+        passwordValid: false,
+
+        username: '',
+        password: '',
       };
     },
-    methods: {
 
+    computed: {
+      validationUsername() {
+        var nonExistant = true // TODO: Check if it already exists
+
+        if(this.username.length > 2 && this.username.length < 17 && nonExistant) {
+          this.usernameValid = true
+          return true
+
+        } else {
+          this.usernameValid = false
+          return false
+        }
+      },
+
+      validationPassword() {
+        if(this.password.length > 5 && this.password.length < 21) {
+          this.passwordValid = true
+          return true
+
+        } else {
+          this.passwordValid = false
+          return false
+        }
+        return this.password.length > 5 && this.password.length < 21
+      },
+
+
+      validation() {
+        return this.usernameValid && this.passwordValid
+      },
+    },
+
+    methods: {
+      
       async submit() {
+        const formDict = {
+          username: this.username,
+          password: this.password,
+        }
 
         try {
-          const userForm = new FormData();
-          userForm.append('user_name', this.form.username);
-          userForm.append('password', this.form.password);
-
-          this.$store.dispatch("register", userForm);
+          this.$store.dispatch("register", formDict);
 
           if(this.$store.getters.isAuthenticated) {
             this.$router.push('/');
