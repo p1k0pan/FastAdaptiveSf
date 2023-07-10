@@ -121,6 +121,22 @@ const actions = {
         // reject errors & warnings
         }
       })
+
+      /*
+
+      .then({
+        ...
+      })
+      .then(() => {
+        if (window.PasswordCredential) {
+          const passwordCredential = new PasswordCredential({ id: this.form.email, password: this.form.password });
+          navigator.credentials.store(passwordCredential);
+        }
+        ...
+      }) 
+
+      */
+     
       .catch((error) => {
         console.log(error);
     });

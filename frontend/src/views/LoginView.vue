@@ -1,30 +1,242 @@
 <template>
-    <div>
-      LoginView
-      <LoginForm />
+  <div>
+    <div
+      class="main"
+      style="bottom: 0;"
+      >
+      <b-row align-v="center" align-h="center" class="justify-content-md-center">
+        <b-col></b-col>
+        <b-col cols="6">
 
+    <b-card class="custom-card" border-variant="dark">
+    <b-card-title class="text-center">Welcome back!</b-card-title>
+    <b-row class="mb-2"></b-row>
+
+  
+  <div class="text-center">
+    <p class="mb-n1">Login with</p>
+
+    <button type="button" class="btn btn-link btn-floating mx-1">
+      <i class="fab fa-google"></i>
+    </button>
+
+    <button type="button" class="btn btn-link btn-floating mx-1">
+      <i class="fab fa-github"></i>
+    </button>
+
+    <button type="button" class="btn btn-link btn-floating mx-1">
+      <i class="fab fa-twitter"></i>
+    </button>
+    
+    <button type="button" class="btn btn-link btn-floating mx-1">
+      <i class="fab fa-facebook-f"></i>
+    </button>
+</div>
+
+<div class="separator"> or </div>
+
+    <b-form @submit.stop.prevent>
+      <label for="username">Username </label>
+      <b-form-input v-model="username" id="username"></b-form-input>
+   </b-form>
+
+   
+   <b-row class="mb-4"></b-row>
+
+   <div v-if="!showPassword">
+   <b-form  @submit.stop.prevent>
+      <label for="password">Password</label>
+      <span class="display-eye fa fa-eye-slash" @click="toggleShowPassword"></span>
+
+      <b-form-input type="password" v-model="password" :state="validationPassword" id="password" aria-describedby="password-help-block"></b-form-input>
+   </b-form>
+  </div>
+
+
+  <div v-else>
+   <b-form  @submit.stop.prevent>
+      <label for="password">Password</label>
+      <span class="display-eye fa fa-eye" @click="toggleShowPassword"></span>
+
+      <b-form-input type="text" v-model="password" :state="validationPassword" id="password" aria-describedby="password-help-block"></b-form-input>
+   </b-form>
+  </div>
+
+
+  
+  <b-row class="mb-2"></b-row>
+
+  <div class="extra">
+    <span class="stay"> <input class="form-check-input" type="checkbox" id="checkbox" v-model="stayLoggedIn"/> Remember me? </span>
+    <span class="reg"> No account yet?   <a href="/register">Sign up</a> </span>
+  </div>
+
+  <b-row class="mb-4"></b-row>
+
+  <div class="text-center">
+    <b-button variant="outline-primary" type="submit" size="lg" @click="submit"> &nbsp; Login &nbsp; </b-button>
+  </div>
+
+
+  <b-row class="mb-2">
+    <b-col>
+      <div class="text-center">
+        <span class=""> <b-button variant="link" @click="forgotUsername">Forgot username?</b-button> </span>
+      </div>
+    </b-col>
+    
+    <b-col>
+      <div class="text-center">
+        <span class=""> <b-button variant="link" @click="forgotPassword">Forgot password?</b-button> </span>
+      </div>
+    </b-col>
+  </b-row>
+
+  <b-row class="mb-4"></b-row>
+
+  
+  <div class="separator"> otherwise </div>
+  <b-row class="mb-2"></b-row>
+
+
+  <div class="text-center">
+    <b-button variant="outline-primary" type="submit" size="lg" @click="routeToRegisterView" >Sign up</b-button>
+  </div>
+  
+  <b-row class="mb-2"></b-row>
+
+        </b-card>
+        </b-col>
+
+        <b-col></b-col>
+      </b-row>
     </div>
-  </template>
-  
-  <script>
-  import { defineComponent } from 'vue';
-  import LoginForm from "@/components/LoginForm.vue";
-  
-  export default defineComponent({
-    name: 'Login',
+    <div
+      class="flex-fill justify-content-center mb-4"
+      style="bottom: 0;"
+      >
+    <b-row align-v="center" >
 
-    components: {
-        LoginForm,
+    
+
+  </b-row>
+  </div>
+
+  </div>
+</template>
+
+<script>
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  name: 'Login',
+
+  components: {
+  },
+
+  data() {
+    return {
+      showPassword: false,
+      stayLoggedIn: false,
+
+      username: '',
+      password: '',
+    };
+  },
+
+  methods: {
+    toggleShowPassword() {
+      this.showPassword = !this.showPassword;
     },
 
-    data() {
-      return {
-      };
+
+    forgotUsername() {
     },
 
-    methods: {
+    forgotPassword() {
     },
 
-  });
-  </script>
-  
+    routeToRegisterView() {
+      this.$router.push('/register')
+    },
+
+
+    async submit() {
+      const formDict = {
+          username: this.username,
+          password: this.password,
+      }
+
+      try {
+        this.$store.dispatch("logIn", formDict);
+
+        if(this.$store.getters.isAuthenticated) {
+          this.$router.push('/');
+
+        } else {
+          console.log("Login failed.")
+        }
+      } catch (error) {
+          throw 'Error while logging in.';
+      }
+
+    },
+  }
+
+});
+</script>
+
+
+<style scoped>
+.main {
+  justify-content: center;
+  vertical-align: middle;
+  position: relative;
+}
+
+.display-eye {
+cursor:pointer;
+float: right;
+margin-top: 6px;
+margin-right: 1px;
+}
+
+.reg {
+float: right;
+}
+
+hr {
+margin-top: 1rem;
+margin-bottom: 1rem;
+border: 0;
+border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.separator {
+display: flex;
+align-items: center;
+text-align: center;
+}
+
+.separator::before,
+.separator::after {
+content: '';
+flex: 1;
+border-bottom: 1px solid #000;
+}
+
+.separator:not(:empty)::before {
+margin-right: .25em;
+}
+
+.separator:not(:empty)::after {
+margin-left: .25em;
+}
+
+.custom-card .card-title {
+text-shadow:
+  0px 1px 1px grey,
+  0px 0px 0px grey;
+}
+
+</style>
