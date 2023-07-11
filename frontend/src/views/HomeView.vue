@@ -22,25 +22,9 @@
             >
           </li>
           <li class="nav-item dropdown">
-            <b-nav-item-dropdown right>
-              <!-- Using 'button-content' slot -->
-              <template #button-content> Import History </template>
-              <!-- <b-dropdown-item href="#" disabled>
-                <FileUpload
-                  mode="basic"
-                  name="model[]"
-                  accept=".json"
-                  :max-file-size="5000000000"
-                  :auto="true"
-                  :custom-upload="true"
-                  choose-label="Upload file"
-                  @uploader="onUpload"
-                />
-              </b-dropdown-item> -->
 
-              <b-dropdown-item href="#" @click="toggleDropzone">
-                <div>
-                  <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')">Dropzone</b-button>
+                <div v-if="isLoggedIn">
+                  <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')">Import History</b-button>
 
                   <b-modal id="modal-1" title="Upload your history!">
                     <div>
@@ -64,8 +48,6 @@
                     </div>
                   </b-modal>
                 </div>
-              </b-dropdown-item>
-            </b-nav-item-dropdown>
           </li>
         </ul>
 
@@ -487,9 +469,10 @@ export default Vue.extend({
 
       } else {
       console.log("regular")
-      var endpoint = endpoint + `search`;
+      var endpoint = endpoint + `search?query=${query}`;
 
       }
+      console.log(endpoint)
 
       await axios // await
         .get(endpoint, {
@@ -504,16 +487,18 @@ export default Vue.extend({
           if (response.data) {
             // return success
             if (response.status === 200 || response.status === 201) {
-              //this.results = response.data;
 
               this.results = [];
-              const result: any[] = [];
+              console.log(response.data)
+              var result = response.data["result"]
+              console.log(result)
+              //const result: any[] = [];
 
-              var titles = response.data["title"];
-              var urls = response.data["urls"];
-              var authors = response.data["authors"];
-              var timestamps = response.data["timestamp"];
-              var tags = response.data["tags"];
+              var titles = result["title"];
+              var urls = result["urls"];
+              var authors = result["authors"];
+              var timestamps = result["timestamp"];
+              var tags = result["tags"];
               // var texts = response.data["text"];
 
               for (let i = 0; i < titles.length; i++) {
@@ -536,9 +521,8 @@ export default Vue.extend({
                   "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
                 };
 
-                result.push(dict);
+                this.results.push(dict);
               }
-              this.results = result;
               this.firstSearch = false;
 
               console.log("----------");
