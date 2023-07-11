@@ -11,12 +11,17 @@ def get_all_user(db: Session, skip: int = 0, limit: int = 100):
 def get_user(db: Session, user_name: str):
     return db.query(model.User).filter(model.User.user_name==user_name).first()
 
-def create_user(db: Session, user: schema.UserSchema ):
-    _user = model.User(user_name=user.user_name, password=user.password)
-    db.add(_user)
-    db.commit()
-    db.refresh(_user)
-    return _user
+def create_user(db: Session, user_name: str, password: str):
+
+    _user_check = get_user(db=db, user_name = user_name)
+    if _user_check != None:
+        return ['Failed', '400', 'user exist', None]
+    else:
+        _user = model.User(user_name=user_name, password=password)
+        db.add(_user)
+        db.commit()
+        db.refresh(_user)
+        return ['Ok', '201', 'user create success', _user]
 
 def update_history(db: Session, user_name: str,  upload_urls:List):
     _user = get_user(db=db, user_name = user_name)

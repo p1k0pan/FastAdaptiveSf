@@ -69,7 +69,7 @@ app.add_middleware(
 async def root():
     return {"message": "Hello World from FastAPI"}
 
-@app.post("/login")
+@app.post("/login", tags=["Authorization"])
 async def login_to_create_token(response:Response, user: schema.UserSchema, db: Session =db_session):
     _user = crud.get_user(db, user.user_name)
     if not _user:
@@ -92,7 +92,7 @@ async def login_to_create_token(response:Response, user: schema.UserSchema, db: 
                         code="200",
                         message="login success", result=user.user_name)
 
-@app.get("/token_verify")
+@app.get("/token_verify", tags=["Authorization"])
 async def token_verify(response: Response, request:Request,db: Session =db_session, refresh:bool=False):
     try:
         token = request.headers['authorization']
@@ -115,7 +115,7 @@ async def token_verify(response: Response, request:Request,db: Session =db_sessi
     except KeyError:
         return schema.Response(status="Failed", code='404', message="Token not found in Header", result=None)
 
-@app.get("/search")
+@app.get("/search", tags=["Search"])
 async def search_query(query:str="", token=Depends(token_verify)):
     #example http://127.0.0.1:8000/search?query=start_my_own_restaurant
 
@@ -131,7 +131,7 @@ async def search_query(query:str="", token=Depends(token_verify)):
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
-@app.get("/search_his")
+@app.get("/search_his", tags=["Search"])
 async def search_query_history(query:str="",token=Depends(token_verify)):
     #example http://127.0.0.1:8000/search_his?query=start_my_own_restaurant
 
@@ -146,24 +146,29 @@ async def search_query_history(query:str="",token=Depends(token_verify)):
     # return {"title": "test"}
 
 
-@app.get('/user')
+@app.get('/user',tags=["User"])
 async def get_user(skip: int = 0, limit: int = 100, db: Session =db_session):
     _users = crud.get_all_user(db, skip, limit)
-    return schema.Response(status="Ok", code="200", message="Success fetch all data", result=_users)
+    return schema.Response(status="Ok", code="200", message="Sucstatus, code, msg, resultcess fetch all data", result=_users)
 
-@app.post("/user")
+@app.post("/user", tags=["User"])
 async def create_user(request: schema.UserSchema, db: Session =db_session): 
-    _user = crud.create_user(db, user=request)
-    # detect exception from input
-    return schema.Response(status="Ok",
-                    code="201",
-                    message="User created successfully", result=_user)
+    if request.user_name == None or request.password == None:
+        return schema.Response(status="Failed", code='400', message='User name or password is empty', result=None)
 
-@app.patch("/user")
+    status, code, msg, result = crud.create_user(db, user_name=request.user_name, password=request.password)
+    # detect exception from input
+    return schema.Response(status=status, code=code, message=msg, result=result)
+
+@app.patch("/user", tags=["User"])
 async def update_histories(request: schema.UserSchema, db: Session =db_session,token=Depends(token_verify)):
     # detect upload_urls exception
 
     if token.code == "201" or token.code== "200":
+
+        if request.user_name == None or request.upload_urls == None:
+            return schema.Response(status="Failed", code='400', message='User name or upload file is empty', result=None)
+
         _user = crud.update_history(db, user_name=request.user_name, upload_urls=request.upload_urls)
         return schema.Response(status="Ok", code="200", message="Success update data", result=_user)
 
