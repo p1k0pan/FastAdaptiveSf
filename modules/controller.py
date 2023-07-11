@@ -34,10 +34,11 @@ def load_corpus_tensor():
 def search_query(query:str, corpus_embeddings, client)->pd.DataFrame:
     print(query)
     query_embedding = _embed_text(query)
+    result_num = 10
     # print(f'query shape: {query_embedding.shape}')
 
     # query_corpus_result:pd.DataFrame = getTopResult(query_embedding, corpus_embeddings, 10, df)
-    query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, 10,client)
+    query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client)
 
     rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
     return rerank_result

@@ -96,7 +96,6 @@ async def login_to_create_token(response:Response, user: schema.UserSchema, db: 
 async def token_verify(response: Response, request:Request,db: Session =db_session, refresh:bool=False):
     try:
         token = request.headers['authorization']
-        print(token)
         status, code, msg, result = auth.token_validation(token,refresh)
         if code=="201" or code == "200":
             # if token not expired, check username
