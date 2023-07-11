@@ -96,6 +96,7 @@ async def login_to_create_token(response:Response, user: schema.UserSchema, db: 
 async def token_verify(response: Response, request:Request,db: Session =db_session, refresh:bool=False):
     try:
         token = request.headers['authorization']
+        print(token)
         status, code, msg, result = auth.token_validation(token,refresh)
         if code=="201" or code == "200":
             # if token not expired, check username
@@ -163,14 +164,15 @@ async def create_user(request: schema.UserSchema, db: Session =db_session):
 @app.patch("/user", tags=["User"])
 async def update_histories(request: schema.UserSchema, db: Session =db_session,token=Depends(token_verify)):
     # detect upload_urls exception
+    print(token.code)
 
     if token.code == "201" or token.code== "200":
 
         if request.user_name == None or request.upload_urls == None:
             return schema.Response(status="Failed", code='400', message='User name or upload file is empty', result=None)
 
-        _user = crud.update_history(db, user_name=request.user_name, upload_urls=request.upload_urls)
-        return schema.Response(status="Ok", code="200", message="Success update data", result=_user)
+        status, code, msg, result = crud.update_histories(user_name=request.user_name, upload_urls=request.upload_urls)
+        return schema.Response(status=status, code=code, message=msg, result=result)
 
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
