@@ -409,6 +409,10 @@ export default Vue.extend({
   computed: {
     isLoggedIn: function () {
       this.loginStatus = this.$store.getters.isAuthenticated;
+      console.log("status::::")
+      console.log(this.$store.getters.isAuthenticated)
+      console.log(this.$store.getters.getAccessToken)
+      console.log(this.$store.getters.getRefreshToken)
       return this.$store.getters.isAuthenticated;
     },
   },
@@ -466,6 +470,8 @@ export default Vue.extend({
     },
 
     async handleSearch() {
+      var res = 0;
+
       // async
       console.log("generating results ...");
 
@@ -474,20 +480,27 @@ export default Vue.extend({
         query = query.split(" ").join("_");
       }
 
-      // ------------------
-      var endpoint = "/" + `search_his?query=${query}`; // `http://127.0.0.1:8000/search_his?query=${query}`;
-      //endpoint = `https://api.adviceslip.com/advice/search/${query}` // placeholder
-      // ------------------
+      var endpoint = "/"
+      if(this.isLoggedIn) {
+      console.log("user specific")
+      var endpoint = endpoint + `search_his?query=${query}`;
+
+      } else {
+      console.log("regular")
+      var endpoint = endpoint + `search`;
+
+      }
 
       await axios // await
         .get(endpoint, {
           headers: {
-            //'Access-Control-Allow-Origin': '*', // NOT WORKING
-            //'Content-type': 'application/json', // NOT WORKING
-            // Authorization: 'Bearer ' + token //the token is a variable which holds the token
+            Authorization: this.isLoggedIn ? this.$store.getters.getAccessToken : '',
           },
         })
         .then((response) => {
+          res = response.status
+          console.log(res)
+
           if (response.data) {
             // return success
             if (response.status === 200 || response.status === 201) {
@@ -563,50 +576,6 @@ export default Vue.extend({
       console.log("uploaded");
     },
 
-    async getUploadedFile(file: any) {
-      console.log("received uploaded file from component")
-      this.fileSelected = true;
-      this.showFileSelect = false;
-
-      var file = file;
-      var history = Array();
-      history = file.urls;
-      console.log("history")
-      console.log(history)
-
-      //const formData = new FormData();
-      const data = JSON.stringify({
-        user_name: "user1",
-        upload_urls: history
-      })
-      const endpoint = "/" + `user`;
-      const headers = { 
-        // "Content-Type": "multipart/form-data",
-        // Authorization: 'Bearer ' + token //the token is a variable which holds the token
-      };
-
-      await axios
-        .post(endpoint, data, { headers })
-        .then((response) => {
-          if (response.data) {
-            // return success
-            if (response.status === 200 || response.status === 201) {
-              // do something
-              console.log("history uploaded successfully!")
-            }
-            // reject errors & warnings
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-
-
-
-    fetch() {
-      //this.$store.dispatch("websocketChangeFunctionality", "all vaccinations");
-    },
 
     handleView() {
       this.mobileView = window.innerWidth <= 990;
