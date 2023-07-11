@@ -106,12 +106,11 @@ const actions = {
           // return success
           if (response.status === 200) {
           console.log("user login successful!")
-          console.log(response.headers.access_token)
-          console.log(response.headers.refresh_token)
-          console.log(response.headers)
+          var result = response.data["result"]
+          console.log(result["access_token"])
 
-          authorizationData["access_token"] = response.headers.access_token
-          authorizationData["refresh_token"] = response.headers.refresh_token
+          authorizationData["access_token"] = result["access_token"]
+          authorizationData["refresh_token"] = result["refresh_token"]
 
           } else if(response.status === 400) {
             console.log("user login not successful!")

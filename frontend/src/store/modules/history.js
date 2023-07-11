@@ -18,11 +18,11 @@ const actions = {
     async setHistory(context, data) {
         var res = 0
         console.log("received uploaded file from component")
-        console.log(data)
 
         const username = data["username"]
         const access_token = data["access_token"]
         const refresh_token = data["refresh_token"]
+        console.log(access_token)
 
         var history = Array();
         history = data["file"].urls;
