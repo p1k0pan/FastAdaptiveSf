@@ -25,7 +25,7 @@ import 'primevue/resources/primevue.min.css'
 
 
 import vuetify from './plugins/vuetify'
-
+import 'vuetify/dist/vuetify.min.css'
 
 
 // Make BootstrapVue available throughout your project

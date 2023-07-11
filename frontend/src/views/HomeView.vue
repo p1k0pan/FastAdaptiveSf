@@ -104,14 +104,29 @@
       </div>
     </nav>
 
+
+
+
+
     <main>
-      <div class="container-fluid" v-if="!isLoggedIn" id="logout">
-        <div class="row display-flex no-gutters">
+
+      <div v-if="showSearchResult"
+        style="bottom: 0;"
+      >
+        <b-row align-v="center" align-h="center" class="justify-content-md-center">
+          <b-col></b-col>
+
+          <b-col cols="6">
+            <b-card class="custom-card" border-variant="dark">
+              <div class="container-fluid">
+
+
+        <!--<div class="row display-flex no-gutters">
           <div class="col-xs-6 col-md-2">
             <div class="container"></div>
           </div>
 
-          <div class="col-xs-6 col-md-7 ms-auto">
+          <div class="col-xs-6 col-md-7 ms-auto"> -->
             <div class="cards" v-if="results.length > 0">
               <ul class="list-group">
                 <li
@@ -119,35 +134,6 @@
                   v-for="(itemDict, index) in results"
                   :key="index"
                 >
-                  <!--
-                  <div class="card text-bg-white mb-3" style="max-width: 700px">
-                    <div class="row g-0">
-                      <div class="col-md-4">
-                        <img
-                          :src="exampleThumbnail"
-                          class="img-fluid rounded-start"
-                          alt="..."
-                        />
-                      </div>
-
-                      <div class="col-md-8">
-                        <div class="card-header">{{ itemDict["tags"] }}</div>
-                        <div class="card-body">
-                          <h5 class="card-title">{{ itemDict["title"] }}</h5>
-                          <p class="card-text">{{ itemDict["summary"] }}</p>
-                          <p class="card-text">
-                            <small class="text-body-secondary">
-                              {{ itemDict["authors"] }}</small
-                            >
-                            <small class="text-body-secondary">
-                              {{ itemDict["timestamp"] }}</small
-                            >
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  -->
 
                   <b-card no-body class="overflow-hidden mb-3" img-src="https://placekitten.com/300/300" img-alt="Card image" img-left>
                     <b-row no-gutters>
@@ -186,18 +172,97 @@
               </ul>
               <!-- <Card v-for="result in results" :key="result" :result="result" /> -->
             </div>
+            
 
-            <div class="col-xs-6 col-md-7 ms-auto" v-else>
-              <h3>Sorry, no results found for {{ searchQuery }} ...</h3>
             </div>
-          </div>
+            </b-card>
+          </b-col>
 
-          <div class="col-xs-6 col-md-3">Recommendations</div>
-        </div>
+          <b-col></b-col>
+        </b-row>
       </div>
 
-      <div class="container-fluid" v-else>
+
+      <div v-if="!showSearchResult"
+        style="bottom: 0;"
+      >
+
+      
+      <b-row align-v="center" align-h="center" class="justify-content-md-center">
+          <b-col></b-col>
+
+          <b-col cols="8">
+            
+            <b-row class="mb-4"></b-row>
+
+            <div class="container-fluid">
+            
+
+              
+              <ul class="list-group">
+                <li
+                  class="list-group-item"
+                  v-for="(item, index) in tags"
+                  :key="index"
+                >
+
+                  <v-container style="position:relative">
+                    <label for="article-slider"> {{ item["tag"] }} </label>
+
+                    <v-slide-group multiple show-arrows="always" id="article-slider">
+                      <v-slide-item 
+                        v-for="(itemDict, index) in item['articles']"
+                        :key="index">
+
+                      
+                      <b-card no-body class="overflow-hidden mb-3 mx-3"
+                      >
+                        <b-card-header>
+                          <b-card-img :src="itemDict['text']" alt="Image" bottom></b-card-img>
+                        </b-card-header>
+                        <b-card-body class="h-100 d-flex flex-column">
+                            <b-card-text>
+                            <p> {{ itemDict["text"] }} </p>
+                            </b-card-text>
+                        </b-card-body>
+                      </b-card>
+
+                  
+                      </v-slide-item>
+                    </v-slide-group>
+                  </v-container>
+
+
+                </li>
+              </ul>
+        <!--
+              <ul class="horizontalList" style="position:relative; overflow-x:auto">
+                <li
+                  class="horizontalList"
+                  v-for="(itemDict, index) in tags"
+                  :key="index"
+                >
+                  <b-card no-body class="overflow-hidden mb-3">
+                    Card
+                    <b-card-body class="h-100 d-flex flex-column">
+                          <b-card-text>
+                          <p>{{ itemDict["text"] }}</p>
+                          </b-card-text>
+                        </b-card-body>
+                  </b-card>
+
+                </li>
+              </ul>
+-->
+
+            </div>
+          </b-col>
+
+          <b-col></b-col>
+        </b-row>
+
       </div>
+      
     </main>
 
     <p>{{ loginStatus }}</p>
@@ -238,12 +303,89 @@ export default Vue.extend({
 
       dropzoneOpen: false,
       mobileView: false,
+      showSearchResult: false,
+      show: false,
 
       fileSelected: false,
       showFileSelect: true,
 
       msg: [],
       loginStatus: false,
+
+      tags: [
+        {
+          tag: "Health",
+          articles: [
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://placekitten.com/480/210",
+              text: "222222",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "3333333",
+            },
+          ],
+        },
+
+        {
+          tag: "Travel",
+          articles: [
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "2",
+            },
+            {
+              thumbnail: "https://placekitten.com/480/210",
+              text: "3",
+            },
+          ],
+        },
+      ],
+
     };
   },
 
@@ -483,6 +625,11 @@ export default Vue.extend({
 * {
   font-size: 1rem;
 }
+
+.horizontalList {
+    display:inline
+}
+
 body {
   width: 100%;
   height: 100vh;
@@ -589,6 +736,10 @@ a {
   margin-right: 0 !important;
 }
 
+.v-slide-group__content {
+  justify-content: center;
+}
+
 .cards
 {
     display: inline;
@@ -607,7 +758,7 @@ ul{
   display: flex;
   gap: 6px;
   max-width: 100%;
-}
+} 
 
 
 .tag {

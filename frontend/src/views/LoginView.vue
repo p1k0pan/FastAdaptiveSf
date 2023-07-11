@@ -111,16 +111,6 @@
         <b-col></b-col>
       </b-row>
     </div>
-    <div
-      class="flex-fill justify-content-center mb-4"
-      style="bottom: 0;"
-      >
-    <b-row align-v="center" >
-
-    
-
-  </b-row>
-  </div>
 
   </div>
 </template>
