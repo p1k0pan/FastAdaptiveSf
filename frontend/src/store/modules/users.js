@@ -35,60 +35,57 @@ const actions = {
   
 
   async createUser(context, formDict) {
+    const username = formDict["username"]
+    const password = formDict["password"]
     var res = 0
-    const data = JSON.stringify({
-            user_name: formDict["username"],
-            password: formDict["password"],
-            histories: null,
-    })
+
     const endpoint = "/" + `user`;
     const headers = { 
       //"Access-Control-Allow-Origin": "*",
       //"Content-Type": "application/json",
       // Authorization: 'Bearer ' + token //the token is a variable which holds the token
     };
-    console.log("register data")
-    console.log(data)
 
     await axios
-        .post(endpoint, data, { headers })
+        .post(
+          endpoint, 
+          {
+            user_name: username,
+            password: password,
+            histories: null,
+          },
+          { headers })
         .then((response) => {
           console.log("Response:")
           console.log(response.status)
 
         if (response.data) {
-          console.log("2")
           // return success
-          if (response.status === 200 || response.status === 201) {
+          if (response.status === 200) {
           console.log("created user successfully!")
           res = 200
           }
         // reject errors & warnings
-        console.log("22")
         }
       })
       .catch((error) => {
-        console.log("222")
         console.log(error);
     });
-
-    console.log("3")
 
     return res
   },
 
 
   async logIn(context, formDict) {
+    const username = formDict["username"]
+    const password = formDict["password"]
+
     const authorizationData = {
-      username: formDict["username"],
+      username: username,
       access_token: null,
       refresh_token: null,
     }
 
-    const data = JSON.stringify({
-            user_name: formDict["username"],
-            password: formDict["password"],
-    })
     const endpoint = "/" + `login`;
     const headers = { 
       // "Content-Type": "multipart/form-data",
@@ -96,13 +93,23 @@ const actions = {
     };
 
     await axios
-        .post(endpoint, data, { headers })
+        .post(
+          endpoint,
+          {
+            user_name: username,
+            password: password,
+          },
+          { headers })
         .then((response) => {
 
         if (response.data) {
           // return success
-          if (response.status === 200 || response.status === 201) {
+          if (response.status === 200) {
           console.log("user login successful!")
+          console.log(response.headers.access_token)
+          console.log(response.headers.refresh_token)
+          console.log(response.headers)
+
           authorizationData["access_token"] = response.headers.access_token
           authorizationData["refresh_token"] = response.headers.refresh_token
 
