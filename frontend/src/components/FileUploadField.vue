@@ -276,10 +276,18 @@
 
     sendHistory() {
       console.log("send history to server ...")
-      console.log(this.file)
+
+      const data = {
+        file: this.file,
+
+        username: this.$store.getters.stateUser,
+        access_token: this.$store.getters.getAccessToken,
+        refresh_token: this.$store.getters.getRefreshToken,
+      }
 
       if (!this.file) return;
-      this.$store.dispatch("setHistory", this.file);
+      this.$store.dispatch("setHistory", data);
+
       if(this.$store.getters.isHistoryValid) {
         this.fileSelected = true;
         this.showFileSelect = false;

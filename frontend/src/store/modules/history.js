@@ -15,20 +15,24 @@ const getters = {
 };
 
 const actions = {
-    async setHistory(context, file) {
+    async setHistory(context, data) {
+        var res = 0
         console.log("received uploaded file from component")
-        var testUser = {}
+
+        const username = data["username"]
+        const access_token = data["access_token"]
+        const refresh_token = data["refresh_token"]
+        console.log(access_token)
 
         var history = Array();
-        history = file.urls;
+        history = data["file"].urls;
         console.log("history: ")
         console.log(history)
 
-        //const formData = new FormData();
-        const data = JSON.stringify({
+        /*const data = JSON.stringify({
             user_name: testUser,
             upload_urls: history
-        })
+        })*/
         const endpoint = "/" + `user`;
         const headers = { 
             // "Content-Type": "multipart/form-data",
@@ -36,8 +40,17 @@ const actions = {
         };
 
         await axios
-            .patch(endpoint, data, { headers })
+            .patch(
+                endpoint, 
+                {
+                    user_name: username,
+                    upload_urls: history,
+                }, 
+                { 
+                    Authorization: access_token,
+                })
             .then((response) => {
+            res = response.status
 
             if (response.data) {
                 // return success

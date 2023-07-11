@@ -14,12 +14,14 @@
     <b-row class="mb-2"></b-row>
     
     <div>
+  <!--
     <b-form v-if="this.username.length < 1" @submit.stop.prevent>
       <label for="feedback-username">Username </label>
       <b-form-input v-model="username" :state="validationUsernameStatic" id="feedback-username"></b-form-input>
     </b-form>
+   -->
 
-    <b-form v-if="this.username.length > 0" @submit.stop.prevent>
+    <b-form v-if="this.username.length > -1" @submit.stop.prevent>
         <label for="feedback-username">Username </label>
         <b-form-input v-model="username" :state="validationUsername" id="feedback-username"></b-form-input>
 
@@ -36,14 +38,16 @@
 
 
    <div v-if="!showPassword">
+  <!--
     <b-form v-if="this.password.length < 1" @submit.stop.prevent>
         <label for="feedback-password">Password</label>
         <span class="display-eye fa fa-eye-slash" @click="toggleShowPassword"></span>
 
         <b-form-input type="password" v-model="password" :state="validationPasswordStatic" id="feedback-password" aria-describedby="password-help-block"></b-form-input>
    </b-form>
+   -->
 
-    <b-form v-if="this.password.length > 0" @submit.stop.prevent>
+    <b-form v-if="this.password.length > -1" @submit.stop.prevent>
         <label for="feedback-password">Password</label>
         <span class="display-eye fa fa-eye-slash" @click="toggleShowPassword"></span>
 
@@ -59,14 +63,16 @@
 
 
   <div v-if="showPassword">
+  <!--
     <b-form v-if="this.password.length < 1" @submit.stop.prevent>
         <label for="feedback-password">Password</label>
         <span class="display-eye fa fa-eye-slash" @click="toggleShowPassword"></span>
 
         <b-form-input type="password" v-model="password" :state="validationPasswordStatic" id="feedback-password" aria-describedby="password-help-block"></b-form-input>
-   </b-form>
+   </b-form> 
+   -->
 
-    <b-form v-if="this.password.length > 0" @submit.stop.prevent>
+    <b-form v-if="this.password.length > -1" @submit.stop.prevent>
         <label for="feedback-password">Password</label>
         <span class="display-eye fa fa-eye" @click="toggleShowPassword"></span>
 
@@ -160,7 +166,7 @@
     },
 
     computed: {
-      usernameExisting() {
+      usernameExistingCheck() {
         // TODO: Check if it already exists
 
         return this.usernameExisting
@@ -168,7 +174,7 @@
 
 
       validationUsername() {
-        if(this.username.length > 2 && this.username.length < 17 && !this.usernameExisting) {
+        if(this.username.length > 2 && this.username.length < 17 && !this.usernameExistingCheck) {
           this.usernameValid = true
           return true
 
@@ -207,7 +213,7 @@
 
 
       validationUsernameStatic() {
-        return this.username.length > 2 && this.username.length < 17 && !this.usernameExisting
+        return this.username.length > 2 && this.username.length < 17 && !this.usernameExistingCheck
       },
 
       validationPasswordStatic() {
@@ -222,7 +228,7 @@
         }
 
         try {
-          this.$store.dispatch("register", formDict);
+          await this.$store.dispatch("register", formDict);
 
           if(this.$store.getters.isAuthenticated) {
             this.$router.push('/');

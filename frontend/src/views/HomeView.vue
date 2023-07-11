@@ -22,25 +22,9 @@
             >
           </li>
           <li class="nav-item dropdown">
-            <b-nav-item-dropdown right>
-              <!-- Using 'button-content' slot -->
-              <template #button-content> Import History </template>
-              <!-- <b-dropdown-item href="#" disabled>
-                <FileUpload
-                  mode="basic"
-                  name="model[]"
-                  accept=".json"
-                  :max-file-size="5000000000"
-                  :auto="true"
-                  :custom-upload="true"
-                  choose-label="Upload file"
-                  @uploader="onUpload"
-                />
-              </b-dropdown-item> -->
 
-              <b-dropdown-item href="#" @click="toggleDropzone">
-                <div>
-                  <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')">Dropzone</b-button>
+                <div v-if="isLoggedIn">
+                  <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')">Import History</b-button>
 
                   <b-modal id="modal-1" title="Upload your history!">
                     <div>
@@ -64,8 +48,6 @@
                     </div>
                   </b-modal>
                 </div>
-              </b-dropdown-item>
-            </b-nav-item-dropdown>
           </li>
         </ul>
 
@@ -104,14 +86,29 @@
       </div>
     </nav>
 
+
+
+
+
     <main>
-      <div class="container-fluid" v-if="!isLoggedIn" id="logout">
-        <div class="row display-flex no-gutters">
+
+      <div v-if="showSearchResult"
+        style="bottom: 0;"
+      >
+        <b-row align-v="center" align-h="center" class="justify-content-md-center">
+          <b-col></b-col>
+
+          <b-col cols="6">
+            <b-card class="custom-card" border-variant="dark">
+              <div class="container-fluid">
+
+
+        <!--<div class="row display-flex no-gutters">
           <div class="col-xs-6 col-md-2">
             <div class="container"></div>
           </div>
 
-          <div class="col-xs-6 col-md-7 ms-auto">
+          <div class="col-xs-6 col-md-7 ms-auto"> -->
             <div class="cards" v-if="results.length > 0">
               <ul class="list-group">
                 <li
@@ -119,35 +116,6 @@
                   v-for="(itemDict, index) in results"
                   :key="index"
                 >
-                  <!--
-                  <div class="card text-bg-white mb-3" style="max-width: 700px">
-                    <div class="row g-0">
-                      <div class="col-md-4">
-                        <img
-                          :src="exampleThumbnail"
-                          class="img-fluid rounded-start"
-                          alt="..."
-                        />
-                      </div>
-
-                      <div class="col-md-8">
-                        <div class="card-header">{{ itemDict["tags"] }}</div>
-                        <div class="card-body">
-                          <h5 class="card-title">{{ itemDict["title"] }}</h5>
-                          <p class="card-text">{{ itemDict["summary"] }}</p>
-                          <p class="card-text">
-                            <small class="text-body-secondary">
-                              {{ itemDict["authors"] }}</small
-                            >
-                            <small class="text-body-secondary">
-                              {{ itemDict["timestamp"] }}</small
-                            >
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  -->
 
                   <b-card no-body class="overflow-hidden mb-3" img-src="https://placekitten.com/300/300" img-alt="Card image" img-left>
                     <b-row no-gutters>
@@ -186,18 +154,97 @@
               </ul>
               <!-- <Card v-for="result in results" :key="result" :result="result" /> -->
             </div>
+            
 
-            <div class="col-xs-6 col-md-7 ms-auto" v-else>
-              <h3>Sorry, no results found for {{ searchQuery }} ...</h3>
             </div>
-          </div>
+            </b-card>
+          </b-col>
 
-          <div class="col-xs-6 col-md-3">Recommendations</div>
-        </div>
+          <b-col></b-col>
+        </b-row>
       </div>
 
-      <div class="container-fluid" v-else>
+
+      <div v-if="!showSearchResult"
+        style="bottom: 0;"
+      >
+
+      
+      <b-row align-v="center" align-h="center" class="justify-content-md-center">
+          <b-col></b-col>
+
+          <b-col cols="8">
+            
+            <b-row class="mb-4"></b-row>
+
+            <div class="container-fluid">
+            
+
+              
+              <ul class="list-group">
+                <li
+                  class="list-group-item"
+                  v-for="(item, index) in tags"
+                  :key="index"
+                >
+
+                  <v-container style="position:relative">
+                    <label for="article-slider"> {{ item["tag"] }} </label>
+
+                    <v-slide-group multiple show-arrows="always" id="article-slider">
+                      <v-slide-item 
+                        v-for="(itemDict, index) in item['articles']"
+                        :key="index">
+
+                      
+                      <b-card no-body class="overflow-hidden mb-3 mx-3"
+                      >
+                        <b-card-header>
+                          <b-card-img :src="itemDict['text']" alt="Image" bottom></b-card-img>
+                        </b-card-header>
+                        <b-card-body class="h-100 d-flex flex-column">
+                            <b-card-text>
+                            <p> {{ itemDict["text"] }} </p>
+                            </b-card-text>
+                        </b-card-body>
+                      </b-card>
+
+                  
+                      </v-slide-item>
+                    </v-slide-group>
+                  </v-container>
+
+
+                </li>
+              </ul>
+        <!--
+              <ul class="horizontalList" style="position:relative; overflow-x:auto">
+                <li
+                  class="horizontalList"
+                  v-for="(itemDict, index) in tags"
+                  :key="index"
+                >
+                  <b-card no-body class="overflow-hidden mb-3">
+                    Card
+                    <b-card-body class="h-100 d-flex flex-column">
+                          <b-card-text>
+                          <p>{{ itemDict["text"] }}</p>
+                          </b-card-text>
+                        </b-card-body>
+                  </b-card>
+
+                </li>
+              </ul>
+-->
+
+            </div>
+          </b-col>
+
+          <b-col></b-col>
+        </b-row>
+
       </div>
+      
     </main>
 
     <p>{{ loginStatus }}</p>
@@ -238,12 +285,89 @@ export default Vue.extend({
 
       dropzoneOpen: false,
       mobileView: false,
+      showSearchResult: false,
+      show: false,
 
       fileSelected: false,
       showFileSelect: true,
 
       msg: [],
       loginStatus: false,
+
+      tags: [
+        {
+          tag: "Health",
+          articles: [
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },
+            {
+              thumbnail: "https://placekitten.com/480/210",
+              text: "222222",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "3333333",
+            },
+          ],
+        },
+
+        {
+          tag: "Travel",
+          articles: [
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1",
+            },
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "2",
+            },
+            {
+              thumbnail: "https://placekitten.com/480/210",
+              text: "3",
+            },
+          ],
+        },
+      ],
+
     };
   },
 
@@ -267,6 +391,10 @@ export default Vue.extend({
   computed: {
     isLoggedIn: function () {
       this.loginStatus = this.$store.getters.isAuthenticated;
+      console.log("status::::")
+      console.log(this.$store.getters.isAuthenticated)
+      console.log(this.$store.getters.getAccessToken)
+      console.log(this.$store.getters.getRefreshToken)
       return this.$store.getters.isAuthenticated;
     },
   },
@@ -324,6 +452,8 @@ export default Vue.extend({
     },
 
     async handleSearch() {
+      var res = 0;
+
       // async
       console.log("generating results ...");
 
@@ -332,33 +462,44 @@ export default Vue.extend({
         query = query.split(" ").join("_");
       }
 
-      // ------------------
-      var endpoint = "/" + `search_his?query=${query}`; // `http://127.0.0.1:8000/search_his?query=${query}`;
-      //endpoint = `https://api.adviceslip.com/advice/search/${query}` // placeholder
-      // ------------------
+      var endpoint = "/";
+      var header = {};
+      if(this.isLoggedIn) {
+      console.log("user specific")
+      var endpoint = endpoint + `search_his?query=${query}`;
+      header["Authorization"] = this.$store.getters.getAccessToken;
+      console.log(header)
+
+      } else {
+      console.log("regular")
+      var endpoint = endpoint + `search?query=${query}`;
+
+      }
+      console.log(endpoint)
 
       await axios // await
         .get(endpoint, {
-          headers: {
-            //'Access-Control-Allow-Origin': '*', // NOT WORKING
-            //'Content-type': 'application/json', // NOT WORKING
-            // Authorization: 'Bearer ' + token //the token is a variable which holds the token
-          },
+          headers: header,
         })
         .then((response) => {
+          res = response.status
+          console.log(res)
+
           if (response.data) {
             // return success
             if (response.status === 200 || response.status === 201) {
-              //this.results = response.data;
 
               this.results = [];
-              const result: any[] = [];
+              console.log(response.data)
+              var result = response.data["result"]
+              console.log(result)
+              //const result: any[] = [];
 
-              var titles = response.data["title"];
-              var urls = response.data["urls"];
-              var authors = response.data["authors"];
-              var timestamps = response.data["timestamp"];
-              var tags = response.data["tags"];
+              var titles = result["title"];
+              var urls = result["urls"];
+              var authors = result["authors"];
+              var timestamps = result["timestamp"];
+              var tags = result["tags"];
               // var texts = response.data["text"];
 
               for (let i = 0; i < titles.length; i++) {
@@ -381,9 +522,8 @@ export default Vue.extend({
                   "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
                 };
 
-                result.push(dict);
+                this.results.push(dict);
               }
-              this.results = result;
               this.firstSearch = false;
 
               console.log("----------");
@@ -421,50 +561,6 @@ export default Vue.extend({
       console.log("uploaded");
     },
 
-    async getUploadedFile(file: any) {
-      console.log("received uploaded file from component")
-      this.fileSelected = true;
-      this.showFileSelect = false;
-
-      var file = file;
-      var history = Array();
-      history = file.urls;
-      console.log("history")
-      console.log(history)
-
-      //const formData = new FormData();
-      const data = JSON.stringify({
-        user_name: "user1",
-        upload_urls: history
-      })
-      const endpoint = "/" + `user`;
-      const headers = { 
-        // "Content-Type": "multipart/form-data",
-        // Authorization: 'Bearer ' + token //the token is a variable which holds the token
-      };
-
-      await axios
-        .post(endpoint, data, { headers })
-        .then((response) => {
-          if (response.data) {
-            // return success
-            if (response.status === 200 || response.status === 201) {
-              // do something
-              console.log("history uploaded successfully!")
-            }
-            // reject errors & warnings
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-
-
-
-    fetch() {
-      //this.$store.dispatch("websocketChangeFunctionality", "all vaccinations");
-    },
 
     handleView() {
       this.mobileView = window.innerWidth <= 990;
@@ -483,6 +579,11 @@ export default Vue.extend({
 * {
   font-size: 1rem;
 }
+
+.horizontalList {
+    display:inline
+}
+
 body {
   width: 100%;
   height: 100vh;
@@ -589,6 +690,10 @@ a {
   margin-right: 0 !important;
 }
 
+.v-slide-group__content {
+  justify-content: center;
+}
+
 .cards
 {
     display: inline;
@@ -607,7 +712,7 @@ ul{
   display: flex;
   gap: 6px;
   max-width: 100%;
-}
+} 
 
 
 .tag {

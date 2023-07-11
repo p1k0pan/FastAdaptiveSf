@@ -48,7 +48,7 @@
       <label for="password">Password</label>
       <span class="display-eye fa fa-eye-slash" @click="toggleShowPassword"></span>
 
-      <b-form-input type="password" v-model="password" :state="validationPassword" id="password" aria-describedby="password-help-block"></b-form-input>
+      <b-form-input type="password" v-model="password" id="password" aria-describedby="password-help-block"></b-form-input>
    </b-form>
   </div>
 
@@ -58,7 +58,7 @@
       <label for="password">Password</label>
       <span class="display-eye fa fa-eye" @click="toggleShowPassword"></span>
 
-      <b-form-input type="text" v-model="password" :state="validationPassword" id="password" aria-describedby="password-help-block"></b-form-input>
+      <b-form-input type="text" v-model="password" id="password" aria-describedby="password-help-block"></b-form-input>
    </b-form>
   </div>
 
@@ -111,16 +111,6 @@
         <b-col></b-col>
       </b-row>
     </div>
-    <div
-      class="flex-fill justify-content-center mb-4"
-      style="bottom: 0;"
-      >
-    <b-row align-v="center" >
-
-    
-
-  </b-row>
-  </div>
 
   </div>
 </template>
@@ -168,7 +158,7 @@ export default defineComponent({
       }
 
       try {
-        this.$store.dispatch("logIn", formDict);
+        await this.$store.dispatch("logIn", formDict);
 
         if(this.$store.getters.isAuthenticated) {
           this.$router.push('/');
