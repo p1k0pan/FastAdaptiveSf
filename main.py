@@ -96,7 +96,6 @@ async def login_to_create_token(response:Response, user: schema.UserSchema, db: 
 async def token_verify(response: Response, request:Request,db: Session =db_session, refresh:bool=False):
     try:
         token = request.headers['authorization']
-        print(token)
         status, code, msg, result = auth.token_validation(token,refresh)
         if code=="201" or code == "200":
             # if token not expired, check username
@@ -121,17 +120,14 @@ async def token_verify(response: Response, request:Request,db: Session =db_sessi
 async def search_query(query:str="", token=Depends(token_verify)):
     #example http://127.0.0.1:8000/search?query=start_my_own_restaurant
 
-    if token.code == "201" or token.code== "200":
-        query = query.replace("_", " ")
+    query = query.replace("_", " ")
 
-        query_corpus_result= con.search_query(query,corpus_embeddings=corpus_embeddings, client=client)
+    query_corpus_result= con.search_query(query,corpus_embeddings=corpus_embeddings, client=client)
 
-        article_response = schema.ArticleResponse()
-        article_response.process_dataset(query_corpus_result)
+    article_response = schema.ArticleResponse()
+    article_response.process_dataset(query_corpus_result)
 
-        return article_response
-    else:
-        return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
+    return article_response
 
 @app.get("/search_his", tags=["Search"])
 async def search_query_history(query:str="",token=Depends(token_verify)):
