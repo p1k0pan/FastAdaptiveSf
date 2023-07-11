@@ -90,7 +90,7 @@ async def login_to_create_token(response:Response, user: schema.UserSchema, db: 
 
             return schema.Response(status="Ok",
                         code="200",
-                        message="login success", result=user.user_name)
+                        message="login success", result=[access_token, refresh_token])
 
 @app.get("/token_verify")
 async def token_verify(response: Response, request:Request,db: Session =db_session, refresh:bool=False):
@@ -110,6 +110,7 @@ async def token_verify(response: Response, request:Request,db: Session =db_sessi
                 refresh_token = auth.create_token(_user.user_name, REFRESH_TOKEN_EXPIRED)
                 response.headers["access_token"] = access_token
                 response.headers["refresh_token"] = refresh_token
+                return schema.Response(status=status, code=code, message=msg, result=[access_token, refresh_token])
 
         return schema.Response(status=status, code=code, message=msg, result=result)
     except KeyError:
