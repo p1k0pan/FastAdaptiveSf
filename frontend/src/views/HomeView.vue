@@ -462,10 +462,13 @@ export default Vue.extend({
         query = query.split(" ").join("_");
       }
 
-      var endpoint = "/"
+      var endpoint = "/";
+      var header = {};
       if(this.isLoggedIn) {
       console.log("user specific")
       var endpoint = endpoint + `search_his?query=${query}`;
+      header["Authorization"] = this.$store.getters.getAccessToken;
+      console.log(header)
 
       } else {
       console.log("regular")
@@ -476,9 +479,7 @@ export default Vue.extend({
 
       await axios // await
         .get(endpoint, {
-          headers: {
-            Authorization: this.isLoggedIn ? this.$store.getters.getAccessToken : '',
-          },
+          headers: header,
         })
         .then((response) => {
           res = response.status
