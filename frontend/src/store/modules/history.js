@@ -45,30 +45,6 @@ const actions = {
         const url = endpoint;
 
         
-        console.log("iweik")
-        console.log(JSON.stringify(access_token))
-const headers = {
-  'Authorization': JSON.stringify(access_token) //'Bearer your-token'
-};
-
-const data1 = {
-    user_name: username,
-    upload_urls: state.history,
-};
-
-axios.patch(url, data1, { headers })
-  .then(response => {
-    console.log("after then121211221")
-    res = response.data["code"]
-    console.log(res)
-    console.log(response.data["message"])
-    // Handle the response
-    console.log(response.data);
-  })
-  .catch(error => {
-    // Handle the error
-    console.error(error);
-  });
 
         await axios
             .patch(
@@ -110,8 +86,7 @@ axios.patch(url, data1, { headers })
                     user_name: username,
                     upload_urls: state.history,
                 }, 
-                { 
-                    Authorization: refresh_token,
+                { headers: { 'Authorization': refresh_token }, 
                 })
             .then((response) => {
             res = response.data["code"]

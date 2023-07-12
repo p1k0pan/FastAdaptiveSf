@@ -278,8 +278,8 @@
       
     </main>
 
-    <p>{{ loginStatus }}</p>
-    <p>{{ msg }}</p>
+    <!-- <p>{{ loginStatus }}</p>
+    <p>{{ msg }}</p> -->
   </div>
 </template>
 
@@ -547,26 +547,49 @@ export default Vue.extend({
       }
 
       var endpoint = "/";
-      var header = {};
       if(this.isLoggedIn) {
         console.log("user specific")
         var endpoint = endpoint + `search_his?query=${query}`;
-        header["Authorization"] = this.$store.getters.getAccessToken;
-        console.log(header)
+
+        await axios
+        .get(endpoint,
+        {
+          headers: { 'Authorization': this.$store.getters.getAccessToken }, 
+        })
+        .then((response) => {
+          console.log("adwad")
+          res = response.data["code"]
+          console.log("res:")
+          console.log(res)
+
+          if (response.data) {
+            // return success
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
+              this.getSearchResults(response.data["result"]);
+            }
+            this.firstSearch = false;
+            this.showSearchResult = true;
+              
+            }
+            // reject errors & warnings
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
 
       } else {
         console.log("regular")
         var endpoint = endpoint + `search?query=${query}`;
 
-      }
-      console.log(endpoint)
-
-      await axios // await
-        .get(endpoint, {
-          headers: header,
-        })
+        await axios
+        .get(endpoint,
+          { 
+            headers: {}, 
+          })
         .then((response) => {
           res = response.data["code"]
+          console.log("res:")
           console.log(res)
 
           if (response.data) {
@@ -584,18 +607,18 @@ export default Vue.extend({
           console.log(error);
         });
 
+      }
 
 
+/*
       if(res === "401" && this.isLoggedIn) {
         console.log("trying to use refresh the token ...")
 
-
-        header["Authorization"] = this.$store.getters.getRefreshToken;
-
         await axios
-        .get(endpoint, {
-          headers: header,
-        })
+        .get(endpoint, 
+          { 
+            headers: { 'Authorization': this.$store.getters.getRefreshToken }, 
+          })
         .then((response) => {
           res = response.data["code"]
           console.log(res)
@@ -617,6 +640,7 @@ export default Vue.extend({
       }
 
 
+    if(this.isLoggedIn) {
       if(res === "402") {
         console.log("forcefully logging out")
         this.logout
@@ -632,16 +656,16 @@ export default Vue.extend({
         console.log("verify tokens")
         console.log(this.$store.getters.getRefreshToken)
 
-        const endpoint = "/" + `token_verify&refresh=true`;
-        var header = {};
-        header["Authorization"] = this.$store.getters.getRefreshToken;
+        const endpoint = "/" + `token_verify?refresh=true`;
+        console.log(endpoint)
 
         await axios
         .get(endpoint, {
-          headers: header,
+          headers: { 'Authorization': this.$store.getters.getRefreshToken }, 
         })
         .then((response) => {
           res = response.data["code"]
+          console.log("res:")
           console.log(res)
 
           if (response.data) {
@@ -660,7 +684,7 @@ export default Vue.extend({
           console.log(error);
         });
       }
-
+    }*/
       console.log("print this when the request is finished!");
     },
 
@@ -745,13 +769,12 @@ export default Vue.extend({
         console.log("verify tokens")
         console.log(this.$store.getters.getRefreshToken)
 
-        const endpoint = "/" + `token_verify&refresh=true`;
+        const endpoint = "/" + `token_verify?refresh=true`;
+        console.log(endpoint)
 
         await axios
         .get(endpoint, {
-          headers: {
-            Authorization: this.$store.getters.getRefreshToken,
-          },
+          headers: { 'Authorization': this.$store.getters.getRefreshToken }, 
         })
         .then((response) => {
           res = response.data["code"]
@@ -778,8 +801,8 @@ export default Vue.extend({
 
 
       if(this.$store.getters.isHistoryValid) {
-        this.fileSelected = true;
-        this.showFileSelect = false;
+        //this.fileSelected = true;
+        //this.showFileSelect = false;
       }
       
       //this.$emit("file-upload", this.file);
