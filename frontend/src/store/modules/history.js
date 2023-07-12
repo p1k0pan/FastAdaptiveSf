@@ -33,12 +33,18 @@ const actions = {
         const username = data["username"]
         const access_token = data["access_token"]
         const refresh_token = data["refresh_token"]
+        console.log("access token")
         console.log(access_token)
 
         console.log("history: ")
         console.log(state.history)
 
         const endpoint = "/" + `user`;
+        
+        console.log(endpoint)
+        const url = endpoint;
+
+        
 
         await axios
             .patch(
@@ -46,16 +52,18 @@ const actions = {
                 {
                     user_name: username,
                     upload_urls: state.history,
-                }, 
-                { 
-                    Authorization: access_token,
+                },
+                { headers: { 'Authorization': access_token }, 
                 })
             .then((response) => {
+            console.log("after then")
             res = response.data["code"]
+            console.log(res)
+            console.log(response.data["message"])
 
             if (response.data) {
                 // return success
-                if (response.status === 200 || response.status === 201) {
+                if (response.data["code"] === "200" || response.data["code"] === "201") {
                 // do something
                 console.log("history uploaded successfully!")
                 }
@@ -78,15 +86,14 @@ const actions = {
                     user_name: username,
                     upload_urls: state.history,
                 }, 
-                { 
-                    Authorization: refresh_token,
+                { headers: { 'Authorization': refresh_token }, 
                 })
             .then((response) => {
             res = response.data["code"]
 
             if (response.data) {
                 // return success
-                if (response.status === 200 || response.status === 201) {
+                if (response.data["code"] === "200" || response.data["code"] === "201") {
                 // do something
                 console.log("history uploaded successfully!")
                 }

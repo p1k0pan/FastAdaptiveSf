@@ -61,31 +61,10 @@
 
         </ul>
 
-        <li class="nav-item">
-        <v-container>
-          <div class="item">
-            <form class="form-inline mx-auto" @submit.prevent="handleSearch">
-              <input
-                class="form-control mr-sm-2 rounded"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-                v-model.trim="searchQuery"
-              />
-            </form>
-          </div>
-          <div class="item">
-            <!-- <form class="form-inline"> -->
-            <button
-              class="btn btn-outline-success my-2 my-sm-0"
-              type="submit"
-              @click="handleSearch"
-            >
-              Search
-            </button>
-            <!-- </form> -->
-          </div>
-        </v-container>
+        <li class="nav-item no-bullet-points">
+          <v-container v-if="isLoggedIn">
+            <span> {{ this.$store.getters.stateUser }} </span>
+          </v-container>
         </li>
 
         <li class="nav-item active no-bullet-points" v-if="!isLoggedIn">
@@ -299,8 +278,8 @@
       
     </main>
 
-    <p>{{ loginStatus }}</p>
-    <p>{{ msg }}</p>
+    <!-- <p>{{ loginStatus }}</p>
+    <p>{{ msg }}</p> -->
   </div>
 </template>
 
@@ -469,7 +448,7 @@ export default Vue.extend({
 
     async logout() {
       await this.$store.dispatch("logOut");
-      this.$router.push("/");
+      // this.$router.push("/");
     },
 
     formatDate(date: any) {
@@ -533,7 +512,7 @@ export default Vue.extend({
 
           if (response.data) {
             // return success
-            if (response.status === 200 || response.status === 201) {
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
               console.log(response.data)
             }
             
@@ -568,31 +547,54 @@ export default Vue.extend({
       }
 
       var endpoint = "/";
-      var header = {};
       if(this.isLoggedIn) {
         console.log("user specific")
         var endpoint = endpoint + `search_his?query=${query}`;
-        header["Authorization"] = this.$store.getters.getAccessToken;
-        console.log(header)
+
+        await axios
+        .get(endpoint,
+        {
+          headers: { 'Authorization': this.$store.getters.getAccessToken }, 
+        })
+        .then((response) => {
+          console.log("adwad")
+          res = response.data["code"]
+          console.log("res:")
+          console.log(res)
+
+          if (response.data) {
+            // return success
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
+              this.getSearchResults(response.data["result"]);
+            }
+            this.firstSearch = false;
+            this.showSearchResult = true;
+              
+            }
+            // reject errors & warnings
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
 
       } else {
         console.log("regular")
         var endpoint = endpoint + `search?query=${query}`;
 
-      }
-      console.log(endpoint)
-
-      await axios // await
-        .get(endpoint, {
-          headers: header,
-        })
+        await axios
+        .get(endpoint,
+          { 
+            headers: {}, 
+          })
         .then((response) => {
           res = response.data["code"]
+          console.log("res:")
           console.log(res)
 
           if (response.data) {
             // return success
-            if (response.status === 200 || response.status === 201) {
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
               this.getSearchResults(response.data["result"]);
             }
             this.firstSearch = false;
@@ -605,25 +607,25 @@ export default Vue.extend({
           console.log(error);
         });
 
+      }
 
 
+/*
       if(res === "401" && this.isLoggedIn) {
         console.log("trying to use refresh the token ...")
 
-
-        header["Authorization"] = this.$store.getters.getRefreshToken;
-
         await axios
-        .get(endpoint, {
-          headers: header,
-        })
+        .get(endpoint, 
+          { 
+            headers: { 'Authorization': this.$store.getters.getRefreshToken }, 
+          })
         .then((response) => {
           res = response.data["code"]
           console.log(res)
 
           if (response.data) {
             // return success
-            if (response.status === 200 || response.status === 201) {
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
               this.getSearchResults(response.data["result"]);
             }
             this.firstSearch = false;
@@ -638,6 +640,7 @@ export default Vue.extend({
       }
 
 
+    if(this.isLoggedIn) {
       if(res === "402") {
         console.log("forcefully logging out")
         this.logout
@@ -653,21 +656,21 @@ export default Vue.extend({
         console.log("verify tokens")
         console.log(this.$store.getters.getRefreshToken)
 
-        const endpoint = "/" + `token_verify&refresh=true`;
-        var header = {};
-        header["Authorization"] = this.$store.getters.getRefreshToken;
+        const endpoint = "/" + `token_verify?refresh=true`;
+        console.log(endpoint)
 
         await axios
         .get(endpoint, {
-          headers: header,
+          headers: { 'Authorization': this.$store.getters.getRefreshToken }, 
         })
         .then((response) => {
           res = response.data["code"]
+          console.log("res:")
           console.log(res)
 
           if (response.data) {
             // return success
-            if (response.status === 200 || response.status === 201) {
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
               authorizationData["access_token"] = response.data["result"]["access_token"];
               authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
 
@@ -681,7 +684,7 @@ export default Vue.extend({
           console.log(error);
         });
       }
-
+    }*/
       console.log("print this when the request is finished!");
     },
 
@@ -766,21 +769,21 @@ export default Vue.extend({
         console.log("verify tokens")
         console.log(this.$store.getters.getRefreshToken)
 
-        const endpoint = "/" + `token_verify&refresh=true`;
-        var header = {};
-        header["Authorization"] = this.$store.getters.getRefreshToken;
+        const endpoint = "/" + `token_verify?refresh=true`;
+        console.log(endpoint)
 
         await axios
         .get(endpoint, {
-          headers: header,
+          headers: { 'Authorization': this.$store.getters.getRefreshToken }, 
         })
         .then((response) => {
           res = response.data["code"]
+          console.log("res:")
           console.log(res)
 
           if (response.data) {
             // return success
-            if (response.status === 200 || response.status === 201) {
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
               authorizationData["access_token"] = response.data["result"]["access_token"];
               authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
 
@@ -798,8 +801,8 @@ export default Vue.extend({
 
 
       if(this.$store.getters.isHistoryValid) {
-        this.fileSelected = true;
-        this.showFileSelect = false;
+        //this.fileSelected = true;
+        //this.showFileSelect = false;
       }
       
       //this.$emit("file-upload", this.file);
