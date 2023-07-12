@@ -14,7 +14,6 @@
         </div>
       </div>
       <div v-if="file.isUploaded" class="upload-preview">
-        <p v-if="file.isHistory"> Uploaded. </p>
         <div v-if="!file.isHistory" class="file-extention">
           {{ file.fileExtention }}
         </div>
@@ -26,7 +25,6 @@
           <button @click="resetFileInput">Change file</button>
         </div>
         <div class="" style="margin-top: 10px">
-          <button id="import" @click="sendHistory">Select File</button>
         </div>
 
         <pre id="result"></pre>
@@ -72,6 +70,10 @@
         isUploaded: false,
       },
     };
+    },
+
+    created() {
+      this.resetFileInput();
     },
 
 
@@ -217,6 +219,7 @@
             // history
             var history = this.$refs.doc.files[0];
             var urls = await this.handleFileFormat(history);
+            this.$store.dispatch("setHistory", urls);
 
 
             // Get uploaded file for more information
@@ -254,34 +257,6 @@
       }
     },
 
-
-
-    sendHistory() {
-      console.log("send history to server ...")
-
-      const data = {
-        file: this.file,
-
-        username: this.$store.getters.stateUser,
-        access_token: this.$store.getters.getAccessToken,
-        refresh_token: this.$store.getters.getRefreshToken,
-      }
-
-      if (!this.file) return;
-      var status = this.$store.dispatch("setHistory", data);
-      if(status === -1) {
-        this.logout
-      }
-
-      if(this.$store.getters.isHistoryValid) {
-        this.fileSelected = true;
-        this.showFileSelect = false;
-      }
-      
-      //this.$emit("file-upload", this.file);
-      this.resetFileInput();
-      //this.$refs.form.reset(); RESET FORM TODO
-    },
 
 
 
