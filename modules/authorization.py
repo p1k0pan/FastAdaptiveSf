@@ -39,7 +39,7 @@ def token_validation(token:str, refresh=False):
         if refresh:
             if current_time > expiration_time:
                 # refresh Token has expired
-                return ['Failed',"400", 'Signature verification failed. Token has expired. Login agian', None]
+                return ['Failed',"402", 'Signature verification failed. Token has expired. Login agian', None]
             else:
                 # pass the access token instead of refresh token
                 return ['Failed',"400", 'Please pass the refresh token', None]
