@@ -533,7 +533,7 @@ export default Vue.extend({
           if (response.data) {
             // return success
             if (response.status === 200 || response.status === 201) {
-              this.getSearchResults(response.data);
+              this.getSearchResults(response.data["result"]);
             }
             this.firstSearch = false;
             this.showSearchResult = true;
@@ -564,7 +564,7 @@ export default Vue.extend({
           if (response.data) {
             // return success
             if (response.status === 200 || response.status === 201) {
-              this.getSearchResults(response.data);
+              this.getSearchResults(response.data["result"]);
             }
             this.firstSearch = false;
             this.showSearchResult = true;
