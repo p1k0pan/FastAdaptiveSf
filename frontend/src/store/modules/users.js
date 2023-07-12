@@ -24,7 +24,7 @@ const actions = {
   async register(context, formDict) {
     const res = await context.dispatch('createUser', formDict);
 
-    if(res === 200) {
+    if(res === "200") {
       await context.dispatch('logIn', formDict);
     } else {
       console.log("could not log in: there was an error while creating a user during the user registration")
@@ -37,7 +37,7 @@ const actions = {
   async createUser(context, formDict) {
     const username = formDict["username"]
     const password = formDict["password"]
-    var res = 0
+    var res = "0"
 
     const endpoint = "/" + `user`;
     const headers = { 
@@ -60,10 +60,10 @@ const actions = {
           console.log(response.status)
 
         if (response.data) {
+        res = response.data["code"]
           // return success
           if (response.status === 200) {
           console.log("created user successfully!")
-          res = 200
           }
         // reject errors & warnings
         }
@@ -152,6 +152,10 @@ const actions = {
     context.commit('SET_USER', authorizationData)
   },
 
+
+  async refreshTokens(context, authorizationData) {
+    context.commit('SET_USER', authorizationData)
+  },
 
   async viewMe({commit}) {
     //let {data} = await axios.get('users/whoami');

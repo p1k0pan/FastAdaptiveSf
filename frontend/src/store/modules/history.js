@@ -7,16 +7,27 @@ Vue.use(Vuex)
 const state = {
     history: [],
     isHistoryValid: false,
+    status_code: 0,
 };
 
 const getters = {
   stateHistory: state => state.history,
+  historyStatusCode: state => state.status_code,
   isHistoryValid: state => state.isHistoryValid,
 };
 
 const actions = {
-    async setHistory(context, data) {
-        var res = 0
+    async setHistory(context, urls) {
+        var history = Array();
+        history = urls;
+
+        context.commit('SET_HISTORY', history)
+    },
+
+    async patchHistory(context, data) {
+
+        context.commit('SET_STATUS_CODE', 0)
+        var res = "0"
         console.log("received uploaded file from component")
 
         const username = data["username"]
@@ -24,33 +35,23 @@ const actions = {
         const refresh_token = data["refresh_token"]
         console.log(access_token)
 
-        var history = Array();
-        history = data["file"].urls;
         console.log("history: ")
-        console.log(history)
+        console.log(state.history)
 
-        /*const data = JSON.stringify({
-            user_name: testUser,
-            upload_urls: history
-        })*/
         const endpoint = "/" + `user`;
-        const headers = { 
-            // "Content-Type": "multipart/form-data",
-            // Authorization: 'Bearer ' + token //the token is a variable which holds the token
-        };
 
         await axios
             .patch(
                 endpoint, 
                 {
                     user_name: username,
-                    upload_urls: history,
+                    upload_urls: state.history,
                 }, 
                 { 
                     Authorization: access_token,
                 })
             .then((response) => {
-            res = response.status
+            res = response.data["code"]
 
             if (response.data) {
                 // return success
@@ -65,23 +66,23 @@ const actions = {
             console.log(error);
             });
         
-        
-      if(res === 401) {
+      console.log(res)
+      if(res === "401") {
         console.log("trying to refresh the token")
 
-
+        
         await axios
             .patch(
                 endpoint, 
                 {
                     user_name: username,
-                    upload_urls: history,
+                    upload_urls: state.history,
                 }, 
                 { 
                     Authorization: refresh_token,
                 })
             .then((response) => {
-            res = response.status
+            res = response.data["code"]
 
             if (response.data) {
                 // return success
@@ -95,15 +96,15 @@ const actions = {
             .catch((error) => {
             console.log(error);
             });
+        
       }
 
-
-      if(this.isLoggedIn && res === 400) { // Please pass the refresh token            Token is expired            some error
-        return -1 // logout
-      }
-
-
-        context.commit('SET_HISTORY', history)
+        if(res == "404") {
+            
+        }
+        
+        context.commit('SET_STATUS_CODE', res) // res might be 402 now
+        context.commit('SET_HISTORY', state.history)
     },
 
     async resetHistory(context) {
@@ -113,6 +114,11 @@ const actions = {
 };
 
 const mutations = {
+    SET_STATUS_CODE(state, status_code) {
+        state.status_code = status_code
+    },
+
+
     SET_HISTORY(state, history) {
         state.isHistoryValid = true;
         state.history = history;

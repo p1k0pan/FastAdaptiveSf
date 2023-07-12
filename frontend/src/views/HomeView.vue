@@ -16,20 +16,20 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
 
           <v-spacer></v-spacer>
 
+          <li class="nav-item active">
             <a class="nav-link" href="#"
               >Home <span class="sr-only">(current)</span></a
             >
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item">
 
                 <div v-if="isLoggedIn">
                   <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')">Import History</b-button>
 
-                  <b-modal id="modal-1" title="Upload your history!">
+                  <b-modal id="modal-1" title="Upload your history!" @ok="sendHistory" @close="$store.dispatch('resetHistory')">
                     <div>
                       <button @click="showFileSelect = !showFileSelect" v-if="!fileSelected">
                         Select a file
@@ -43,18 +43,26 @@
                         <!-- json,pdf,csv,txt -->
                         <!-- @file-upload="(file) => getUploadedFile(file)" -->
                     </div>
-
-                    <div v-if="fileSelected">
-                      Successfully Selected file: {{ file.name }}.{{
-                        file.fileExtention
-                      }}
-                    </div>
                   </b-modal>
                 </div>
           </li>
+
+          <li class="nav-item active">
+            <form class="form-inline mx-auto ml-2" @submit.prevent="handleSearch">
+              <input
+                class="form-control mr-sm-2 rounded"
+                type="search"
+                placeholder="Search"
+                aria-label="Search"
+                v-model.trim="searchQuery"
+              />
+            </form>
+          </li>
+
         </ul>
 
-        <div class="container">
+        <li class="nav-item">
+        <v-container>
           <div class="item">
             <form class="form-inline mx-auto" @submit.prevent="handleSearch">
               <input
@@ -77,7 +85,8 @@
             </button>
             <!-- </form> -->
           </div>
-        </div>
+        </v-container>
+        </li>
 
         <li class="nav-item active no-bullet-points" v-if="!isLoggedIn">
           <a class="nav-link" @click="login">Log In/ Sign Up</a>
@@ -419,6 +428,10 @@ export default Vue.extend({
   created() {
     this.showSearchResult = false;
 
+
+    //this.loadTags();
+
+
     this.getMessage();
 
     this.handleView();
@@ -496,8 +509,55 @@ export default Vue.extend({
         });
     },
 
+
+    async loadTags() {
+      var res = "0"
+      console.log("loading home page tags ...");
+
+      var selection = ["Technology", "Life", "Animal",]
+      var header = {};
+
+      for(let i=0; i<selection.length; i++){
+        var endpoint = "/"
+        var val = selection[i]
+        endpoint = endpoint + `random?tag=${val}`;
+        console.log(endpoint)
+
+        await axios
+        .get(endpoint, {
+          headers: header,
+        })
+        .then((response) => {
+          res = response.data["code"]
+          console.log(res)
+
+          if (response.data) {
+            // return success
+            if (response.status === 200 || response.status === 201) {
+              console.log(response.data)
+            }
+            
+          }
+            // reject errors & warnings
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      }
+
+/*
+      tags: [
+        {
+          tag: "Health",
+          articles: [
+            {
+              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
+              text: "1111111",
+            },*/
+    },
+
     async handleSearch() {
-      var res = 0;
+      var res = "0"
 
       // async
       console.log("generating results ...");
@@ -510,14 +570,14 @@ export default Vue.extend({
       var endpoint = "/";
       var header = {};
       if(this.isLoggedIn) {
-      console.log("user specific")
-      var endpoint = endpoint + `search_his?query=${query}`;
-      header["Authorization"] = this.$store.getters.getAccessToken;
-      console.log(header)
+        console.log("user specific")
+        var endpoint = endpoint + `search_his?query=${query}`;
+        header["Authorization"] = this.$store.getters.getAccessToken;
+        console.log(header)
 
       } else {
-      console.log("regular")
-      var endpoint = endpoint + `search?query=${query}`;
+        console.log("regular")
+        var endpoint = endpoint + `search?query=${query}`;
 
       }
       console.log(endpoint)
@@ -527,7 +587,7 @@ export default Vue.extend({
           headers: header,
         })
         .then((response) => {
-          res = response.status
+          res = response.data["code"]
           console.log(res)
 
           if (response.data) {
@@ -547,8 +607,8 @@ export default Vue.extend({
 
 
 
-      if(this.isLoggedIn && res === 401) {
-        console.log("trying to refresh the token")
+      if(res === "401" && this.isLoggedIn) {
+        console.log("trying to use refresh the token ...")
 
 
         header["Authorization"] = this.$store.getters.getRefreshToken;
@@ -558,7 +618,7 @@ export default Vue.extend({
           headers: header,
         })
         .then((response) => {
-          res = response.status
+          res = response.data["code"]
           console.log(res)
 
           if (response.data) {
@@ -578,8 +638,48 @@ export default Vue.extend({
       }
 
 
-      if(this.isLoggedIn && res === 400) { // Please pass the refresh token            Token is expired            some error
-        this.logout();
+      if(res === "402") {
+        console.log("forcefully logging out")
+        this.logout
+
+      } else {
+        var res = "0"
+        const authorizationData = {
+          username: this.$store.getters.stateUser,
+          access_token: null,
+          refresh_token: null,
+        }
+
+        console.log("verify tokens")
+        console.log(this.$store.getters.getRefreshToken)
+
+        const endpoint = "/" + `token_verify&refresh=true`;
+        var header = {};
+        header["Authorization"] = this.$store.getters.getRefreshToken;
+
+        await axios
+        .get(endpoint, {
+          headers: header,
+        })
+        .then((response) => {
+          res = response.data["code"]
+          console.log(res)
+
+          if (response.data) {
+            // return success
+            if (response.status === 200 || response.status === 201) {
+              authorizationData["access_token"] = response.data["result"]["access_token"];
+              authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
+
+              this.$store.dispatch("refreshTokens", authorizationData);
+            }
+              
+            }
+            // reject errors & warnings
+        })
+        .catch((error) => {
+          console.log(error);
+        });
       }
 
       console.log("print this when the request is finished!");
@@ -632,6 +732,83 @@ export default Vue.extend({
         console.log("----------");
       }
     },
+
+
+
+
+
+
+    async sendHistory() {
+      console.log("send history to server ...")
+
+      const data = {
+        username: this.$store.getters.stateUser,
+        access_token: this.$store.getters.getAccessToken,
+        refresh_token: this.$store.getters.getRefreshToken,
+      }
+
+      if (!this.$store.getters.stateHistory) return;
+      await this.$store.dispatch("patchHistory", data);
+      console.log("history status code")
+      console.log(this.$store.getters.historyStatusCode)
+
+      if(this.$store.getters.historyStatusCode === "402") {
+        this.logout
+
+      } else {
+        var res = "0"
+        const authorizationData = {
+          username: this.$store.getters.stateUser,
+          access_token: null,
+          refresh_token: null,
+        }
+
+        console.log("verify tokens")
+        console.log(this.$store.getters.getRefreshToken)
+
+        const endpoint = "/" + `token_verify&refresh=true`;
+        var header = {};
+        header["Authorization"] = this.$store.getters.getRefreshToken;
+
+        await axios
+        .get(endpoint, {
+          headers: header,
+        })
+        .then((response) => {
+          res = response.data["code"]
+          console.log(res)
+
+          if (response.data) {
+            // return success
+            if (response.status === 200 || response.status === 201) {
+              authorizationData["access_token"] = response.data["result"]["access_token"];
+              authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
+
+              this.$store.dispatch("refreshTokens", authorizationData);
+            }
+              
+            }
+            // reject errors & warnings
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      }
+
+
+
+      if(this.$store.getters.isHistoryValid) {
+        this.fileSelected = true;
+        this.showFileSelect = false;
+      }
+      
+      //this.$emit("file-upload", this.file);
+      //this.$refs.form.reset(); RESET FORM TODO
+
+
+
+    },
+
 
     onUpload() {
       console.log("uploaded");
@@ -801,6 +978,10 @@ a {
   list-style-type: none;
   list-style-position: inside;
   margin-right: 10px;
+}
+
+.nav-item{
+  
 }
 
 .authorDiv {
