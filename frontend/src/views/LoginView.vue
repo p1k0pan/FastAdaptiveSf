@@ -40,7 +40,14 @@
       <b-form-input v-model="username" id="username"></b-form-input>
    </b-form>
 
-   
+   <b-row class="mb-2"></b-row>
+
+  <div class="extra">
+    <span class="rightSpan"> <b-button variant="link" @click="forgotUsername">Forgot username?</b-button> </span>
+  </div>
+
+   <b-row class="mb-4"></b-row>
+   <b-row class="mb-4"></b-row>
    <b-row class="mb-4"></b-row>
 
    <div v-if="!showPassword">
@@ -67,41 +74,28 @@
   <b-row class="mb-2"></b-row>
 
   <div class="extra">
-    <span class="stay"> <input class="form-check-input" type="checkbox" id="checkbox" v-model="stayLoggedIn"/> Remember me? </span>
-    <span class="rightSpan"> No account yet?   <a href="/register">Sign up</a> </span>
+    <span class="checkboxSpan"> <input class="form-check-input" type="checkbox" id="checkbox" v-model="stayLoggedIn"></input> Remember me? </span>
+    <span class="rightSpan"> <b-button variant="link" @click="forgotPassword">Forgot password?</b-button> </span>
   </div>
 
+  <b-row class="mb-4"></b-row>
+
+
+  <b-row class="mb-4"></b-row>
+
+
+  <div class="text-center">
+    <b-button variant="outline-primary" type="submit" size="lg" @click="submit" >Login</b-button>
+  </div>
+
+  <b-row class="mb-4"></b-row>
   <b-row class="mb-4"></b-row>
 
   <div class="text-center">
-    <b-button variant="outline-primary" type="submit" size="lg" @click="submit"> &nbsp; Login &nbsp; </b-button>
+    <span class=""> No account yet? <a href="/register">Sign up</a> </span>
   </div>
 
-
-  <b-row class="mb-2">
-    <b-col>
-      <div class="text-center">
-        <span class=""> <b-button variant="link" @click="forgotUsername">Forgot username?</b-button> </span>
-      </div>
-    </b-col>
-    
-    <b-col>
-      <div class="text-center">
-        <span class=""> <b-button variant="link" @click="forgotPassword">Forgot password?</b-button> </span>
-      </div>
-    </b-col>
-  </b-row>
-
-  <b-row class="mb-4"></b-row>
-
-  
-  <div class="separator"> otherwise </div>
   <b-row class="mb-2"></b-row>
-
-
-  <div class="text-center">
-    <b-button variant="outline-primary" type="submit" size="lg" @click="routeToRegisterView" >Sign up</b-button>
-  </div>
   
   <b-row class="mb-2"></b-row>
 
@@ -188,13 +182,17 @@ export default defineComponent({
 
 .display-eye {
 cursor:pointer;
-float: right;
 margin-top: 6px;
 margin-right: 1px;
+margin-left: 10px;
 }
 
 .rightSpan {
 float: right;
+}
+
+.checkboxSpan {
+margin-top: 10px;
 }
 
 hr {
