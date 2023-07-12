@@ -91,9 +91,10 @@
   <b-row class="mb-2"></b-row>
 
   <div class="extra">
-    <span class=""> <input class="form-check-input" type="checkbox" id="checkbox" v-model="stayLoggedIn"/> Remember me? </span>
+    <span class=""> <input class="form-check-input" type="checkbox" id="checkbox" v-model="stayLoggedIn"></input> Remember me? </span>
     <span class="rightSpan"> Already have an account?   <a href="/login">Login</a> </span>
   </div>
+
 
   <b-row class="mb-4"></b-row>
 
@@ -104,10 +105,12 @@
 
 
   <b-row class="mb-4"></b-row>
+  <b-row class="mb-4"></b-row>
 
 
   <div class="separator"> or </div>
 
+  <b-row class="mb-4"></b-row>
   
   <div class="text-center">
     <p class="mb-n1">Login with</p>
