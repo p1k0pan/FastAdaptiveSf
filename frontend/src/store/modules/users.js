@@ -24,7 +24,7 @@ const actions = {
   async register(context, formDict) {
     const res = await context.dispatch('createUser', formDict);
 
-    if(res === "200") {
+    if(res === "200" || res === "201") {
       await context.dispatch('logIn', formDict);
     } else {
       console.log("could not log in: there was an error while creating a user during the user registration")
@@ -57,12 +57,12 @@ const actions = {
           { headers })
         .then((response) => {
           console.log("Response:")
-          console.log(response.status)
+          console.log(response.data["code"])
 
         if (response.data) {
-        res = response.data["code"]
+          res = response.data["code"]
           // return success
-          if (response.status === 200) {
+          if (response.data["code"] === "200" || response.data["code"] === "201") {
           console.log("created user successfully!")
           }
         // reject errors & warnings
@@ -77,6 +77,7 @@ const actions = {
 
 
   async logIn(context, formDict) {
+    var res = "0"
     const username = formDict["username"]
     const password = formDict["password"]
 
@@ -103,8 +104,9 @@ const actions = {
         .then((response) => {
 
         if (response.data) {
+          res = response.data["code"]
           // return success
-          if (response.status === 200) {
+          if (response.data["code"] === "200" || response.data["code"] === "201") {
           console.log("user login successful!")
           var result = response.data["result"]
           console.log(result["access_token"])
@@ -112,13 +114,13 @@ const actions = {
           authorizationData["access_token"] = result["access_token"]
           authorizationData["refresh_token"] = result["refresh_token"]
 
-          } else if(response.status === 400) {
+          } else if(response.data["code"] === "400") {
             console.log("user login not successful!")
             
-            if(response.message === "Invalid user name or user not found"){
+            if(response.data["message"] === "Invalid user name or user not found"){
               console.log("Invalid user name or user not found!")
             }
-            if(response.message === "Invalid password"){
+            if(response.data["message"] === "Invalid password"){
               console.log("Invalid password!")
             }
 
@@ -148,8 +150,15 @@ const actions = {
     });
 
 
-    //await dispatch('viewMe');
-    context.commit('SET_USER', authorizationData)
+    console.log("res:")
+    console.log(res)
+    if(res === "200" || res === "201") {
+      context.commit('SET_USER', authorizationData)
+
+    } else {
+      context.commit('LOGOUT')
+
+    }
   },
 
 

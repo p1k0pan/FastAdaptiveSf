@@ -160,6 +160,8 @@ export default defineComponent({
       try {
         await this.$store.dispatch("logIn", formDict);
 
+        console.log("isAuthenticated:")
+        console.log(this.$store.getters.isAuthenticated)
         if(this.$store.getters.isAuthenticated) {
           this.$router.push('/');
 

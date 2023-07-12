@@ -61,31 +61,10 @@
 
         </ul>
 
-        <li class="nav-item">
-        <v-container>
-          <div class="item">
-            <form class="form-inline mx-auto" @submit.prevent="handleSearch">
-              <input
-                class="form-control mr-sm-2 rounded"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-                v-model.trim="searchQuery"
-              />
-            </form>
-          </div>
-          <div class="item">
-            <!-- <form class="form-inline"> -->
-            <button
-              class="btn btn-outline-success my-2 my-sm-0"
-              type="submit"
-              @click="handleSearch"
-            >
-              Search
-            </button>
-            <!-- </form> -->
-          </div>
-        </v-container>
+        <li class="nav-item no-bullet-points">
+          <v-container v-if="isLoggedIn">
+            <span> {{ this.$store.getters.stateUser }} </span>
+          </v-container>
         </li>
 
         <li class="nav-item active no-bullet-points" v-if="!isLoggedIn">
@@ -469,7 +448,7 @@ export default Vue.extend({
 
     async logout() {
       await this.$store.dispatch("logOut");
-      this.$router.push("/");
+      // this.$router.push("/");
     },
 
     formatDate(date: any) {
@@ -533,7 +512,7 @@ export default Vue.extend({
 
           if (response.data) {
             // return success
-            if (response.status === 200 || response.status === 201) {
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
               console.log(response.data)
             }
             
@@ -592,7 +571,7 @@ export default Vue.extend({
 
           if (response.data) {
             // return success
-            if (response.status === 200 || response.status === 201) {
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
               this.getSearchResults(response.data["result"]);
             }
             this.firstSearch = false;
@@ -623,7 +602,7 @@ export default Vue.extend({
 
           if (response.data) {
             // return success
-            if (response.status === 200 || response.status === 201) {
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
               this.getSearchResults(response.data["result"]);
             }
             this.firstSearch = false;
@@ -667,7 +646,7 @@ export default Vue.extend({
 
           if (response.data) {
             // return success
-            if (response.status === 200 || response.status === 201) {
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
               authorizationData["access_token"] = response.data["result"]["access_token"];
               authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
 
@@ -767,20 +746,21 @@ export default Vue.extend({
         console.log(this.$store.getters.getRefreshToken)
 
         const endpoint = "/" + `token_verify&refresh=true`;
-        var header = {};
-        header["Authorization"] = this.$store.getters.getRefreshToken;
 
         await axios
         .get(endpoint, {
-          headers: header,
+          headers: {
+            Authorization: this.$store.getters.getRefreshToken,
+          },
         })
         .then((response) => {
           res = response.data["code"]
+          console.log("res:")
           console.log(res)
 
           if (response.data) {
             // return success
-            if (response.status === 200 || response.status === 201) {
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
               authorizationData["access_token"] = response.data["result"]["access_token"];
               authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
 
