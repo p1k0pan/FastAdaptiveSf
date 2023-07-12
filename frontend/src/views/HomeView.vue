@@ -17,6 +17,9 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
+
+          <v-spacer></v-spacer>
+
             <a class="nav-link" href="#"
               >Home <span class="sr-only">(current)</span></a
             >
@@ -76,11 +79,11 @@
           </div>
         </div>
 
-        <li class="nav-item active" v-if="!isLoggedIn">
+        <li class="nav-item active no-bullet-points" v-if="!isLoggedIn">
           <a class="nav-link" @click="login">Log In/ Sign Up</a>
         </li>
 
-        <li class="nav-item active" v-if="isLoggedIn">
+        <li class="nav-item active no-bullet-points" v-if="isLoggedIn">
           <a class="nav-link" @click="logout">Log Out</a>
         </li>
       </div>
@@ -95,11 +98,13 @@
       <div v-if="showSearchResult"
         style="bottom: 0;"
       >
-        <b-row align-v="center" align-h="center" class="justify-content-md-center">
+        <b-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden">
           <b-col></b-col>
 
           <b-col cols="6">
-            <b-card class="custom-card" border-variant="dark">
+            <b-card>
+
+
               <div class="container-fluid">
 
 
@@ -109,49 +114,82 @@
           </div>
 
           <div class="col-xs-6 col-md-7 ms-auto"> -->
-            <div class="cards" v-if="results.length > 0">
-              <ul class="list-group">
-                <li
-                  class="list-group-item"
-                  v-for="(itemDict, index) in results"
-                  :key="index"
-                >
 
-                  <b-card no-body class="overflow-hidden mb-3" img-src="https://placekitten.com/300/300" img-alt="Card image" img-left>
+
+
+            <div class="cards" v-if="results.length > 0">
+              <ul class="list-group result-list">
+                <li
+                  class="list-group-item result-list-item border-0"
+                  v-for="(itemDict, idx) in results"
+                  :key="idx"
+                >
+                  <v-container>
+                  
                     <b-row no-gutters>
+                      <b-col md="4">
+                        <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0"></b-card-img>
+                      </b-col>
+
+
+                    
+                      <b-col md="8 position-relative"> <!-- https://www.codeply.com/p/TGtv6KDKvD -->
+                      <b-card no-body class="mb-3 position-absolute top-0 bottom-0 start-0 end-0">
                         <b-card-header>
-                          <div class="tag-input">
-                            <ul class="tags">
-                              <li v-for='(tag, index) in formatTags(itemDict["tags"])' :key="tag + index" class="tag">
+
+                            
+                          <div class="tagDiv">
+                              <li v-for='(tag, index) in formatTags(itemDict["tags"])' :key="tag + index" class="tagsList">
                                 {{ tag.replace("'", "").replace("'", "") }}
                               </li>
-                            </ul>
                           </div>
                         </b-card-header>
-                        <b-card-body class="h-100 d-flex flex-column">
-                          <b-card-title title-tag="h5" :href="itemDict['url']">{{itemDict["title"]}}</b-card-title>
-                          <b-card-text>
-                          <p>{{ itemDict["summary"] }}</p>
+                        
+                        
+                        <b-card-body class="h-100 d-flex flex-column overflow-auto">
+                          <div class="titleDiv">
+                            <b-card-title class="wordBreak" title-tag="h5" :href="itemDict['url']">{{itemDict["title"]}}</b-card-title>
+
+                            <span> 
+                              <b-button class="rounded px-2" @click="openSummaryModal"> Summary </b-button>
+
+                            </span>
+
+                          </div>
+
+                          <b-card-text class="wordBreak">
+                            <p class="three-lines"> {{ itemDict["text"] }} </p> <!-- https://codepen.io/raevilman/pen/OJpQXjg/left -->
                           </b-card-text>
                         </b-card-body>
-                        
-                        
-                        <b-card-text class="small text-muted">
-                            <div style="display: flex; justify-content: space-between;">
-                              <li v-for='(author, index) in formatAuthors(itemDict["authors"])' :key="author + index" class="author">
-                                {{ author.replace("'", "").replace("'", "") }}
-                              </li>
-                              <p> {{ formatDate(itemDict["timestamp"]) }} </p>
-                            </div>
-                        </b-card-text>
 
-                        <b-card-footer>
-                        </b-card-footer>
+                        <template #footer>
+                          <small class="text-muted">
+                            <div style="display: flex; justify-content: space-between;">
+
+                              <div class="authorDiv">
+                                <li v-for='(author, index) in formatAuthors(itemDict["authors"])' :key="author + index" class="authorList">
+                                  <span class=""> {{ author.replace("'", "").replace("'", "") }} </span>
+                                </li>
+
+                                <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
+                              </div>
+
+                            </div>
+                          </small>
+                        </template>
+                        
+                      </b-card>
+                      </b-col>
+
                     </b-row>
-                  </b-card>
+                  </v-container>
 
                 </li>
               </ul>
+
+
+              <SummaryModal v-show="showSummaryModal" @close="closeSummaryModal"></SummaryModal>
+
               <!-- <Card v-for="result in results" :key="result" :result="result" /> -->
             </div>
             
@@ -163,6 +201,11 @@
           <b-col></b-col>
         </b-row>
       </div>
+
+
+
+
+
 
 
       <div v-if="!showSearchResult"
@@ -261,6 +304,7 @@ import dayjs from 'dayjs';
 
 import FileUpload from "primevue/fileupload";
 import FileUploadField from "@/components/FileUploadField.vue";
+import SummaryModal from '@/components/SummaryModal.vue'
 //import FileUpload from "primevue/fileupload"
 //import Navigation from "@/components/NavigationBar.vue";
 //import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
@@ -273,6 +317,7 @@ export default Vue.extend({
   components: {
     FileUpload,
     FileUploadField,
+    SummaryModal,
   },
 
   data() {
@@ -280,8 +325,6 @@ export default Vue.extend({
       results: [],
       searchQuery: "",
       firstSearch: true,
-      exampleThumbnail:
-        "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
 
       dropzoneOpen: false,
       mobileView: false,
@@ -293,6 +336,7 @@ export default Vue.extend({
 
       msg: [],
       loginStatus: false,
+      showSummaryModal: false,
 
       tags: [
         {
@@ -371,8 +415,10 @@ export default Vue.extend({
     };
   },
 
+
   created() {
-    // async --> API ERROR WITH AXIOS
+    this.showSearchResult = false;
+
     this.getMessage();
 
     this.handleView();
@@ -410,7 +456,7 @@ export default Vue.extend({
 
     async logout() {
       await this.$store.dispatch("logOut");
-      //this.$router.push("/"); // ERROR
+      this.$router.push("/");
     },
 
     formatDate(date: any) {
@@ -421,10 +467,6 @@ export default Vue.extend({
     formatTags(tags: any) {
       let temp = new Array(tags);
       let tagsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
-      console.log(tagsArray )
-      for (let i = 0; i < tagsArray.length; i++) {
-        console.log(tagsArray [i])
-      }
       return tagsArray
     },
 
@@ -433,11 +475,14 @@ export default Vue.extend({
       //authors.replace(/\[|\]/g,'').split(',')
       let temp = new Array(authors);
       let authorsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
-      console.log(authorsArray)
-      for (let i = 0; i < authorsArray.length; i++) {
-        console.log(authorsArray[i])
-      }
       return authorsArray
+    },
+
+    openSummaryModal() {
+      this.showSummaryModal = true;
+    },
+    closeSummaryModal() {
+      this.showSummaryModal = false;
     },
 
     getMessage() {
@@ -488,73 +533,104 @@ export default Vue.extend({
           if (response.data) {
             // return success
             if (response.status === 200 || response.status === 201) {
-
-              this.results = [];
-              console.log(response.data)
-              var result = response.data["result"]
-              console.log(result)
-              //const result: any[] = [];
-
-              var titles = result["title"];
-              var urls = result["urls"];
-              var authors = result["authors"];
-              var timestamps = result["timestamp"];
-              var tags = result["tags"];
-              // var texts = response.data["text"];
-
-              for (let i = 0; i < titles.length; i++) {
-                titles[i] = JSON.stringify(titles[i])
-                urls[i] = JSON.stringify(urls[i])
-                authors[i] = JSON.stringify(authors[i])
-                timestamps[i] = JSON.stringify(timestamps[i])
-                tags[i] = JSON.stringify(tags[i])
-                // texts[i] = JSON.parse(text[i])
-
-                var dict = {
-                  id: i,
-                  title: titles[i],
-                  url: urls[i],
-                  authors: authors[i],
-                  timestamp: timestamps[i],
-                  tags: tags[i],
-                  //"texts": texts[0],
-                  summary: 
-                  "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-                };
-
-                this.results.push(dict);
-              }
-              this.firstSearch = false;
-
-              console.log("----------");
-              console.log(titles);
-              console.log("---");
-              console.log(urls);
-              console.log("---");
-              console.log(authors);
-              console.log("---");
-              console.log(timestamps);
-              console.log("---");
-              console.log(tags);
-              //console.log("---")
-              //console.log(texts)
-              console.log("----------");
-              
+              this.getSearchResults(response.data["result"]);
+            }
+            this.firstSearch = false;
+            this.showSearchResult = true;
               
             }
             // reject errors & warnings
-          }
         })
         .catch((error) => {
           console.log(error);
         });
 
+
+
+      if(this.isLoggedIn && res === 401) {
+        console.log("trying to refresh the token")
+
+
+        header["Authorization"] = this.$store.getters.getRefreshToken;
+
+        await axios
+        .get(endpoint, {
+          headers: header,
+        })
+        .then((response) => {
+          res = response.status
+          console.log(res)
+
+          if (response.data) {
+            // return success
+            if (response.status === 200 || response.status === 201) {
+              this.getSearchResults(response.data["result"]);
+            }
+            this.firstSearch = false;
+            this.showSearchResult = true;
+              
+            }
+            // reject errors & warnings
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      }
+
+
+      if(this.isLoggedIn && res === 400) { // Please pass the refresh token            Token is expired            some error
+        this.logout();
+      }
+
       console.log("print this when the request is finished!");
-      console.log(this.results.length);
-      console.log(this.results === undefined || this.results.length == 0);
-      console.log("---");
-      console.log(this.results);
-      console.log("----------");
+    },
+
+
+    getSearchResults(data) {
+      this.results = [];
+      console.log(data)
+
+      var titles = data["title"];
+      var urls = data["urls"];
+      var thumbnails = data["thumbnail"];
+      var authors = data["authors"];
+      var timestamps = data["timestamp"];
+      var tags = data["tags"];
+      var texts = data["text"];
+
+      for (let i = 0; i < titles.length; i++) {
+        titles[i] = titles[i]
+        urls[i] = urls[i]
+        thumbnails[i] = (thumbnails[i] != "https://miro.medium.com/v2/1*m-R_BkNf1Qjr1YbyOIJY2w.png") ? thumbnails[i] : "https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png"
+        authors[i] = JSON.stringify(authors[i])
+        timestamps[i] = timestamps[i]
+        tags[i] = JSON.stringify(tags[i])
+        texts[i] = texts[i]
+
+        var dict = {
+          id: i,
+          title: titles[i],
+          url: urls[i],
+          thumbnail: thumbnails[i],
+          authors: authors[i],
+          timestamp: timestamps[i],
+          tags: tags[i],
+          text: texts[i],
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        };
+
+        this.results.push(dict);
+
+
+        console.log("----------");
+        console.log(titles);
+        console.log("---");
+        console.log(urls);
+        console.log("---");
+        console.log(authors);
+        console.log("----------");
+      }
     },
 
     onUpload() {
@@ -582,6 +658,15 @@ export default Vue.extend({
 
 .horizontalList {
     display:inline
+}
+
+.three-lines {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  white-space: normal;
 }
 
 body {
@@ -627,6 +712,11 @@ body {
   border-radius: 10px;
 }
 
+.resultRow {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .container {
   display: flex;
 }
@@ -637,6 +727,19 @@ body {
 
 a {
   cursor: pointer;
+  margin-right: 60px;
+}
+
+
+.result-list {
+}
+
+.result-list-item {
+}
+
+
+.rightSpan {
+  text-align: right;
 }
 
 .file-drop-area {
@@ -694,34 +797,52 @@ a {
   justify-content: center;
 }
 
+.authorList {
+  list-style-type: none;
+  list-style-position: inside;
+  margin-right: 10px;
+}
+
+.authorDiv {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.titleDiv {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.wordBreak {
+  word-break:break-word;
+}
+
 .cards
 {
     display: inline;
 }
 
-.tag-input {
-  position: relative;
+.tagDiv {
+  display: flex;
+  width: 100%;
 }
 
-ul{
-  top: 0;
-  bottom: 0;
-  left: 10px;
-  list-style: none;
-  list-style-position: outside;
-  display: flex;
-  gap: 6px;
-  max-width: 100%;
-} 
+.no-bullet-points{ 
+  list-style-type: none;
+}
 
-
-.tag {
-  background: rgb(250, 104, 104);
+.tagsList {
+  list-style-type: none;
+  background: rgb(186, 81, 81);
   padding: 5px;
   border-radius: 4px;
   color: white;
   white-space: nowrap;
   transition: 0.1s ease background;
+
+  margin-right: 10px;
 }
 
 

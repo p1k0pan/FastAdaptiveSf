@@ -64,6 +64,43 @@ const actions = {
             .catch((error) => {
             console.log(error);
             });
+        
+        
+      if(res === 401) {
+        console.log("trying to refresh the token")
+
+
+        await axios
+            .patch(
+                endpoint, 
+                {
+                    user_name: username,
+                    upload_urls: history,
+                }, 
+                { 
+                    Authorization: refresh_token,
+                })
+            .then((response) => {
+            res = response.status
+
+            if (response.data) {
+                // return success
+                if (response.status === 200 || response.status === 201) {
+                // do something
+                console.log("history uploaded successfully!")
+                }
+                // reject errors & warnings
+            }
+            })
+            .catch((error) => {
+            console.log(error);
+            });
+      }
+
+
+      if(this.isLoggedIn && res === 400) { // Please pass the refresh token            Token is expired            some error
+        return -1 // logout
+      }
 
 
         context.commit('SET_HISTORY', history)

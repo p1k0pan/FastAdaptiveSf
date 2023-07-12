@@ -91,8 +91,8 @@
   <b-row class="mb-2"></b-row>
 
   <div class="extra">
-    <span class="stay"> <input class="form-check-input" type="checkbox" id="checkbox" v-model="stayLoggedIn"/> Remember me? </span>
-    <span class="reg"> Already have an account?   <a href="/login">Login</a> </span>
+    <span class=""> <input class="form-check-input" type="checkbox" id="checkbox" v-model="stayLoggedIn"/> Remember me? </span>
+    <span class="rightSpan"> Already have an account?   <a href="/login">Login</a> </span>
   </div>
 
   <b-row class="mb-4"></b-row>
@@ -260,7 +260,7 @@
   margin-right: 1px;
   }
   
-  .reg {
+  .rightSpan {
   float: right;
   }
   

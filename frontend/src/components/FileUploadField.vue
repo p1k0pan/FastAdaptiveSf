@@ -76,6 +76,11 @@
 
 
     methods: {
+    async logout() {
+      await this.$store.dispatch("logOut");
+      this.$router.push("/");
+    },
+
 
     isFileSizeValid(fileSize) {
       if (fileSize <= this.maxSize) {
@@ -231,29 +236,6 @@
           // Print to console
           console.log(fileSize, fileExtention, fileName, isHistory);
 
-          /*
-          // Load the FileReader API (DOES NOT WORK)
-          let reader = new FileReader();
-          reader.addEventListener(
-            "load",
-            () => {
-              // Set file data
-              this.file = {
-                name: fileName,
-                size: fileSize,
-                type: file.type,
-                body: file,
-                fileExtention: fileExtention,
-                metadata: metadata,
-                isHistory: isHistory,
-                fileUrl: reader.result,
-                isUploaded: true,
-              };
-            },
-            false
-          );
-          */
-
           // Set file data
           this.file = {
                 name: fileName,
@@ -286,7 +268,10 @@
       }
 
       if (!this.file) return;
-      this.$store.dispatch("setHistory", data);
+      var status = this.$store.dispatch("setHistory", data);
+      if(status === -1) {
+        this.logout
+      }
 
       if(this.$store.getters.isHistoryValid) {
         this.fileSelected = true;
@@ -297,6 +282,10 @@
       this.resetFileInput();
       //this.$refs.form.reset(); RESET FORM TODO
     },
+
+
+
+
     
     },
 
