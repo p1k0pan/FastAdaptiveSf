@@ -84,7 +84,7 @@ def search_query_history(query:str, corpus_embeddings, client, user_name):
         query_corpus_result_embedding = _embed_text(rerank_result.clean_sentence.values)
 
         user_history = _read_history(user_name)
-        if user_history:
+        if not user_history.empty:
             user_keyword_embeddings = _embed_text(user_history.clean_sentence.values)
             # print(f'user history shape: {user_keyword_embeddings.shape}')
 
@@ -173,7 +173,7 @@ def _rank_hits_history(history_emb, rerank_emb, df) -> pd.DataFrame:
 
     return df
 
-def _read_history(user_name:str) -> pd.DataFrame:
+def _read_history(user_name:str):
 
     directory_name='history/'
     user_file = user_name+'.json'
@@ -184,7 +184,7 @@ def _read_history(user_name:str) -> pd.DataFrame:
         # with open('food_health_data.json', 'r') as f:
         #     data = json.load(f)
         #     print("go with default")
-        return None
+        return pd.DataFrame()
     else:
         with open(directory_name+user_file, 'r') as f:
             data = json.load(f)
