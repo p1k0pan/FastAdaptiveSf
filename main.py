@@ -133,7 +133,8 @@ async def search_query_history(query:str="",token=Depends(token_verify)):
 
     query = query.replace("_", " ")
     if token.code == "201" or token.code== "200":
-        query_corpus_result= con.search_query_history(query,corpus_embeddings=corpus_embeddings, client=client)
+        print(token.result)
+        query_corpus_result= con.search_query_history(query,corpus_embeddings=corpus_embeddings, client=client, user_name= token.result)
         return query_corpus_result
 
     else:

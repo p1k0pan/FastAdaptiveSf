@@ -5,7 +5,6 @@ import json
 from sentence_transformers import SentenceTransformer, util, CrossEncoder
 from io import StringIO
 import os
-print(os.curdir)
 from db import schema
 
 
@@ -70,7 +69,7 @@ def search_query(query:str, corpus_embeddings, client):
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
-def search_query_history(query:str, corpus_embeddings, client):
+def search_query_history(query:str, corpus_embeddings, client, user_name):
 
     print(query)
     query_embedding = _embed_text(query)
@@ -84,15 +83,21 @@ def search_query_history(query:str, corpus_embeddings, client):
 
         query_corpus_result_embedding = _embed_text(rerank_result.clean_sentence.values)
 
-        user_history = _read_history()
-        user_keyword_embeddings = _embed_text(user_history.clean_sentence.values)
-        # print(f'user history shape: {user_keyword_embeddings.shape}')
+        user_history = _read_history(user_name)
+        if user_history:
+            user_keyword_embeddings = _embed_text(user_history.clean_sentence.values)
+            # print(f'user history shape: {user_keyword_embeddings.shape}')
 
-        history_rank = _rank_hits_history(user_keyword_embeddings, query_corpus_result_embedding, rerank_result)
+            history_rank = _rank_hits_history(user_keyword_embeddings, query_corpus_result_embedding, rerank_result)
 
-        article_response = schema.ArticleResponse()
-        article_response.process_dataset(history_rank)
-        return schema.Response(status='Ok', code='200', message='success', result=article_response)
+            article_response = schema.ArticleResponse()
+            article_response.process_dataset(history_rank)
+            return schema.Response(status='Ok', code='200', message='success', result=article_response)
+        else:
+            article_response = schema.ArticleResponse()
+            article_response.process_dataset(rerank_result)
+            return schema.Response(status='Ok', code='200', message='success without history', result=article_response)
+
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
@@ -168,15 +173,27 @@ def _rank_hits_history(history_emb, rerank_emb, df) -> pd.DataFrame:
 
     return df
 
-def _read_history() -> pd.DataFrame:
-    with open('food_health_data.json') as f:
-        data = json.load(f)
+def _read_history(user_name:str) -> pd.DataFrame:
 
-    history= []
-    for index in data:
-        history.append(data[index])
-    user_history = pd.DataFrame(history, columns=['sentence'])
-    user_history = clean_dataset.clean_sentences(user_history)
-    # print(user_history.head())
-    return user_history
+    directory_name='history/'
+    user_file = user_name+'.json'
 
+    # print(os.getcwd())
+    if not os.path.exists(directory_name+user_file):
+
+        # with open('food_health_data.json', 'r') as f:
+        #     data = json.load(f)
+        #     print("go with default")
+        return None
+    else:
+        with open(directory_name+user_file, 'r') as f:
+            data = json.load(f)
+            print("go with user")
+
+            history= []
+            for index in data:
+                history.append(data[index])
+            user_history = pd.DataFrame(history, columns=['sentence'])
+            user_history = clean_dataset.clean_sentences(user_history)
+            # print(user_history.head())
+            return user_history
