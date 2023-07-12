@@ -7,6 +7,7 @@ from io import StringIO
 import os
 from db import schema
 
+result_num = 50
 
 if torch.cuda.is_available():
     device = 'cuda'
@@ -55,7 +56,6 @@ def random_stories(tag:str, client):
 def search_query(query:str, corpus_embeddings, client):
     print(query)
     query_embedding = _embed_text(query)
-    result_num = 10
     # print(f'query shape: {query_embedding.shape}')
 
     try:
@@ -73,7 +73,6 @@ def search_query_history(query:str, corpus_embeddings, client, user_name):
 
     print(query)
     query_embedding = _embed_text(query)
-    result_num = 10
     # print(f'query shape: {query_embedding.shape}')
 
     try:
