@@ -116,7 +116,7 @@ def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client):
     )
     df_str = StringIO(result)
     df_result = pd.read_csv(df_str, sep='\t')
-    print(df_result[["index","title"]].values)
+    print(df_result[["Unnamed: 0","title"]].values)
     # df.iloc[result_index].copy().to_csv('hits.csv',',')
     
     return df_result
@@ -135,7 +135,7 @@ def _get_hits(question_embedding, corpus_embeddings, top_k, df):
         idx = item["corpus_id"]
         result_index.append(idx)
 
-    print(df[["index","title"]].values)
+    print(df[["Unnamed: 0","title"]].values)
     return df.iloc[result_index].copy()
 
 def _rank_hits_cross_encoder(hits_df,query):
@@ -147,7 +147,7 @@ def _rank_hits_cross_encoder(hits_df,query):
     hits_df.sort_values(by=['score'], inplace=True, ascending=False)
 
     print("\nCross Hits:")
-    print(f"{hits_df[['title']].values}")
+    print(hits_df[["Unnamed: 0","title"]].values)
     return hits_df.copy()
 
 def _rank_hits_history(history_emb, rerank_emb, df) -> pd.DataFrame:
