@@ -144,10 +144,16 @@ async def search_query_history(query:str="",token=Depends(token_verify)):
     # return {"title": "test"}
 
 
-@app.get('/user',tags=["User"])
-async def get_user(skip: int = 0, limit: int = 100, db: Session =db_session):
+@app.get('/user/all',tags=["User"])
+async def get_all_user(skip: int = 0, limit: int = 100, db: Session =db_session):
     _users = crud.get_all_user(db, skip, limit)
     return schema.Response(status="Ok", code="200", message="Sucstatus, code, msg, resultcess fetch all data", result=_users)
+
+@app.get('/user',tags=["User"])
+async def get_user(user_name:str, db: Session =db_session ):
+
+    _users = crud.get_user(db, user_name)
+    return schema.Response(status="Ok", code="200", message="Success get user", result=_users)
 
 @app.post("/user", tags=["User"])
 async def create_user(request: schema.UserSchema, db: Session =db_session): 
