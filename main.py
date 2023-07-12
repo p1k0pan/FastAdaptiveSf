@@ -117,28 +117,25 @@ async def token_verify(response: Response, request:Request,db: Session =db_sessi
         return schema.Response(status="Failed", code='404', message="Token not found in Header", result=None)
 
 @app.get("/search", tags=["Search"])
-async def search_query(query:str="", token=Depends(token_verify)):
+async def search_query(query:str=""):
     #example http://127.0.0.1:8000/search?query=start_my_own_restaurant
 
     query = query.replace("_", " ")
 
     query_corpus_result= con.search_query(query,corpus_embeddings=corpus_embeddings, client=client)
 
-    article_response = schema.ArticleResponse()
-    article_response.process_dataset(query_corpus_result)
 
-    return article_response
+    return query_corpus_result
 
 @app.get("/search_his", tags=["Search"])
 async def search_query_history(query:str="",token=Depends(token_verify)):
     #example http://127.0.0.1:8000/search_his?query=start_my_own_restaurant
 
+    query = query.replace("_", " ")
     if token.code == "201" or token.code== "200":
         query_corpus_result= con.search_query_history(query,corpus_embeddings=corpus_embeddings, client=client)
+        return query_corpus_result
 
-        article_response = schema.ArticleResponse()
-        article_response.process_dataset(query_corpus_result)
-        return article_response
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
     # return {"title": "test"}
@@ -167,7 +164,6 @@ async def create_user(request: schema.UserSchema, db: Session =db_session):
 @app.patch("/user", tags=["User"])
 async def update_histories(request: schema.UserSchema, db: Session =db_session,token=Depends(token_verify)):
     # detect upload_urls exception
-    print(token.code)
 
     if token.code == "201" or token.code== "200":
 
@@ -179,3 +175,11 @@ async def update_histories(request: schema.UserSchema, db: Session =db_session,t
 
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
+
+@app.get("/random", tags=["Demo"])
+async def random_article(tag:str=""):
+    if tag=="":
+        return schema.Response(status="Failed", code='400', message='tags empty', result=None)
+    else:
+        result = con.random_stories(tag,client)
+        return result
