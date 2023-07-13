@@ -1,7 +1,7 @@
 <template>
   <div id="home" class="divide-y divide-gray-200">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand ml-4" href="#">Adaptive Storyfinder</a>
+      <a class="navbar-brand ml-4 mb-2" href="#">Adaptive Storyfinder</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -17,17 +17,19 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
 
+          
           <v-spacer></v-spacer>
 
           <li class="nav-item active">
-            <a class="nav-link" href="/"
-              >Home <span class="sr-only">(current)</span></a
-            >
+            <router-link class="nav-link" to="/" @click.native="backToHome">Home</router-link>
+
           </li>
           <li class="nav-item">
 
                 <div v-if="isLoggedIn">
-                  <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')">Import History</b-button>
+                  <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')" variant="outline-primary" class="mb-2">
+                    Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
+                  </b-button>
 
                   <b-modal id="modal-1" title="Upload your history!" @ok="sendHistory" @close="$store.dispatch('resetHistory')">
                     <div>
@@ -45,10 +47,17 @@
                     </div>
                   </b-modal>
                 </div>
+
+
+                <div v-if="!isLoggedIn">
+                  <b-button v-b-toggle.visible @click="$store.dispatch('resetHistory')" variant="outline-primary" class="mb-2">
+                    Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
+                  </b-button>
+                </div>
           </li>
 
           <li class="nav-item active">
-            <form class="form-inline mx-auto ml-2" @submit.prevent="handleSearch">
+            <form class="search-bar form-inline mx-auto ml-4" @submit.prevent="handleSearch">
               <input
                 class="form-control mr-sm-2 rounded"
                 type="search"
@@ -57,6 +66,19 @@
                 v-model.trim="searchQuery"
               />
             </form>
+            
+          </li>
+
+          
+          <li class="nav-item active">
+            <button
+              class="btn btn-outline-success my-2 my-sm-0 ml-2"
+              color="indigo-darken-3"
+              type="submit"
+              @click="handleSearch"
+            >
+              Search
+            </button>
           </li>
 
         </ul>
@@ -116,7 +138,9 @@
                   
                     <b-row no-gutters>
                       <b-col md="4">
-                        <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0"></b-card-img>
+                      <a :href="itemDict['url']"  target="_blank">
+                        <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0 resultImg"></b-card-img>
+                      </a>
                       </b-col>
 
 
@@ -126,7 +150,7 @@
                         <b-card-header>
 
                             
-                          <div class="tagDiv">
+                          <div class="tagDiv overflow-auto">
                               <li v-for='(tag, index) in formatTags(itemDict["tags"])' :key="tag + index" class="tagsList">
                                 {{ tag.replace("'", "").replace("'", "") }}
                               </li>
@@ -134,18 +158,29 @@
                         </b-card-header>
                         
                         
-                        <b-card-body class="h-100 d-flex flex-column overflow-auto">
+                        <b-card-body class="h-100 d-flex flex-column">
                           <div class="titleDiv">
                             <b-card-title class="wordBreak" title-tag="h5" :href="itemDict['url']">{{itemDict["title"]}}</b-card-title>
 
                             <span> 
-                              <b-button class="rounded px-2" @click="openSummaryModal"> Summary </b-button>
+                              <v-btn
+                              class="summarizeButton"
+                              disabled
+                              @click="openSummaryModal"
+                              prepend-icon="mdi-tooltip-text"
+                                  >
+                            <template v-slot:prepend>
+                                  <v-icon color="success"></v-icon>
+                                        </template>
+
+                                Summarize
+                                </v-btn>
 
                             </span>
 
                           </div>
 
-                          <b-card-text class="wordBreak">
+                          <b-card-text class="wordBreak overflow-auto">
                             <p class="three-lines"> {{ itemDict["text"] }} </p> <!-- https://codepen.io/raevilman/pen/OJpQXjg/left -->
                           </b-card-text>
                         </b-card-body>
@@ -204,36 +239,45 @@
       <b-row align-v="center" align-h="center" class="justify-content-md-center">
           <b-col></b-col>
 
-          <b-col cols="8" v-if="tagsLoaded">
-            <b-row class="mb-4"></b-row>
+          <b-col cols="8">
+            <b-row class="mb-4 mt-4"></b-row>
 
             <div class="container-fluid">
-            
+        
 
-              
-              <ul class="list-group">
+              <div v-if="!this.$store.getters.stateTags"> no topics loaded yet ...</div>
+              <ul class="list-group " v-if="this.$store.getters.stateTags">
                 <li
-                  class="list-group-item"
+                  class="list-group-item no-border mb-2"
                   v-for="(item, index) in this.$store.getters.stateTags"
                   :key="index"
                 >
 
-                  <v-container style="position:relative">
-                    <label for="article-slider"> {{ item["tag"] }} </label>
+                   <h3> {{ item["tag"] }} </h3>
+                  <b-row class="mb-4"></b-row>
 
-                    <v-slide-group multiple show-arrows="always" id="article-slider">
+
+                  <v-container style="position:relative">
+                    <v-slide-group show-arrows="always" id="article-slider">
                       <v-slide-item 
                         v-for="(sites, index) in item['sites']"
                         :key="index">
+                      
 
+
+
+                      <b-card class="mr-2">
                         <div class="thumbnail">
-                          <a :href="sites['url']" class="topicLink">
+                          <a :href="sites['url']"  target="_blank" class="topicLink">
                             <img :src="sites['thumbnail']" alt="..." style="width:100%">
-                            <div class="caption">
-                              <p> {{ sites["title"] }} </p>
+                            <div class="wordBreak overflowY">
+                              <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ sites["title"] }} </h5>
+
+
                             </div>
                           </a>
                         </div>
+                      </b-card>
      <!--
                   <v-container style="position:relative">
                     <label for="article-slider"> {{ item["tag"] }} </label>
@@ -286,9 +330,6 @@
 
             </div>
           </b-col>
-          <b-col cols="8" v-if="!tagsLoaded">
-          no tags loaded
-          </b-col>
 
           <b-col></b-col>
         </b-row>
@@ -297,7 +338,6 @@
       
     </main>
 
-  <b-button @click="loadTags">Test</b-button>
     <!-- <p>{{ loginStatus }}</p>
     <p>{{ msg }}</p> -->
   </div>
@@ -352,7 +392,7 @@ export default Vue.extend({
 
   created() {
     this.showSearchResult = false;
-
+    //this.$store.dispatch("loadTags");
 
     this.getMessage();
 
@@ -414,6 +454,11 @@ export default Vue.extend({
       return tagsArray
     },
 
+    backToHome(){
+      console.log("back to home")
+      this.showSearchResult = false
+    },
+
     formatAuthors(authors: any){
       //authors = JSON.parse(authors.replace(/,]$/, ']').replace(/'/g, '"'))
       //authors.replace(/\[|\]/g,'').split(',')
@@ -439,12 +484,6 @@ export default Vue.extend({
           console.error(error);
         });
     },
-
-
-    async loadTags() {
-      this.$store.dispatch("loadTags");
-    },
-
 
 
 
@@ -615,10 +654,14 @@ export default Vue.extend({
       var tags = data["tags"];
       var texts = data["text"];
 
+      //var img = new Image();
+      var resizedImageURL = 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png';
+
+
       for (let i = 0; i < titles.length; i++) {
         titles[i] = titles[i]
         urls[i] = urls[i]
-        thumbnails[i] = (thumbnails[i] != "https://miro.medium.com/v2/1*m-R_BkNf1Qjr1YbyOIJY2w.png") ? thumbnails[i] : "https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png"
+        thumbnails[i] = (thumbnails[i] != "https://miro.medium.com/v2/1*m-R_BkNf1Qjr1YbyOIJY2w.png") ? thumbnails[i] : resizedImageURL
         authors[i] = JSON.stringify(authors[i])
         timestamps[i] = timestamps[i]
         tags[i] = JSON.stringify(tags[i])
@@ -751,11 +794,34 @@ export default Vue.extend({
 }
 
 img {
-    width: 200px;
-    height: 200px;
+    width: 90%;
+    height: 60%;
     object-fit: cover;
 }
 
+.thumbnail {
+    width: 300px;
+    height: 200px;
+
+}
+
+.titleOverflow {
+  overflow-y: auto;
+}
+
+.resultImg {
+  width: 270px;
+  height: 270px;
+  object-fit: cover;
+}
+
+h3 {
+  display: block
+}
+
+.newline {
+  clear: both;
+}
 .horizontalList {
     display:inline
 }
@@ -783,6 +849,10 @@ body {
   height: 150px;  
 }
 
+.summarizeButton {
+  margin-top: -6px
+}
+
 .top-bar {
   display: flex;
   width: 100%;
@@ -795,6 +865,11 @@ body {
     font-size: 2rem;
   }
 }
+
+.no-border{
+  border: none;
+}
+
 .open {
   transform: translateX(300px);
 }
@@ -819,7 +894,7 @@ body {
 }
 
 .topicLink {
-    color: #FFFFFF;
+    color: black;
     text-decoration: none;
 }
 
@@ -832,6 +907,15 @@ body {
   display: flex;
 }
 
+.search-bar {
+list-style-type: none;
+ width: 1000px;
+ float: left;
+ margin-right: 10px;
+ display:inline-block
+  }
+
+  
 .item {
   margin-right: 10px;
 }
@@ -932,6 +1016,10 @@ a {
 
 .wordBreak {
   word-break:break-word;
+}
+
+.overflowY {
+  overflow-y: scroll;
 }
 
 .cards

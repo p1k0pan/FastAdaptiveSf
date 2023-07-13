@@ -26,6 +26,7 @@ import 'primevue/resources/primevue.min.css'
 
 import vuetify from './plugins/vuetify'
 import 'vuetify/dist/vuetify.min.css'
+import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 
 // Make BootstrapVue available throughout your project
@@ -62,6 +63,6 @@ new Vue({
   vuetify,
   render: (h) => h("frame", [h(App)]),
   created() {
-    //this.$store.dispatch('loadTags');
+    this.$store.dispatch("loadTags");
   },
 }).$mount('#app')
