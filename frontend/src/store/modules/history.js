@@ -42,6 +42,7 @@ const actions = {
         const endpoint = "/" + `user`;
         
         console.log(endpoint)
+        console.log("sending history to the backend ...")
         const url = endpoint;
 
         

@@ -22,7 +22,7 @@ const actions = {
       var res = "0"
       console.log("loading home page tags ...");
 
-      var selection = ["Technology", "Life", "Animal"] // "Life", "Animal",
+      var selection = ["Technology", "Animal"] // "Life", "Animal",
       
       var results = []
 

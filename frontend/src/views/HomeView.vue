@@ -1,7 +1,7 @@
 <template>
   <div id="home" class="divide-y divide-gray-200">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand ml-4 mb-2" href="#">Adaptive Storyfinder</a>
+      <a class="navbar-brand ml-4 mb-2">Adaptive Storyfinder</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -157,7 +157,10 @@
                         
                         <b-card-body class="h-100 d-flex flex-column">
                           <div class="titleDiv">
-                            <b-card-title class="wordBreak" title-tag="h5" :href="itemDict['url']">{{itemDict["title"]}}</b-card-title>
+
+                            <a :href="itemDict['url']"  target="_blank" class="linkAsText">
+                              <b-card-title class="wordBreak" title-tag="h5"> {{itemDict["title"]}} </b-card-title>
+                            </a>
 
                             <span> 
                               <v-btn
@@ -265,7 +268,7 @@
 
                       <b-card class="mr-2">
                         <div class="thumbnail">
-                          <a :href="sites['url']"  target="_blank" class="topicLink">
+                          <a :href="sites['url']" target="_blank" class="linkAsText">
                             <img :src="sites['thumbnail']" alt="..." style="width:100%">
                             <div class="wordBreak overflowY">
                               <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ sites["title"] }} </h5>
@@ -383,12 +386,14 @@ export default Vue.extend({
       loginStatus: false,
       showSummaryModal: false,
 
+
+      //topics: this.$store.dispatch("loadTags"),
     };
   },
 
 
   beforeCreate() {
-    this.$store.dispatch("loadTags");
+    //this.$store.dispatch("loadTags");
   },
 
   created() {
@@ -457,6 +462,7 @@ export default Vue.extend({
 
     backToHome(){
       console.log("back to home")
+      this.searchQuery = ""
       this.showSearchResult = false
     },
 
@@ -827,6 +833,12 @@ h3 {
     display:inline
 }
 
+a.linkAsText {
+    text-decoration: none;
+    color: black !important; /* Change the color here */
+  }
+
+
 .three-lines {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -849,6 +861,7 @@ body {
   width: 200px;  
   height: 150px;  
 }
+
 
 .summarizeButton {
   margin-top: -6px
@@ -1020,6 +1033,9 @@ a {
 }
 
 .overflowY {
+  overflow-y: scroll;
+  width: 100%;
+  height: 100px;
   overflow-y: scroll;
 }
 
