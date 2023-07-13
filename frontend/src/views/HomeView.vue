@@ -20,7 +20,7 @@
           <v-spacer></v-spacer>
 
           <li class="nav-item active">
-            <a class="nav-link" href="#"
+            <a class="nav-link" href="/"
               >Home <span class="sr-only">(current)</span></a
             >
           </li>
@@ -204,8 +204,7 @@
       <b-row align-v="center" align-h="center" class="justify-content-md-center">
           <b-col></b-col>
 
-          <b-col cols="8">
-            
+          <b-col cols="8" v-if="tagsLoaded">
             <b-row class="mb-4"></b-row>
 
             <div class="container-fluid">
@@ -215,7 +214,7 @@
               <ul class="list-group">
                 <li
                   class="list-group-item"
-                  v-for="(item, index) in tags"
+                  v-for="(item, index) in this.$store.getters.stateTags"
                   :key="index"
                 >
 
@@ -224,21 +223,38 @@
 
                     <v-slide-group multiple show-arrows="always" id="article-slider">
                       <v-slide-item 
-                        v-for="(itemDict, index) in item['articles']"
+                        v-for="(sites, index) in item['sites']"
+                        :key="index">
+
+                        <div class="thumbnail">
+                          <a :href="sites['url']" class="topicLink">
+                            <img :src="sites['thumbnail']" alt="..." style="width:100%">
+                            <div class="caption">
+                              <p> {{ sites["title"] }} </p>
+                            </div>
+                          </a>
+                        </div>
+     <!--
+                  <v-container style="position:relative">
+                    <label for="article-slider"> {{ item["tag"] }} </label>
+
+                    <v-slide-group multiple show-arrows="always" id="article-slider">
+                      <v-slide-item 
+                        v-for="(sites, index) in item['sites']"
                         :key="index">
 
                       
-                      <b-card no-body class="overflow-hidden mb-3 mx-3"
+                      <b-card no-body class="overflow-hidden mb-3 mx-3 topic div"
                       >
                         <b-card-header>
-                          <b-card-img :src="itemDict['text']" alt="Image" bottom></b-card-img>
+                          <b-card-img :src="sites['thumbnail']" alt="Image" fluid-grow bottom></b-card-img>
                         </b-card-header>
                         <b-card-body class="h-100 d-flex flex-column">
                             <b-card-text>
-                            <p> {{ itemDict["text"] }} </p>
+                            <p> {{ sites["title"] }} </p>
                             </b-card-text>
                         </b-card-body>
-                      </b-card>
+                      </b-card>-->
 
                   
                       </v-slide-item>
@@ -270,6 +286,9 @@
 
             </div>
           </b-col>
+          <b-col cols="8" v-if="!tagsLoaded">
+          no tags loaded
+          </b-col>
 
           <b-col></b-col>
         </b-row>
@@ -278,6 +297,7 @@
       
     </main>
 
+  <b-button @click="loadTags">Test</b-button>
     <!-- <p>{{ loginStatus }}</p>
     <p>{{ msg }}</p> -->
   </div>
@@ -326,89 +346,12 @@ export default Vue.extend({
       loginStatus: false,
       showSummaryModal: false,
 
-      tags: [
-        {
-          tag: "Health",
-          articles: [
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1111111",
-            },
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1111111",
-            },
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1111111",
-            },
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1111111",
-            },
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1111111",
-            },
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1111111",
-            },
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1111111",
-            },
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1111111",
-            },
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1111111",
-            },
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1111111",
-            },
-            {
-              thumbnail: "https://placekitten.com/480/210",
-              text: "222222",
-            },
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "3333333",
-            },
-          ],
-        },
-
-        {
-          tag: "Travel",
-          articles: [
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1",
-            },
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "2",
-            },
-            {
-              thumbnail: "https://placekitten.com/480/210",
-              text: "3",
-            },
-          ],
-        },
-      ],
-
     };
   },
 
 
   created() {
     this.showSearchResult = false;
-
-
-    //this.loadTags();
 
 
     this.getMessage();
@@ -429,12 +372,21 @@ export default Vue.extend({
   computed: {
     isLoggedIn: function () {
       this.loginStatus = this.$store.getters.isAuthenticated;
-      console.log("status::::")
+
+      console.log("user status:")
       console.log(this.$store.getters.isAuthenticated)
       console.log(this.$store.getters.getAccessToken)
       console.log(this.$store.getters.getRefreshToken)
       return this.$store.getters.isAuthenticated;
     },
+
+    tagsLoaded: function () {
+      return this.$store.getters.tagsLoaded
+    },
+  },
+
+  mounted() {
+    this.showSearchResult = false
   },
 
   beforeMount() {
@@ -490,50 +442,12 @@ export default Vue.extend({
 
 
     async loadTags() {
-      var res = "0"
-      console.log("loading home page tags ...");
-
-      var selection = ["Technology", "Life", "Animal",]
-      var header = {};
-
-      for(let i=0; i<selection.length; i++){
-        var endpoint = "/"
-        var val = selection[i]
-        endpoint = endpoint + `random?tag=${val}`;
-        console.log(endpoint)
-
-        await axios
-        .get(endpoint, {
-          headers: header,
-        })
-        .then((response) => {
-          res = response.data["code"]
-          console.log(res)
-
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              console.log(response.data)
-            }
-            
-          }
-            // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      }
-
-/*
-      tags: [
-        {
-          tag: "Health",
-          articles: [
-            {
-              thumbnail: "https://englishlive.ef.com/blog/wp-content/uploads/sites/2/2015/05/how-to-give-advice-in-english.jpg",
-              text: "1111111",
-            },*/
+      this.$store.dispatch("loadTags");
     },
+
+
+
+
 
     async handleSearch() {
       var res = "0"
@@ -610,7 +524,7 @@ export default Vue.extend({
       }
 
 
-/*
+
       if(res === "401" && this.isLoggedIn) {
         console.log("trying to use refresh the token ...")
 
@@ -684,7 +598,7 @@ export default Vue.extend({
           console.log(error);
         });
       }
-    }*/
+    }
       console.log("print this when the request is finished!");
     },
 
@@ -836,6 +750,12 @@ export default Vue.extend({
   font-size: 1rem;
 }
 
+img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+}
+
 .horizontalList {
     display:inline
 }
@@ -857,6 +777,12 @@ body {
   font-family: "Segoe UI", Tahoma;
   background-color: #7ca971;
 }
+
+.topicDiv{
+  width: 200px;  
+  height: 150px;  
+}
+
 .top-bar {
   display: flex;
   width: 100%;
@@ -890,6 +816,11 @@ body {
   background-color: #fff;
   padding: 50px;
   border-radius: 10px;
+}
+
+.topicLink {
+    color: #FFFFFF;
+    text-decoration: none;
 }
 
 .resultRow {
