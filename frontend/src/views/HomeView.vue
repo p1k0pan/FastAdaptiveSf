@@ -49,10 +49,7 @@
                 </div>
 
 
-                <div v-if="!isLoggedIn">
-                  <b-button v-b-toggle.visible @click="$store.dispatch('resetHistory')" variant="outline-primary" class="mb-2">
-                    Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
-                  </b-button>
+                <div class="p-4" v-if="!isLoggedIn">
                 </div>
           </li>
 
@@ -245,7 +242,7 @@
             <div class="container-fluid">
         
 
-              <div v-if="!this.$store.getters.stateTags"> no topics loaded yet ...</div>
+              <div v-if="!this.$store.getters.tagsLoaded"> loading topics ...</div>
               <ul class="list-group " v-if="this.$store.getters.stateTags">
                 <li
                   class="list-group-item no-border mb-2"
@@ -389,6 +386,10 @@ export default Vue.extend({
     };
   },
 
+
+  beforeCreate() {
+    this.$store.dispatch("loadTags");
+  },
 
   created() {
     this.showSearchResult = false;
