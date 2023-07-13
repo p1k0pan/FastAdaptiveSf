@@ -35,9 +35,9 @@ const actions = {
   
 
   async createUser(context, formDict) {
+    var res = "0"
     const username = formDict["username"]
     const password = formDict["password"]
-    var res = "0"
 
     const endpoint = "/" + `user`;
     const headers = { 

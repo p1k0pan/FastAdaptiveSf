@@ -10,7 +10,12 @@ const routes: Array<RouteConfig> = [
   {
     path: '/',
     name: 'Home',
-    component: HomeView
+    component: HomeView,
+    /*beforeEnter: (to, from, next) => {
+      // Call your function here
+      console.log("entering home page")
+
+    }, */
   },
   {
     path: '/login',

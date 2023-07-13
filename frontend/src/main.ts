@@ -26,6 +26,7 @@ import 'primevue/resources/primevue.min.css'
 
 import vuetify from './plugins/vuetify'
 import 'vuetify/dist/vuetify.min.css'
+import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 
 // Make BootstrapVue available throughout your project
@@ -48,9 +49,20 @@ axios.defaults.baseURL = 'http://127.0.0.1:8000/'; // 'http://localhost:5000/'; 
 axios.defaults.withCredentials = true;
 Vue.config.productionTip = false
 
-new Vue({
+/*new Vue({
   router,
   store,
   vuetify,
   render: h => h(App)
+}).$mount('#app')
+*/
+
+new Vue({
+  router,
+  store,
+  vuetify,
+  render: (h) => h("frame", [h(App)]),
+  created() {
+    this.$store.dispatch("loadTags");
+  },
 }).$mount('#app')

@@ -92,7 +92,7 @@
   <b-row class="mb-4"></b-row>
 
   <div class="text-center">
-    <span class=""> No account yet? <a href="/register">Sign up</a> </span>
+    <span class=""> No account yet? <b-button variant="link" @click="routeToRegisterView">Sign up</b-button> </span>
   </div>
 
   <b-row class="mb-2"></b-row>
@@ -155,7 +155,6 @@ export default defineComponent({
         await this.$store.dispatch("logIn", formDict);
 
         console.log("isAuthenticated:")
-        console.log(this.$store.getters.isAuthenticated)
         if(this.$store.getters.isAuthenticated) {
           this.$router.push('/');
 
