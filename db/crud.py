@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from . import model, schema
 from typing import List
-from newspaper import Article
+from newspaper import Article, Config
+
 import json
 import os
 
@@ -76,13 +77,20 @@ def update_histories(user_name: str, upload_urls:List):
             print(e)
             return ['Failed', '500', 'internal error', e]
 
+        user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
+        config = Config()
+        config.browser_user_agent = user_agent
 
         for url in upload_urls:
             if str(url) not in index:
-                article = Article(url)
-                article.download()
-                article.parse()
-                index[str(url)] = article.text
+                try:
+                    article = Article(url)
+                    article.download()
+                    article.parse()
+                    index[str(url)] = article.text
+                except Exception as e:
+                    print(e)
+                    continue
 
 
         uf.write(json.dumps(index))
