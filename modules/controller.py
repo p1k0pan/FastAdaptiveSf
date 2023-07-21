@@ -82,11 +82,14 @@ def search_query_history(query:str, corpus_embeddings, client, user_name):
 
         query_corpus_result_embedding = _embed_text(rerank_result.clean_sentence.values)
 
-        user_history = _read_history(user_name)
-        if not user_history.empty:
-            user_keyword_embeddings = _embed_text(user_history.clean_sentence.values)
+        # user_history = _read_history(user_name)
+        # if not user_history.empty:
+        #     user_keyword_embeddings = _embed_text(user_history.clean_sentence.values)
             # print(f'user history shape: {user_keyword_embeddings.shape}')
 
+        user_keyword_embeddings = _read_history_embd(user_name)
+
+        if user_keyword_embeddings.numel() != 0:
             history_rank = _rank_hits_history(user_keyword_embeddings, query_corpus_result_embedding, rerank_result)
 
             article_response = schema.ArticleResponse()
@@ -172,6 +175,17 @@ def _rank_hits_history(history_emb, rerank_emb, df) -> pd.DataFrame:
 
     return df
 
+def _read_history_embd(user_name:str):
+    directory_name='history/'
+    user_file = user_name+'.pt'
+
+    # print(os.getcwd())
+    if not os.path.exists(directory_name+user_file):
+        return torch.tensor([])
+    else:
+        return torch.load(directory_name+user_file, map_location=torch.device(device))
+
+#abandon
 def _read_history(user_name:str):
 
     directory_name='history/'
@@ -179,10 +193,6 @@ def _read_history(user_name:str):
 
     # print(os.getcwd())
     if not os.path.exists(directory_name+user_file):
-
-        # with open('food_health_data.json', 'r') as f:
-        #     data = json.load(f)
-        #     print("go with default")
         return pd.DataFrame()
     else:
         with open(directory_name+user_file, 'r') as f:

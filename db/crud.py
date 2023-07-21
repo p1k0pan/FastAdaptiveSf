@@ -1,7 +1,10 @@
 from sqlalchemy.orm import Session
+import torch
 from . import model, schema
 from typing import List
 from newspaper import Article, Config
+from modules import controller, clean_dataset
+import pandas as pd
 
 import json
 import os
@@ -65,14 +68,16 @@ def update_histories(user_name: str, upload_urls:List):
     if not os.path.exists(directory_name):
         os.mkdir(directory_name)
 
-    user_file = user_name+".json"
+    user_file = user_name
 
-    with open(directory_name+user_file, "w+") as uf:
+    with open(directory_name+user_file+".json", "w+") as uf:
         try:
             index = json.load(uf)
+            flag=index.copy()
         except json.JSONDecodeError:
             # JSON file is empty or invalid
             index = {}
+            flag={}
         except Exception as e:
             print(e)
             return ['Failed', '500', 'internal error', e]
@@ -81,6 +86,9 @@ def update_histories(user_name: str, upload_urls:List):
         config = Config()
         config.browser_user_agent = user_agent
 
+        history = list(index.values())
+        new_history = []
+
         for url in upload_urls:
             if str(url) not in index:
                 try:
@@ -88,14 +96,27 @@ def update_histories(user_name: str, upload_urls:List):
                     article.download()
                     article.parse()
                     index[str(url)] = article.text
+                    new_history.append(article.text)
                 except Exception as e:
                     print(e)
+                    new_history.append("")
                     continue
 
+        if index!=flag:
+            # if something new in imported histories
 
-        uf.write(json.dumps(index))
+            # user_history = pd.DataFrame(history, columns=['sentence'])
+            # user_history = clean_dataset.clean_sentences(user_history)
+            # user_keyword_embeddings = controller._embed_text(user_history.clean_sentence.values)
+            new_history = [clean_dataset.clean_text(text) for text in new_history]
+            history.extend(new_history)
+            user_keyword_embeddings = controller._embed_text(history)
 
-    return ['Ok', '200', 'Success update data', user_name]
+            torch.save(user_keyword_embeddings, directory_name+user_file+".pt")
+
+            uf.write(json.dumps(index))
+
+        return ['Ok', '200', 'Success update data', user_name]
 
 
 
