@@ -10,12 +10,13 @@
         "default_title": "Latest Covid Report",
 
         "default_icon": {
+            "128": "/assets/icons/128.png"
         }
     },
     "default_locale": "en",
     "description": "A plain text description",
     "icons": {
-
+        "128": "/assets/icons/128.png"
     },
   
 
@@ -23,6 +24,7 @@
     "author": "Jingheng Pan, Adrian Lindloff, Lijunnan Bai",
 
     "background": {
+        "service_worker": "background.js"
     },
     "content_scripts": [
     ],
@@ -33,14 +35,18 @@
         "https://developer.chrome.com/*"
     ],
     "permissions": [
-        "storage",
-        "activeTab",
         "system.cpu",
         "system.memory",
         "system.storage",
         "system.display",
+        "contextMenus",
+
+        "storage",
+        "activeTab",
         "tabs",
-        "scripting"
+        "scripting",
+        "history",
+        "notifications"
     ],
     "requirements": {
 
