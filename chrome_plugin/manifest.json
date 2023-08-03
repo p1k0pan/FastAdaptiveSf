@@ -1,0 +1,57 @@
+{
+    "manifest_version": 3,
+    "name": "My Extension",
+    "version": "1.0.1",
+  
+
+
+    "action":{
+        "default_popup": "index.html",
+        "default_title": "Latest Covid Report",
+
+        "default_icon": {
+        }
+    },
+    "default_locale": "en",
+    "description": "A plain text description",
+    "icons": {
+
+    },
+  
+
+
+    "author": "Jingheng Pan, Adrian Lindloff, Lijunnan Bai",
+
+    "background": {
+    },
+    "content_scripts": [
+    ],
+
+    "host_permissions": [
+        "http://*/*", 
+        "https://*/*",
+        "https://developer.chrome.com/*"
+    ],
+    "permissions": [
+        "storage",
+        "activeTab",
+        "system.cpu",
+        "system.memory",
+        "system.storage",
+        "system.display",
+        "tabs",
+        "scripting"
+    ],
+    "requirements": {
+
+    },
+
+    "commands": {
+        "_execute_action": {
+          "suggested_key": {
+            "default": "Ctrl+U",
+            "mac": "Command+U"
+          }
+        }
+    }
+}
