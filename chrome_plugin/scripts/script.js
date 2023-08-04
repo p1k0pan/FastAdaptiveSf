@@ -13,28 +13,6 @@ fetchData();
 
 
 
-// Login & Register
-
-const usernameLogin = document.getElementById( 'username-login' );
-const passwordLogin = document.getElementById( 'password-login' );
-const loginButton = document.getElementById( 'login-button' );
-loginButton.addEventListener( 'click', () => {
-  console.log("login")
-  
-} );
-
-const usernameRegister = document.getElementById( 'username-register' );
-const passwordRegister = document.getElementById( 'password-register' );
-const registerButton = document.getElementById( 'register-button' );
-registerButton.addEventListener( 'click', () => {
-  console.log("register")
-  
-} );
-
-
-
-
-
 // Upload history & visited websites
 
 // Given an array of URLs, build a DOM list of those URLs in the
