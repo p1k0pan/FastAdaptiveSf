@@ -30,7 +30,7 @@ First: `cd frontend` <br />
 ## docker
 
 Start docker: <br />
-`docker compose build` <br />
+- `docker compose build` <br />
 --> Everytime: `docker compose up` <br />
 
 For migrations: <br />
@@ -38,7 +38,7 @@ For migrations: <br />
 2. python manage.py migrate <br />
 
 Create a super user: <br />
-python manage.py createsuperuser <br />
+- python manage.py createsuperuser <br />
 
 
 ## search
