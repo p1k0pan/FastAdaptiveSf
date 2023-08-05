@@ -9,7 +9,7 @@ and put it on root.
 0. Install Python 3.8.16 / Python 3.10 <br />
 1. ( If necessary: python -m pip install --upgrade pip ) <br />
 2. Only once: create Python environment like (py -3.8 -m venv test-env &nbsp;&nbsp;   or  &nbsp;&nbsp;  py -3.8 -m virtualenv test-env  &nbsp;&nbsp;  or   &nbsp;&nbsp;  conda create -n test-env python=3.8) <br />
-3. Activate environment every time: Scripts\activate     or     Scripts\activate.bat     or     conda activate Masterprojekt <br />
+3. Activate environment each time depening on chosen method: `Scripts\activate`  &nbsp;&nbsp;   or  &nbsp;&nbsp;   `Scripts\activate.bat`  &nbsp;&nbsp;   or  &nbsp;&nbsp;   `conda activate test-env` <br />
 4. Update requirements: `pip install -r requirements.txt` <br />
 <br />
 
