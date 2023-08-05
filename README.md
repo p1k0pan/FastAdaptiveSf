@@ -6,7 +6,7 @@ Please download the model and dataset from https://huggingface.co/spaces/Adaptiv
 and put it on root.
 
 ## start
-Install Python 3.8.16 / Python 3.10 <br />
+First: Install Python 3.8.16 / Python 3.10 <br />
 1. ( If necessary: python -m pip install --upgrade pip ) <br />
 2. Only once: create Python environment like (py -3.8 -m venv test-env &nbsp;&nbsp;   or  &nbsp;&nbsp;  py -3.8 -m virtualenv test-env  &nbsp;&nbsp;  or   &nbsp;&nbsp;  conda create -n test-env python=3.8) <br />
 3. Activate environment each time depening on chosen method: `Scripts\activate`  &nbsp;&nbsp;   or  &nbsp;&nbsp;   `Scripts\activate.bat`  &nbsp;&nbsp;   or  &nbsp;&nbsp;   `conda activate test-env` <br />
@@ -14,7 +14,7 @@ Install Python 3.8.16 / Python 3.10 <br />
 <br />
 
 *frontend* (Vue): <br />
-cd frontend <br />
+First: cd frontend <br />
 1. ( If necessary: npm install -g npm ) / alternatively with yarn <br />
 2. Only once: npm install -g @vue/cli <br />
 3. ( If error occurs run: rm -rf node_modules package-lock.json && npm install ) <br />
