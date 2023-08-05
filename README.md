@@ -14,7 +14,7 @@ First: Install Python 3.8.16 / Python 3.10 <br />
 <br />
 
 *frontend* (Vue): <br />
-First: cd frontend <br />
+First: `cd frontend` <br />
 1. ( If necessary: npm install -g npm ) / alternatively with yarn <br />
 2. Only once: npm install -g @vue/cli <br />
 3. ( If error occurs run: rm -rf node_modules package-lock.json && npm install ) <br />
