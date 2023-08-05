@@ -13,6 +13,8 @@ pip install -r requirements.txt <br />
 
 ( npm install -g npm ) / alternatively with yarn <br />
 npm install -g @vue/cli <br />
+( if error occurs run: rm -rf node_modules package-lock.json && npm install ) <br />
+npm run serve <br />
 <br />
 
 ( pip install uvicorn ) <br />
