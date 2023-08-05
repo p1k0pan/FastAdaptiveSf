@@ -40,6 +40,15 @@ For migrations: <br />
 Create a super user: <br />
 - python manage.py createsuperuser <br />
 
+Remove data: <br />
+- sudo docker volume prune -f <br />
+- sudo docker network prune -f <br />
+- sudo docker container prune -f <br />
+- sudo docker image prune -a <br />
+
+
+Problems: <br />
+https://forums.docker.com/t/can-not-stop-docker-container-permission-denied-error/41142
 
 ## search
 
