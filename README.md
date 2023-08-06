@@ -6,28 +6,49 @@ Please download the model and dataset from https://huggingface.co/spaces/Adaptiv
 and put it on root.
 
 ## start
-
-( python -m pip install --upgrade pip ) <br />
-pip install -r requirements.txt <br />
+First: Install Python 3.8.16 / Python 3.10 <br />
+1. ( If necessary: python -m pip install --upgrade pip ) <br />
+2. Only once: create Python environment like (py -3.8 -m venv test-env &nbsp;&nbsp;   or  &nbsp;&nbsp;  py -3.8 -m virtualenv test-env  &nbsp;&nbsp;  or   &nbsp;&nbsp;  conda create -n test-env python=3.8) <br />
+3. Activate environment each time depening on chosen method: `Scripts\activate`  &nbsp;&nbsp;   or  &nbsp;&nbsp;   `Scripts\activate.bat`  &nbsp;&nbsp;   or  &nbsp;&nbsp;   `conda activate test-env` <br />
+4. Update requirements: `pip install -r requirements.txt` <br />
 <br />
 
-( npm install -g npm ) / alternatively with yarn <br />
-npm install -g @vue/cli <br />
+*frontend* (Vue): <br />
+First: `cd frontend` <br />
+1. ( If necessary: npm install -g npm ) / alternatively with yarn <br />
+2. Only once: npm install -g @vue/cli <br />
+3. ( If error occurs run: rm -rf node_modules package-lock.json && npm install ) <br />
+4. Update requirements: `npm install` <br />
+5. Everytime: `npm run serve` <br />
 <br />
 
-( pip install uvicorn ) <br />
-python -m nltk.downloader stopwords <br />
-run `uvicorn main:app --reload`
+*backend* (FastAPI): <br />
+1. ( pip install uvicorn ) <br />
+2. python -m nltk.downloader stopwords <br />
+3. Everytime: run `uvicorn main:app --reload`
 
 ## docker
 
-docker compose build
---> docker compose up
+Start docker: <br />
+- `docker compose build` <br />
+--> Everytime: `docker compose up` <br />
 
-python manage.py makemigrations
-python manage.py migrate
+For migrations: <br />
+1. python manage.py makemigrations <br />
+2. python manage.py migrate <br />
 
-python manage.py createsuperuser
+Create a super user: <br />
+- python manage.py createsuperuser <br />
+
+Remove data: <br />
+- sudo docker volume prune -f <br />
+- sudo docker network prune -f <br />
+- sudo docker container prune -f <br />
+- sudo docker image prune -a <br />
+
+
+Problems: <br />
+https://forums.docker.com/t/can-not-stop-docker-container-permission-denied-error/41142
 
 ## search
 
