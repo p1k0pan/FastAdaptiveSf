@@ -8,7 +8,7 @@ class DataFrameSampler:
         self.dataframe = dataframe.copy()
         self.sampled_indices = set()  
 
-    def random_sample(self, n):
+    def random_sample(self, n=10):
         n = min(n, len(self.dataframe))
         if n==0:
             return pd.DataFrame()

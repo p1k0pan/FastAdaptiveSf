@@ -178,8 +178,8 @@ async def update_histories(request: schema.UserSchema, db: Session =db_session,t
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
-@app.get("/random", tags=["Demo"])
-async def random_article(tag:str=""):
+@app.get("/initial_tag_story", tags=["Tag"])
+async def initial_tag_story(tag:str=""):
     if tag=="":
         return schema.Response(status="Failed", code='400', message='tags empty', result=None)
     else:
@@ -191,3 +191,21 @@ async def random_article(tag:str=""):
             result.result = articles
 
         return result
+
+@app.get("/next_tag_story", tags=["Tag"])
+async def next_story(tag:str=""):
+    if tag=="":
+        return schema.Response(status="Failed", code='400', message='tag empty', result=None)
+    else:
+        try:
+            print('next')
+            dfs= tag_story[tag]
+            articles = dfs.random_sample()
+            print(articles.iloc[2])
+
+            article_response = schema.ArticleResponse()
+            article_response.process_dataset(articles)
+            # return schema.Response(status='Ok', code='200', message='success', result=articles)
+            return schema.Response(status='Ok', code='200', message='success', result=article_response)
+        except:
+            return schema.Response(status="Failed", code='400', message='tag is not initialize', result=None)
