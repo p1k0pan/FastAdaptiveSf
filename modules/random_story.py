@@ -38,11 +38,6 @@ def random_stories(tag:str, client):
         df_str = StringIO(result)
         df_t:pd.DataFrame = pd.read_csv(df_str, sep='\t')
         dfs = DataFrameSampler(df_t)
-        num_sample = 10
-        result =dfs.random_sample(num_sample)
-
-        article_response = schema.ArticleResponse()
-        article_response.process_dataset(result)
-        return schema.Response(status='Ok', code='200', message='success', result=(dfs, article_response))
+        return schema.Response(status='Ok', code='200', message='successful initialize random story sampler', result=dfs)
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)

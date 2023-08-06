@@ -6,23 +6,27 @@ Please download the model and dataset from https://huggingface.co/spaces/Adaptiv
 and put it on root.
 
 ## start
-First: Install Python 3.8.16 / Python 3.10 <br />
-1. ( If necessary: python -m pip install --upgrade pip ) <br />
-2. Only once: create Python environment like (py -3.8 -m venv test-env &nbsp;&nbsp;   or  &nbsp;&nbsp;  py -3.8 -m virtualenv test-env  &nbsp;&nbsp;  or   &nbsp;&nbsp;  conda create -n test-env python=3.8) <br />
-3. Activate environment each time depening on chosen method: `Scripts\activate`  &nbsp;&nbsp;   or  &nbsp;&nbsp;   `Scripts\activate.bat`  &nbsp;&nbsp;   or  &nbsp;&nbsp;   `conda activate test-env` <br />
-4. Update requirements: `pip install -r requirements.txt` <br />
-<br />
 
-*frontend* (Vue): <br />
+First: Install Python 3.8.16 / Python 3.10 <br />
+
+1. ( If necessary: python -m pip install --upgrade pip ) <br />
+2. Only once: create Python environment like (py -3.8 -m venv test-env &nbsp;&nbsp; or &nbsp;&nbsp; py -3.8 -m virtualenv test-env &nbsp;&nbsp; or &nbsp;&nbsp; conda create -n test-env python=3.8) <br />
+3. Activate environment each time depening on chosen method: `Scripts\activate` &nbsp;&nbsp; or &nbsp;&nbsp; `Scripts\activate.bat` &nbsp;&nbsp; or &nbsp;&nbsp; `conda activate test-env` <br />
+4. Update requirements: `pip install -r requirements.txt` <br />
+   <br />
+
+_frontend_ (Vue): <br />
 First: `cd frontend` <br />
+
 1. ( If necessary: npm install -g npm ) / alternatively with yarn <br />
 2. Only once: npm install -g @vue/cli <br />
 3. ( If error occurs run: rm -rf node_modules package-lock.json && npm install ) <br />
 4. Update requirements: `npm install` <br />
 5. Everytime: `npm run serve` <br />
-<br />
+   <br />
 
-*backend* (FastAPI): <br />
+_backend_ (FastAPI): <br />
+
 1. ( pip install uvicorn ) <br />
 2. python -m nltk.downloader stopwords <br />
 3. Everytime: run `uvicorn main:app --reload`
@@ -30,22 +34,25 @@ First: `cd frontend` <br />
 ## docker
 
 Start docker: <br />
+
 - `docker compose build` <br />
---> Everytime: `docker compose up` <br />
+  --> Everytime: `docker compose up` <br />
 
 For migrations: <br />
+
 1. python manage.py makemigrations <br />
 2. python manage.py migrate <br />
 
 Create a super user: <br />
+
 - python manage.py createsuperuser <br />
 
 Remove data: <br />
+
 - sudo docker volume prune -f <br />
 - sudo docker network prune -f <br />
 - sudo docker container prune -f <br />
 - sudo docker image prune -a <br />
-
 
 Problems: <br />
 https://forums.docker.com/t/can-not-stop-docker-container-permission-denied-error/41142
@@ -137,7 +144,11 @@ return structure with search with history
 
 ### random articles(GET)
 
-example: http://127.0.0.1:8000/random?tag=Technology
+Initialized story sampler by tags when backend startup
+
+current initialized tags = `["Technology", "Health"]`
+
+example: http://127.0.0.1:8000/next_tag_story?tag=Technology
 
 return structure with search with history
 
@@ -358,7 +369,5 @@ error:
   "result": null
 }
 ```
-
-
 
 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

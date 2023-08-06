@@ -16,7 +16,9 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 corpus_embeddings = None # model from main dataset
 client=None
-tag_story={}
+tag_sampler={}
+initial_tags=['Technology', 'Health']
+presented_tag_story={}
 ACCESS_TOKEN_EXPIRED = 10
 REFRESH_TOKEN_EXPIRED = 30
 
@@ -37,11 +39,17 @@ app = FastAPI()
 async def lifespan(app: FastAPI):
     global corpus_embeddings
     global client
+    global presented_tag_story
 
     print("start loading model and dataset")
     # df = con.load_corpus()
     corpus_embeddings=con.load_corpus_tensor()
     client = Client("https://adaptivestoryfinder-medium-query-topk.hf.space/")
+
+    # initial tag sampler
+    [await initial_tag_story(tag) for tag in initial_tags]
+    presented_tag_story = {tag: [] for tag in initial_tags}
+    print(tag_sampler.keys())
 
     print("ready to go")
     yield # ctrl-c stop the program would run code below
@@ -186,9 +194,9 @@ async def initial_tag_story(tag:str=""):
         result = random_story.random_stories(tag,client)
         
         if result.code == '200':
-            dfs, articles = result.result
-            tag_story[tag]=dfs
-            result.result = articles
+            dfs = result.result
+            tag_sampler[tag]=dfs
+            result.result = None
 
         return result
 
@@ -198,14 +206,12 @@ async def next_story(tag:str=""):
         return schema.Response(status="Failed", code='400', message='tag empty', result=None)
     else:
         try:
-            print('next')
-            dfs= tag_story[tag]
+            dfs= tag_sampler[tag]
             articles = dfs.random_sample()
-            print(articles.iloc[2])
 
             article_response = schema.ArticleResponse()
             article_response.process_dataset(articles)
-            # return schema.Response(status='Ok', code='200', message='success', result=articles)
+            presented_tag_story[tag].append(article_response)
             return schema.Response(status='Ok', code='200', message='success', result=article_response)
         except:
             return schema.Response(status="Failed", code='400', message='tag is not initialize', result=None)
