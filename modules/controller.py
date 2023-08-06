@@ -23,13 +23,13 @@ bi_encoder = SentenceTransformer('multi-qa-MiniLM-L6-cos-v1', device=device)
 cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2',device=device)
 
 def load_corpus():
-    dataset_path = 'cleaned_medium_articles.csv'
+    dataset_path = 'cleaned_medium_articles_v9.csv'
     print("load corpus dataset")
     df = pd.read_csv(dataset_path)
     return df
 
 def load_corpus_tensor():
-    tensor_path= 'corpus_embeddings_v2.pt'
+    tensor_path= 'corpus_embeddings_v4.pt'
     print("load corpus embedding")
     corpus_embeddings = torch.load(tensor_path, map_location=torch.device(device))
     return corpus_embeddings
@@ -59,7 +59,7 @@ def search_query(query:str, corpus_embeddings, client):
     # print(f'query shape: {query_embedding.shape}')
 
     try:
-        query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client)
+        query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, debug=False)
 
         rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
 
@@ -76,7 +76,7 @@ def search_query_history(query:str, corpus_embeddings, client, user_name):
     # print(f'query shape: {query_embedding.shape}')
 
     try:
-        query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client)
+        query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, debug=False)
 
         rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
 
@@ -104,7 +104,7 @@ def search_query_history(query:str, corpus_embeddings, client, user_name):
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
 
-def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client):
+def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client, debug=False):
     hits = util.semantic_search(question_embedding, corpus_embeddings, top_k=top_k)
     hits = hits[0]  # Get the hits for the first query
 
@@ -114,15 +114,22 @@ def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client):
         idx = item["corpus_id"]
         result_index.append(idx)
 
-    index_str = ' '.join(map(str, result_index))
-    print(index_str)
+    if debug:
+        df = load_corpus()
+        df_result = df.iloc[result_index].copy()
+    else:
 
-    result = client.predict(
-                    index_str,False,None,
-                    api_name="/predict"
-    )
-    df_str = StringIO(result)
-    df_result = pd.read_csv(df_str, sep='\t')
+        index_str = ' '.join(map(str, result_index))
+        print(index_str)
+
+        result = client.predict(
+                        index_str,False,None,
+                        api_name="/predict"
+        )
+        print("after predict")
+        df_str = StringIO(result)
+        df_result = pd.read_csv(df_str, sep='\t')
+
     print(df_result[["Unnamed: 0","title"]].values)
     # df.iloc[result_index].copy().to_csv('hits.csv',',')
     
