@@ -28,6 +28,7 @@ def create_user(db: Session, user_name: str, password: str):
         db.refresh(_user)
         return ['Ok', '201', 'user create success', _user]
 
+#abandon
 def update_history(db: Session, user_name: str,  upload_urls:List):
     _user = get_user(db=db, user_name = user_name)
     upload_count =0

@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 import pandas as pd
-from modules import controller as con
+from modules import controller as con, random_story
 from modules import authorization as auth
 
 from sqlalchemy import text
@@ -16,6 +16,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 corpus_embeddings = None # model from main dataset
 client=None
+tag_story={}
 ACCESS_TOKEN_EXPIRED = 10
 REFRESH_TOKEN_EXPIRED = 30
 
@@ -182,5 +183,11 @@ async def random_article(tag:str=""):
     if tag=="":
         return schema.Response(status="Failed", code='400', message='tags empty', result=None)
     else:
-        result = con.random_stories(tag,client)
+        result = random_story.random_stories(tag,client)
+        
+        if result.code == '200':
+            dfs, articles = result.result
+            tag_story[tag]=dfs
+            result.result = articles
+
         return result
