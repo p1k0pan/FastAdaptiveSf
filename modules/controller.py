@@ -118,6 +118,42 @@ def paragraph_highlighting(index:str, client, user_name):
         paragraphs=df_result['text'].iloc[0].split('\n\n')
         print(f"paragraphs len: {len(paragraphs)}")
 
+
+
+        ######################### NEW #########################
+        url = "" # URL FROM FRONTEND via endpoint
+
+        paragraphs = []
+        text = ""
+        try:
+            # Parsing the text out of a website (I dont think this works, because we can talk about pretty much any URL here not just "articles" like in medium)
+            article = Article(url)
+            article.download()
+            text = article.parse()
+        except Exception as e:
+            print(e)
+            return "Parsing the website text did not work!"
+        
+
+        
+        # Split text into paragraphs
+        #paragraphs = [para.strip() for para in text.strip().split('\n\n')]
+        for content in text.splitlines():
+            try:
+                if content:
+                    paragraphs.append(content.strip())
+
+            except Exception as e:
+                print(e)
+                paragraphs.append("")
+            
+        # Print paragraphs
+        #for idx, paragraph in enumerate(paragraphs, start=1):
+            #print(f"Paragraph {idx}:\n{paragraph}\n{'-' * 40}")
+        ######################### NEW #########################
+
+
+
         para_emb = _embed_text(paragraphs) #shape: (n,384) n-> numbers of paragraphs
         history_emb = _read_history_embd(user_name)
         cos_scores = util.pytorch_cos_sim(para_emb, history_emb)
