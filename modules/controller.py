@@ -103,6 +103,47 @@ def search_query_history(query:str, corpus_embeddings, client, user_name):
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
+def paragraph_highlighting(index:str, client, user_name):
+
+    history_emb = _read_history_embd(user_name)
+    if history_emb.numel() != 0:
+        result = client.predict(
+                        index,False,None,
+                        api_name="/predict"
+        )
+        df_str = StringIO(result)
+        df_result = pd.read_csv(df_str, sep='\t')
+
+        print(f"paragraph title: {df_result['title'].values}, index: {df_result['index'].values}")
+        paragraphs=df_result['text'].iloc[0].split('\n\n')
+        print(f"paragraphs len: {len(paragraphs)}")
+
+        para_emb = _embed_text(paragraphs) #shape: (n,384) n-> numbers of paragraphs
+        history_emb = _read_history_embd(user_name)
+        cos_scores = util.pytorch_cos_sim(para_emb, history_emb)
+        doc_average_score = torch.mean(cos_scores, dim=1).cpu().numpy()
+
+        # Create a dictionary with order (index) and score
+        score_order_dict = {i: score for i, score in enumerate(doc_average_score)}
+
+        # Sort the dictionary based on scores (highest to lowest)
+        sorted_score_order_dict = {k: v for k, v in sorted(score_order_dict.items(), key=lambda item: item[1], reverse=True)}
+        print(sorted_score_order_dict)
+
+        # pop up the first 3 paragraph and score need to over threshold
+        average = sum(doc_average_score) / len(score_order_dict)
+        threshold = average*1.5
+        keys=[]
+        for key in sorted_score_order_dict:
+            if sorted_score_order_dict[key]>threshold:
+                keys.append(key)
+            else:
+                break
+
+        return schema.Response(status='Ok', code='200', message='highlight success', result=keys)
+    else:
+        return schema.Response(status='Failed', code='400', message='history is null', result=None)
+
 
 def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client, debug=False):
     hits = util.semantic_search(question_embedding, corpus_embeddings, top_k=top_k)
@@ -130,7 +171,7 @@ def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client, debu
         df_str = StringIO(result)
         df_result = pd.read_csv(df_str, sep='\t')
 
-    print(df_result[["Unnamed: 0","title"]].values)
+    print(df_result[["index","title"]].values)
     # df.iloc[result_index].copy().to_csv('hits.csv',',')
     
     return df_result
@@ -149,7 +190,7 @@ def _get_hits(question_embedding, corpus_embeddings, top_k, df):
         idx = item["corpus_id"]
         result_index.append(idx)
 
-    print(df[["Unnamed: 0","title"]].values)
+    print(df[["index","title"]].values)
     return df.iloc[result_index].copy()
 
 def _rank_hits_cross_encoder(hits_df,query):
@@ -161,7 +202,7 @@ def _rank_hits_cross_encoder(hits_df,query):
     hits_df.sort_values(by=['score'], inplace=True, ascending=False)
 
     print("\nCross Hits:")
-    print(hits_df[["Unnamed: 0","title"]].values)
+    print(hits_df[["index","title"]].values)
     return hits_df.copy()
 
 def _rank_hits_history(history_emb, rerank_emb, df) -> pd.DataFrame:
@@ -178,7 +219,7 @@ def _rank_hits_history(history_emb, rerank_emb, df) -> pd.DataFrame:
     df = df.sort_values(by='Cosine Similarity', ascending=False)
     df = df.reset_index(drop=True)
 
-    print(df[["Unnamed: 0","title"]].values)
+    print(df[["index","title"]].values)
 
     return df
 
@@ -213,3 +254,4 @@ def _read_history(user_name:str):
             user_history = clean_dataset.clean_sentences(user_history)
             # print(user_history.head())
             return user_history
+

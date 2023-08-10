@@ -152,6 +152,23 @@ example: http://127.0.0.1:8000/next_tag_story?tag=Technology
 
 return structure with search with history
 
+## highlight
+
+example: http://127.0.0.1:8000/highlight?index=83692
+
+return the index of paragraph
+
+````json
+{
+    "code": "200",
+    "status": "Ok",
+    "message": "highlight success",
+    "result": [
+        19,
+        4
+    ]
+}```
+
 ## Crud
 
 ### get all user
@@ -178,7 +195,7 @@ response:
     }
   ]
 }
-```
+````
 
 ### create a user
 
