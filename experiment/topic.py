@@ -2,8 +2,22 @@ from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import pandas as pd
 from tqdm import tqdm
+import os
+
+
+# VARIABLES TO CHANGE with the help of the created topic_progress-info.txt --> this way the process can be stopped and started again without losing the progress
+######################################################
+starting_index = 0 #### CHANGE ######   START VALUE: 0
+RUN = 1 #### INCREASE ######            START VALUE: 1
+
+save_interval = 500
+######################################################
+
+
 classifier = pipeline("text-classification", model="Yueh-Huan/news-category-classification-distilbert")
 df2=pd.read_csv('../cleaned_medium_articles_v9.csv')
+df2 = df2.iloc[starting_index:]
+
 
 def split_text_into_parts(text, max_words_per_part, max_parts):
     words = text.split()
@@ -22,13 +36,16 @@ def split_text_into_parts(text, max_words_per_part, max_parts):
     return parts
 
 
-removed_topics = ["WEIRD NEWS", "FIFTY", "GOOD NEWS"] # topics that are not important at all   ### SHOULD NOT BE MORE THAN THE MAX AMOUNT OF TOPICS FOR EACH ARTICLE
-max_labels = 4 # max amount of topics for an article
+removed_topics = ["WEIRD NEWS", "FIFTY", "GOOD NEWS"]                               # VARIABLE     ### SHOULD NOT BE MORE THAN THE MAX AMOUNT OF TOPICS FOR EACH ARTICLE
+max_labels = 4 # max amount of topics for an article                                # VARIABLE
+high_topic_score = 0.5 # max amount of topics for an article                        # VARIABLE     ### 0.5 is a good score value for a meaningful topic
+
 total_label=[]
+idx_cnt = starting_index
 for value in tqdm(df2['text']):
     topics = {}
-    max_words=250 # words for each split of the article
-    max_parts = 5 # max amount of split parts with those words for an article
+    max_words=250 # words for each split of the article                             # VARIABLE
+    max_parts = 5 # max amount of split parts with those words for an article       # VARIABLE
 
     try:
         # Calculate the topics for the split parts
@@ -58,7 +75,7 @@ for value in tqdm(df2['text']):
                 if assignedLabelsCnt == 0:# ALWAYS append the first topic
                     labels.append(label)
                     assignedLabelsCnt += 1
-                elif assignedLabelsCnt < max_labels and score >= 0.5: # assign more topics   # 0.5 is a good value for a meaningful topic
+                elif assignedLabelsCnt < max_labels and score >= high_topic_score: # assign more topics
                     labels.append(label)
                     assignedLabelsCnt += 1
                 else:
@@ -70,6 +87,38 @@ for value in tqdm(df2['text']):
         total_label.append(labels) # list of sorted labels
     except:
         total_label.append('error')
+
+
+    if (idx_cnt + 1) % save_interval == 0: # save every 1000 iterations
+        df2_truncated = df2.iloc[:len(total_label)]
+        df2_truncated['topic2']=total_label
+        df2_truncated.to_csv('cleaned_medium_articles_v11' + '_' + str(idx_cnt) + '_' + str(RUN) + '.csv',index=False)
+
+        info_file = "topic_progress-info.txt"
+        f = open(info_file, "w")
+        f.write("Important variables and how to change them for the next run \n\n")
+        f.write("Current RUN: \n")
+        f.write(str(RUN) + "\n")
+        f.write("=> RUN variable for the next run: " + str(RUN+1) + " \n\n\n\n")
+        f.write("Current iteration index: \n")
+        f.write(str(idx_cnt) + "\n")
+        f.write("=> starting_index variable for the next run: " + str(idx_cnt+1) + " \n\n\n\n")
+        f.close()
+
+        print("saving on iteration " + str(idx_cnt) + " ...")
+
+        # remove older saves
+        removeable_index = (idx_cnt) - save_interval
+        if removeable_index < 0:
+            continue
+        else:
+            try:
+                path = 'cleaned_medium_articles_v11' + '_' + str(removeable_index) + '_' + str(RUN) +  '.csv'
+                os.remove(path)
+            except OSError as e:
+                print(f"Error: {e.filename} - {e.strerror}")
+    idx_cnt += 1
+
 
 # def multi_label(row, max):
 #     labels=[]
@@ -87,6 +136,7 @@ for value in tqdm(df2['text']):
 # tqdm.pandas()
 # df2['topic2'] = df2.progress_apply(multi_label, args=(250,), axis=1)
 
-df2['topic2']=total_label
-df2.to_csv('../cleaned_medium_articles_v11.csv',index=False)
+df2_truncated = df2.iloc[:len(total_label)]
+df2_truncated['topic2']=total_label
+df2_truncated.to_csv('cleaned_medium_articles_v11' + '_' + "final" + '_' + str(RUN) + '.csv',index=False)
 print("finish")
