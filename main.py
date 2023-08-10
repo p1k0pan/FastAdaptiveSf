@@ -46,6 +46,7 @@ async def lifespan(app: FastAPI):
     corpus_embeddings=con.load_corpus_tensor()
     client = Client("https://adaptivestoryfinder-medium-query-topk.hf.space/")
 
+    print('initializing tags')
     # initial tag sampler
     [await initial_tag_story(tag) for tag in initial_tags]
     presented_tag_story = {tag: [] for tag in initial_tags}
@@ -149,6 +150,15 @@ async def search_query_history(query:str="",token=Depends(token_verify)):
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
     # return {"title": "test"}
+
+@app.get("/highlight", tags=["Search"])
+async def highlight_paragraph(index:str="",token=Depends(token_verify)):
+
+    if token.code == "201" or token.code== "200":
+        result= con.paragraph_highlighting(index, client, token.result)
+        return result
+    else:
+        return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
 
 @app.get('/user/all',tags=["User"])
