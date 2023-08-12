@@ -1,0 +1,14 @@
+Important variables and how to change them for the next run 
+
+Current RUN: 
+1
+=> RUN variable for the next run: 2 
+
+
+
+Current iteration index: 
+3999
+=> starting_index variable for the next run: 4000 
+
+
+
