@@ -3,17 +3,26 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import pandas as pd
 from tqdm import tqdm
 import os
+import ast
+import re
+
+
 
 
 # VARIABLES TO CHANGE with the help of the created topic_progress-info.txt --> this way the process can be stopped and started again without losing the progress
 ######################################################
-starting_index = 4000 #### CHANGE ######   START VALUE: 0
-RUN = 2 #### INCREASE ######            START VALUE: 1
+starting_index = 19500 #### CHANGE ######   START VALUE: 0
+RUN = 3 #### INCREASE ######            START VALUE: 1
 
 create_topics = True
 save_interval = 500
 concat_files = False
 handle_errors = False
+
+
+removed_topics = ["WEIRD NEWS", "FIFTY", "GOOD NEWS"]                               # VARIABLE     ### SHOULD NOT BE MORE THAN THE MAX AMOUNT OF TOPICS FOR EACH ARTICLE
+max_labels = 4 # max amount of topics for an article                                # VARIABLE
+high_topic_score = 0.5 # max amount of topics for an article                        # VARIABLE     ### 0.5 is a good score value for a meaningful topic
 ######################################################
 
 
@@ -42,11 +51,7 @@ if create_topics:
             parts.append(truncated_text)
             
         return parts
-
-
-    removed_topics = ["WEIRD NEWS", "FIFTY", "GOOD NEWS"]                               # VARIABLE     ### SHOULD NOT BE MORE THAN THE MAX AMOUNT OF TOPICS FOR EACH ARTICLE
-    max_labels = 4 # max amount of topics for an article                                # VARIABLE
-    high_topic_score = 0.5 # max amount of topics for an article                        # VARIABLE     ### 0.5 is a good score value for a meaningful topic
+    
 
     total_label=[]
     idx_cnt = starting_index - 1
@@ -155,9 +160,52 @@ if create_topics:
 # 2. Concat saved files
 if concat_files:
     print("merging save files ...")
+    init_df = pd.DataFrame()
 
 
 
 # 3. Handle errors and fill potential empty topic entries
 if handle_errors:
     print("handling the error tags ...")
+    final_df = pd.read_csv('cleaned_medium_articles_v11_3999_1.csv')
+
+    def first_text_part(text, words_per_chunk):
+        words = re.findall(r'\w+', text)
+        first_part = ' '.join(words[:words_per_chunk])
+        return first_part
+
+
+    for index, row in tqdm(final_df.iterrows(), total=final_df.shape[0]):
+        topics_as_list = ast.literal_eval(row["topic2"])
+        contains_error = False
+
+        for topic in topics_as_list:
+            if len(topics_as_list) == 0:
+                contains_error = True
+                break
+
+            if "error" in topic.lower() or "" == topic.lower():
+                contains_error = True
+                break
+            
+        if contains_error:
+            print("Index " + str(index) + ": " + row["topic2"])
+
+            # try to create a new label one last time or leave it empty
+            try:
+                max_words=250 # words for each split of the article                     # VARIABLE
+                text = first_text_part(row["text"], words_per_chunk=max_words)
+
+                cl = classifier(text)[0]
+                score = cl['score']
+                label = cl['label']
+                print(label)
+
+                if label in removed_topics:
+                    final_df.at[index, "topic2"] = []
+                else:
+                    final_df.at[index, "topic2"] = [label]
+            except:
+                final_df.at[index, "topic2"] = []
+        #print(row["topic2"])
+    final_df.to_csv('cleaned_medium_articles_v11' + '_final' + '.csv',index=False)
