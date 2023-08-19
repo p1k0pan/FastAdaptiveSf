@@ -6,6 +6,8 @@ from sentence_transformers import SentenceTransformer, util, CrossEncoder
 from io import StringIO
 import os
 from db import schema
+from newspaper import Article, Config
+from trafilatura import fetch_url, extract
 
 result_num = 50
 
@@ -103,19 +105,21 @@ def search_query_history(query:str, corpus_embeddings, client, user_name):
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
-def paragraph_highlighting(index:str, client, user_name):
+def paragraph_highlighting(url:str, client, user_name):
 
     history_emb = _read_history_embd(user_name)
     if history_emb.numel() != 0:
-        result = client.predict(
-                        index,False,None,
-                        api_name="/predict"
-        )
-        df_str = StringIO(result)
-        df_result = pd.read_csv(df_str, sep='\t')
+        # result = client.predict(
+        #                 index,False,None,
+        #                 api_name="/predict"
+        # )
+        # df_str = StringIO(result)
+        # df_result = pd.read_csv(df_str, sep='\t')
+        downloaded = fetch_url(url) 
+        result = extract(downloaded,no_fallback=True)
 
-        print(f"paragraph title: {df_result['title'].values}, index: {df_result['index'].values}")
-        paragraphs=df_result['text'].iloc[0].split('\n\n')
+        paragraphs=result.split('\n')
+        paragraphs.pop(0) # first item is title
         print(f"paragraphs len: {len(paragraphs)}")
 
 
@@ -168,15 +172,15 @@ def paragraph_highlighting(index:str, client, user_name):
 
         # pop up the first 3 paragraph and score need to over threshold
         average = sum(doc_average_score) / len(score_order_dict)
-        threshold = average*1.5
-        keys=[]
+        threshold = 0.15
+        highlighted_paragraph=[]
         for key in sorted_score_order_dict:
-            if sorted_score_order_dict[key]>threshold:
-                keys.append(key)
+            if sorted_score_order_dict[key]>threshold and len(highlighted_paragraph)<4:
+                highlighted_paragraph.append(paragraphs[key])
             else:
                 break
 
-        return schema.Response(status='Ok', code='200', message='highlight success', result=keys)
+        return schema.Response(status='Ok', code='200', message='highlight success', result=highlighted_paragraph)
     else:
         return schema.Response(status='Failed', code='400', message='history is null', result=None)
 

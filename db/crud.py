@@ -5,6 +5,7 @@ from typing import List
 from newspaper import Article, Config
 from modules import controller, clean_dataset
 import pandas as pd
+from trafilatura import fetch_url, extract
 
 import json
 import os
@@ -93,6 +94,11 @@ def update_histories(user_name: str, upload_urls:List):
         for url in upload_urls:
             if str(url) not in index:
                 try:
+
+                    downloaded = fetch_url(url) 
+                    result = extract(downloaded,no_fallback=True)
+                    print(result)
+
                     article = Article(url)
                     article.download()
                     article.parse()

@@ -152,10 +152,10 @@ async def search_query_history(query:str="",token=Depends(token_verify)):
     # return {"title": "test"}
 
 @app.get("/highlight", tags=["Search"])
-async def highlight_paragraph(index:str="",token=Depends(token_verify)):
+async def highlight_paragraph(url:str="",token=Depends(token_verify)):
 
     if token.code == "201" or token.code== "200":
-        result= con.paragraph_highlighting(index, client, token.result)
+        result= con.paragraph_highlighting(url, client, token.result)
         return result
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
