@@ -11,11 +11,13 @@ import re
 
 # VARIABLES TO CHANGE with the help of the created topic_progress-info.txt --> this way the process can be stopped and started again without losing the progress
 ######################################################
-starting_index = 19500 #### CHANGE ######   START VALUE: 0
-RUN = 3 #### INCREASE ######            START VALUE: 1
+starting_index = 0 #### CHANGE ######   START VALUE: 0
+RUN = 1 #### INCREASE ######            START VALUE: 1
 
 create_topics = True
 save_interval = 500
+
+# only if necessary and only AFTER all of the topics have been created
 concat_files = False
 handle_errors = False
 
@@ -160,15 +162,71 @@ if create_topics:
 # 2. Concat saved files
 if concat_files:
     print("merging save files ...")
-    init_df = pd.DataFrame()
+    df2_1=pd.read_csv('cleaned_medium_articles_v11_3999_1.csv')
+    df2_2=pd.read_csv('cleaned_medium_articles_v11_19499_2.csv')
+    df2_3=pd.read_csv('cleaned_medium_articles_v11_26999_3.csv')
+    df2_4=pd.read_csv('cleaned_medium_articles_v11_59499_4.csv')
+    df2_5=pd.read_csv('cleaned_medium_articles_v11_100999_5.csv')
+    df2_6=pd.read_csv('cleaned_medium_articles_v11_118499_6.csv')
+    df2_7=pd.read_csv('cleaned_medium_articles_v11_final_7.csv')
+
+    merged_df = pd.concat([df2_1, df2_2, df2_3, df2_4, df2_5, df2_6, df2_7], ignore_index=True)
+    merged_df.to_csv('cleaned_medium_articles_v12.csv',index=False)
+    merged_df=pd.read_csv('cleaned_medium_articles_v12.csv')
+    print("merged file:")
+    print(merged_df.head)
+    print(merged_df.shape)
 
 
 
 # 3. Handle errors and fill potential empty topic entries
 if handle_errors:
     print("handling the error tags ...")
-    final_df = pd.read_csv('cleaned_medium_articles_v11_3999_1.csv')
 
+    # There was one row with an "error" tag which was removed by the following lines
+    ###########################################################
+    #final_df=pd.read_csv('cleaned_medium_articles_v12.csv')
+    #final_df = final_df.drop(65878) # 65878 contains "error"
+    #final_df.reset_index(drop=True, inplace=True)
+    #final_df.to_csv('cleaned_medium_articles_v13.csv',index=False)
+    ###########################################################
+
+    final_df=pd.read_csv('cleaned_medium_articles_v13.csv')
+    print("final file:")
+    print(final_df.head)
+    print(final_df.shape)
+    print("")
+
+    print("check for more errors (tag errors will be printed) ...")
+    for index, row in tqdm(final_df.iterrows(), total=final_df.shape[0]):
+        contains_error = False
+        topics_as_list = None
+
+        try:
+            topics_as_list = ast.literal_eval(row["topic2"])
+        except ValueError as e:
+            print("")
+            print(f"Error evaluating topic2 for row index {index}: {e}")
+            print("")
+            topics_as_list = "error"
+    
+        for topic in topics_as_list:
+            if len(topics_as_list) == 0:
+                contains_error = True
+                break
+
+            if 'error' in topic.lower() or "" == topic.lower():
+                contains_error = True
+                break
+
+            if contains_error:
+                print("")
+                print("error at row index " + str(index) + ": " + row["topic2"])
+                print("")
+    
+
+# no need to generate more topics, because there was only 1 error which has been handled manually by removing the 1 article
+"""
     def first_text_part(text, words_per_chunk):
         words = re.findall(r'\w+', text)
         first_part = ' '.join(words[:words_per_chunk])
@@ -176,18 +234,35 @@ if handle_errors:
 
 
     for index, row in tqdm(final_df.iterrows(), total=final_df.shape[0]):
-        topics_as_list = ast.literal_eval(row["topic2"])
         contains_error = False
+        topics_as_list = None
+
+        try:
+            topics_as_list = ast.literal_eval(row["topic2"])
+        except ValueError as e:
+            print("")
+            print(f"Error evaluating topic2 for row index {index}: {e}")
+            print("")
+            contains_error = True
+            topics_as_list = "error"
 
         for topic in topics_as_list:
             if len(topics_as_list) == 0:
                 contains_error = True
                 break
 
-            if "error" in topic.lower() or "" == topic.lower():
+            if 'error' in topic.lower() or "" == topic.lower():
                 contains_error = True
                 break
+
+            if contains_error:
+                print("")
+                print("error at row index " + str(index) + ": " + row["topic2"])
+                print("")
+        
             
+        # disable for now
+        contains_error = False
         if contains_error:
             print("Index " + str(index) + ": " + row["topic2"])
 
@@ -207,5 +282,4 @@ if handle_errors:
                     final_df.at[index, "topic2"] = [label]
             except:
                 final_df.at[index, "topic2"] = []
-        #print(row["topic2"])
-    final_df.to_csv('cleaned_medium_articles_v11' + '_final' + '.csv',index=False)
+"""
