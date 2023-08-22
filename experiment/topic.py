@@ -1,3 +1,4 @@
+from queue import Empty
 from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import pandas as pd
@@ -5,6 +6,8 @@ from tqdm import tqdm
 import os
 import ast
 import re
+from collections import Counter
+import matplotlib.pyplot as plt
 
 
 
@@ -14,15 +17,20 @@ import re
 starting_index = 0 #### CHANGE ######   START VALUE: 0
 RUN = 1 #### INCREASE ######            START VALUE: 1
 
-create_topics = True
+create_topics = False # create new topics here
 save_interval = 500
 
 # only if necessary and only AFTER all of the topics have been created
 concat_files = False
-handle_errors = False
+handle_errors = False # not required right now
+
+# handle_no_topic reqires statistical_distribution to be true
+handle_no_topic = True
+# Analyse
+statistical_distribution = True
 
 
-removed_topics = ["WEIRD NEWS", "FIFTY", "GOOD NEWS"]                               # VARIABLE     ### SHOULD NOT BE MORE THAN THE MAX AMOUNT OF TOPICS FOR EACH ARTICLE
+removed_topics = ["WEIRD NEWS", "FIFTY", "GOOD NEWS"]                               # VARIABLE     ### will only get assigned of there arent any other options
 max_labels = 4 # max amount of topics for an article                                # VARIABLE
 high_topic_score = 0.5 # max amount of topics for an article                        # VARIABLE     ### 0.5 is a good score value for a meaningful topic
 ######################################################
@@ -32,8 +40,8 @@ high_topic_score = 0.5 # max amount of topics for an article                    
 # 1. Create the topics for the articles in the database
 if create_topics:
     print("Creating topics ...")
-
     classifier = pipeline("text-classification", model="Yueh-Huan/news-category-classification-distilbert")
+    print("")
     df2=pd.read_csv('../cleaned_medium_articles_v9.csv')
     df2 = df2.iloc[starting_index:]
 
@@ -181,7 +189,7 @@ if concat_files:
 
 # 3. Handle errors and fill potential empty topic entries
 if handle_errors:
-    print("handling the error tags ...")
+    print("show all of the error tags ...")
 
     # There was one row with an "error" tag which was removed by the following lines
     ###########################################################
@@ -225,61 +233,172 @@ if handle_errors:
                 print("")
     
 
-# no need to generate more topics, because there was only 1 error which has been handled manually by removing the 1 article
-"""
-    def first_text_part(text, words_per_chunk):
+
+
+
+def first_text_part(text, words_per_chunk):
         words = re.findall(r'\w+', text)
+    
+        if len(words) <= words_per_chunk:
+            return ' '.join(words)
+    
         first_part = ' '.join(words[:words_per_chunk])
         return first_part
 
 
-    for index, row in tqdm(final_df.iterrows(), total=final_df.shape[0]):
-        contains_error = False
-        topics_as_list = None
+def calculate_new_topics(row, classifier):
+    contains_error = False
+    topics_as_list = []
 
+
+    try:
+        topics_as_list = ast.literal_eval(row["topic2"])
+    except ValueError as e:
+        contains_error = True
+        topics_as_list = []
+
+    if (len(topics_as_list) == 0 or not topics_as_list) or 'error' in topics_as_list:
+        contains_error = True
+    
+    for topic in topics_as_list:
+        if 'error' in topic.lower() or "" == topic.lower():
+            contains_error = True
+            break
+
+    
+    if contains_error:
+        # try to create a new label one last time (score doesnt matter at this point) or leave it empty
         try:
-            topics_as_list = ast.literal_eval(row["topic2"])
+            max_words=250 # words for each split of the article                     # VARIABLE
+            text = first_text_part(row["text"], words_per_chunk=max_words)
+            #words = re.findall(r'\w+', text)
+            #while len(words) < max_words:
+                #text += " " + text  # Concatenate the text with itself
+                #words = re.findall(r'\w+', text)
+
+            cl = classifier(text)[0]
+            label = cl['label']
+
+            last_alternative_label = None
+            if not label or label in removed_topics:
+                # another try
+                max_words=200
+                while max_words > 25:
+                    text = first_text_part(row["text"], words_per_chunk=max_words)
+
+                    cl = classifier(text)[0]
+                    temp_label = cl['label']
+
+                    max_words -= 50
+
+                    if temp_label and temp_label not in removed_topics:
+                        label = temp_label
+                        break
+                    if temp_label in removed_topics:  # finally, if nothing else can be found, just keep the removed topic as a last reserve
+                        last_alternative_label = temp_label
+
+
+            if label:
+                return [label] # final_df.at[index, "topic2"] = [label]
+            else:
+                if last_alternative_label is not None:
+                    return [last_alternative_label] # final_df.at[index, "topic2"] = [last_alternative_label]
+                else:
+                    return [] # final_df.at[index, "topic2"] = []
+
+        except:
+            return [] # final_df.at[index, "topic2"] = []
+
+    return []
+
+
+
+
+if statistical_distribution:
+    print("reading DataFrame for statistical distribution analysis ...")
+    final_df=pd.read_csv('../cleaned_medium_articles_v14.csv')
+    for index, row in final_df.iterrows():
+        try:
+            final_df.at[index, "topic2"] = ast.literal_eval(row["topic2"])
         except ValueError as e:
             print("")
-            print(f"Error evaluating topic2 for row index {index}: {e}")
+            print(f"Error evaluating topic for row index {index}: {e}")
             print("")
-            contains_error = True
-            topics_as_list = "error"
+            final_df.at[index, "topic2"] = []
 
-        for topic in topics_as_list:
-            if len(topics_as_list) == 0:
-                contains_error = True
-                break
+    if handle_no_topic:
+        classifier = pipeline("text-classification", model="Yueh-Huan/news-category-classification-distilbert")
+        print("")
+        print("")
+        print("")
 
-            if 'error' in topic.lower() or "" == topic.lower():
-                contains_error = True
-                break
 
-            if contains_error:
+    # Count the number of entries in each "topic2" list and create a Counter for the counts
+    num_entries_counter = Counter([len(topic_list) for topic_list in final_df["topic2"]])
+
+    # Print the count of articles for each number of entries
+    print("Number of Articles with Different Number of Entries:")
+    for num_entries, count in num_entries_counter.items():
+        print(f"{num_entries} entries: {count} articles")
+        print("")
+
+        if handle_no_topic: 
+            if num_entries == 0 and count > 0:
                 print("")
-                print("error at row index " + str(index) + ": " + row["topic2"])
+                print("articles with 0 topics:")
+
+                # Remember articles without topic
+                articles_without_topic = final_df[final_df["topic2"].apply(len) == 0].index.tolist()
+
+                progress_bar = tqdm(total=len(articles_without_topic), desc="Processing", unit="article")
+                for index in articles_without_topic:
+                    final_df.at[index, "topic2"] = calculate_new_topics(final_df.loc[index], classifier)
+                    progress_bar.update(1)
+                progress_bar.close()
+
+                # Print articles which had no topic, but now should have received one
                 print("")
-        
+                print("Articles which did not have a topic just now")
+                for index in articles_without_topic:
+                    print(f"Article {index} - 'topic2':", final_df.loc[index, "topic2"])
+    
+    if handle_no_topic:
+        print("")
+        print("")
+        print("")
+        print("Try it again after calculating new topics for empty ones:")
+        num_entries_counter = Counter([len(topic_list) for topic_list in final_df["topic2"]])
+        for num_entries, count in num_entries_counter.items():
+            print(f"{num_entries} entries: {count} articles")
             
-        # disable for now
-        contains_error = False
-        if contains_error:
-            print("Index " + str(index) + ": " + row["topic2"])
+        final_df.to_csv('cleaned_medium_articles_v14.csv',index=False)
+        final_df=pd.read_csv('cleaned_medium_articles_v14.csv')
+    print("")
+    print("")
+    print("")
+    topics_only = final_df['topic2']
 
-            # try to create a new label one last time or leave it empty
-            try:
-                max_words=250 # words for each split of the article                     # VARIABLE
-                text = first_text_part(row["text"], words_per_chunk=max_words)
 
-                cl = classifier(text)[0]
-                score = cl['score']
-                label = cl['label']
-                print(label)
+    # Flatten the lists of topics
+    all_topics = [topic for sublist in topics_only for topic in sublist]
 
-                if label in removed_topics:
-                    final_df.at[index, "topic2"] = []
-                else:
-                    final_df.at[index, "topic2"] = [label]
-            except:
-                final_df.at[index, "topic2"] = []
-"""
+    # Calculate the frequency distribution
+    topic_distribution = Counter(all_topics)
+
+    # Convert to DataFrame for easier manipulation
+    distribution_df = pd.DataFrame.from_dict(topic_distribution, orient='index', columns=['Frequency'])
+
+    # Sort the DataFrame by frequency
+    distribution_df = distribution_df.sort_values(by='Frequency', ascending=False)
+
+    # Print the complete frequency distribution DataFrame
+    print("Complete Frequency Distribution:\n")
+    print(distribution_df)
+
+    # Visualize the distribution
+    plt.figure(figsize=(10, 6))
+    distribution_df.plot(kind='bar', legend=None)
+    plt.xlabel('Topic')
+    plt.ylabel('Frequency')
+    plt.title('Topic Distribution')
+    plt.show()
