@@ -2,10 +2,11 @@ from sqlalchemy.orm import Session
 import torch
 from . import model, schema
 from typing import List
-from newspaper import Article, Config
+# from newspaper import Article, Config
 from modules import controller, clean_dataset
 import pandas as pd
 from trafilatura import fetch_url, extract
+from tqdm import tqdm
 
 import json
 import os
@@ -30,38 +31,38 @@ def create_user(db: Session, user_name: str, password: str):
         return ['Ok', '201', 'user create success', _user]
 
 #abandon
-def update_history(db: Session, user_name: str,  upload_urls:List):
-    _user = get_user(db=db, user_name = user_name)
-    upload_count =0
-    # upload and clean
+# def update_history(db: Session, user_name: str,  upload_urls:List):
+#     _user = get_user(db=db, user_name = user_name)
+#     upload_count =0
+#     # upload and clean
 
-    # no previous uploaded histories
-    if _user.histories == None:
-        new_histories = {}
-        for url in upload_urls:
-            article = Article(url)
-            article.download()
-            article.parse()
-            new_histories[url.strip("\n")] =article.text
-            upload_count+=1
-    else:
-        new_histories =json.loads(_user.histories) 
+#     # no previous uploaded histories
+#     if _user.histories == None:
+#         new_histories = {}
+#         for url in upload_urls:
+#             article = Article(url)
+#             article.download()
+#             article.parse()
+#             new_histories[url.strip("\n")] =article.text
+#             upload_count+=1
+#     else:
+#         new_histories =json.loads(_user.histories) 
 
-        for url in upload_urls:
-            if str(url) not in new_histories:
-                article = Article(url)
-                article.download()
-                article.parse()
-                new_histories[url.strip("\n")] =article.text
-                upload_count+=1
+#         for url in upload_urls:
+#             if str(url) not in new_histories:
+#                 article = Article(url)
+#                 article.download()
+#                 article.parse()
+#                 new_histories[url.strip("\n")] =article.text
+#                 upload_count+=1
 
-    print(upload_count)
-    formatted_json = json.dumps(new_histories, indent=2)
-    _user.histories = formatted_json
+#     print(upload_count)
+#     formatted_json = json.dumps(new_histories, indent=2)
+#     _user.histories = formatted_json
 
-    db.commit()
-    db.refresh(_user)
-    return _user
+#     db.commit()
+#     db.refresh(_user)
+#     return _user
 
 def update_histories(user_name: str, upload_urls:List):
 
@@ -85,25 +86,26 @@ def update_histories(user_name: str, upload_urls:List):
             return ['Failed', '500', 'internal error', e]
 
         user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
-        config = Config()
-        config.browser_user_agent = user_agent
+        # config = Config()
+        # config.browser_user_agent = user_agent
 
         history = list(index.values())
         new_history = []
 
-        for url in upload_urls:
+        for url in tqdm(upload_urls):
             if str(url) not in index:
                 try:
 
                     downloaded = fetch_url(url) 
                     result = extract(downloaded,no_fallback=True)
-                    print(result)
 
-                    article = Article(url)
-                    article.download()
-                    article.parse()
-                    index[str(url)] = article.text
-                    new_history.append(article.text)
+                    # article = Article(url)
+                    # article.download()
+                    # article.parse()
+                    # index[str(url)] = article.text
+
+                    index[str(url)] = result
+                    new_history.append(result)
                 except Exception as e:
                     print(e)
                     new_history.append("")
@@ -115,7 +117,7 @@ def update_histories(user_name: str, upload_urls:List):
             # user_history = pd.DataFrame(history, columns=['sentence'])
             # user_history = clean_dataset.clean_sentences(user_history)
             # user_keyword_embeddings = controller._embed_text(user_history.clean_sentence.values)
-            new_history = [clean_dataset.clean_text(text) for text in new_history]
+            new_history = [clean_dataset.clean_text(str(text)) for text in new_history]
             history.extend(new_history)
             user_keyword_embeddings = controller._embed_text(history)
 
