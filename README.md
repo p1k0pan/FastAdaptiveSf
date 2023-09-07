@@ -5,6 +5,8 @@ FastAPI Adaptive Storyfinder
 Please download the model and dataset from https://huggingface.co/spaces/AdaptiveStoryfinder/medium_query_topk/tree/main
 and put it on root.
 
+Up to date file: `corpus_embeddings_v5.pt`, `cleaned_medium_articles_v14.csv`
+
 ## start
 
 First: Install Python 3.8.16 / Python 3.10 <br />
