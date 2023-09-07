@@ -13,6 +13,11 @@ from gradio_client import Client
 from typing import Union
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
+from haystack.document_stores.faiss import FAISSDocumentStore
+from haystack.nodes import EmbeddingRetriever, SentenceTransformersRanker, TransformersSummarizer
+from haystack import Pipeline
+
+import time
 
 corpus_embeddings = None # model from main dataset
 client=None
@@ -21,6 +26,9 @@ initial_tags=['Technology', 'Health']
 presented_tag_story={}
 ACCESS_TOKEN_EXPIRED = 10
 REFRESH_TOKEN_EXPIRED = 30
+document_store=None
+retriever=None
+ranker=None
 
 # connect database
 model.Base.metadata.create_all(bind=config.engine)
@@ -40,6 +48,9 @@ async def lifespan(app: FastAPI):
     global corpus_embeddings
     global client
     global presented_tag_story
+    global document_store
+    global retriever 
+    global ranker
 
     print("start loading model and dataset")
     # df = con.load_corpus()
@@ -48,9 +59,19 @@ async def lifespan(app: FastAPI):
 
     print('initializing tags')
     # initial tag sampler
-    [await initial_tag_story(tag) for tag in initial_tags]
-    presented_tag_story = {tag: [] for tag in initial_tags}
-    print(tag_sampler.keys())
+    # [await initial_tag_story(tag) for tag in initial_tags]
+    # presented_tag_story = {tag: [] for tag in initial_tags}
+    # print(tag_sampler.keys())
+
+    # initial haystack document_stores, retriever, ranker
+    # document_store = FAISSDocumentStore.load(index_path="all_medium_faiss_v2.faiss", config_path="all_medium_faiss_v2.json")
+    # assert document_store.faiss_index_factory_str == "Flat"
+    # print("initializing retriever:")
+    # retriever = EmbeddingRetriever(
+    #     document_store=document_store, embedding_model="sentence-transformers/multi-qa-MiniLM-L6-cos-v1",top_k=50
+    # )
+    # print("initializing ranker:")
+    # ranker = SentenceTransformersRanker(model_name_or_path="cross-encoder/ms-marco-MiniLM-L-6-v2", top_k=50)
 
     print("ready to go")
     yield # ctrl-c stop the program would run code below
@@ -132,9 +153,15 @@ async def search_query(query:str=""):
 
     query = query.replace("_", " ")
 
-    query_corpus_result= con.search_query(query,corpus_embeddings=corpus_embeddings, client=client)
-
-
+    T1 = time.time()
+    # pipeline2 = Pipeline()
+    # pipeline2.add_node(component=retriever, name='Retriever', inputs=['Query'])
+    # pipeline2.add_node(component=ranker, name='Ranker', inputs=['Retriever'])
+    # result = pipeline2.run(query=query)
+    query_corpus_result= con.search_query(query,corpus_embeddings=corpus_embeddings, client=client,
+                                          retriever=retriever, ranker= ranker)
+    T2 = time.time()
+    print('Running time: %sms' % ((T2 - T1)*1000))
     return query_corpus_result
 
 @app.get("/search_his", tags=["Search"])

@@ -8,6 +8,8 @@ import os
 from db import schema
 from newspaper import Article, Config
 from trafilatura import fetch_url, extract
+from haystack import Pipeline
+import time
 
 result_num = 50
 
@@ -21,7 +23,7 @@ else:
 def _embed_text(text):
     return bi_encoder.encode(text, convert_to_tensor=True,show_progress_bar=True)
 
-bi_encoder = SentenceTransformer('multi-qa-MiniLM-L6-cos-v1', device=device)
+bi_encoder = SentenceTransformer('multi-qa-mpnet-base-dot-v1', device=device)
 cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2',device=device)
 
 def load_corpus():
@@ -31,7 +33,7 @@ def load_corpus():
     return df
 
 def load_corpus_tensor():
-    tensor_path= 'corpus_embeddings_v4.pt'
+    tensor_path= 'corpus_embeddings_v5.pt'
     print("load corpus embedding")
     corpus_embeddings = torch.load(tensor_path, map_location=torch.device(device))
     return corpus_embeddings
@@ -55,18 +57,21 @@ def random_stories(tag:str, client):
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
-def search_query(query:str, corpus_embeddings, client):
+def search_query(query:str, corpus_embeddings, client, retriever, ranker):
     print(query)
-    query_embedding = _embed_text(query)
     # print(f'query shape: {query_embedding.shape}')
 
     try:
-        query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, debug=False)
-
-        rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
 
         article_response = schema.ArticleResponse()
+        query_embedding = _embed_text(query)
+        query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, debug=False)
+        rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
         article_response.process_dataset(rerank_result)
+
+        # rerank_result = _get_hits_from_haystack(query,retriever, ranker)
+        # article_response.process_document(rerank_result)
+
         return schema.Response(status='Ok', code='200', message='success', result=article_response)
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
@@ -74,10 +79,10 @@ def search_query(query:str, corpus_embeddings, client):
 def search_query_history(query:str, corpus_embeddings, client, user_name):
 
     print(query)
-    query_embedding = _embed_text(query)
     # print(f'query shape: {query_embedding.shape}')
 
     try:
+        query_embedding = _embed_text(query)
         query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, debug=False)
 
         rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
@@ -184,16 +189,26 @@ def paragraph_highlighting(url:str, client, user_name):
     else:
         return schema.Response(status='Failed', code='400', message='history is null', result=None)
 
+def _get_hits_from_haystack(query:str, retriever, ranker):
+
+    pipeline2 = Pipeline()
+    pipeline2.add_node(component=retriever, name='Retriever', inputs=['Query'])
+    pipeline2.add_node(component=ranker, name='Ranker', inputs=['Retriever'])
+    result = pipeline2.run(query=query)
+
+    return result
 
 def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client, debug=False):
     hits = util.semantic_search(question_embedding, corpus_embeddings, top_k=top_k)
     hits = hits[0]  # Get the hits for the first query
 
     result_index = [] # get the top10 item from df
+    scores=[]
     print("\nHits by bi_encoder:")
     for item in hits:
         idx = item["corpus_id"]
         result_index.append(idx)
+        scores.append(item['score'])
 
     if debug:
         df = load_corpus()
@@ -210,8 +225,9 @@ def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client, debu
         print("after predict")
         df_str = StringIO(result)
         df_result = pd.read_csv(df_str, sep='\t')
+    df_result['score']=scores
 
-    print(df_result[["index","title"]].values)
+    print(df_result[["index","title", "score"]].values)
     # df.iloc[result_index].copy().to_csv('hits.csv',',')
     
     return df_result
@@ -242,7 +258,7 @@ def _rank_hits_cross_encoder(hits_df,query):
     hits_df.sort_values(by=['score'], inplace=True, ascending=False)
 
     print("\nCross Hits:")
-    print(hits_df[["index","title"]].values)
+    print(hits_df[["index","title","score"]].values)
     return hits_df.copy()
 
 def _rank_hits_history(history_emb, rerank_emb, df) -> pd.DataFrame:
