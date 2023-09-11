@@ -39,9 +39,10 @@ class ArticleResponse(BaseModel):
     text: Optional[List[str]]
     thumbnail: Optional[List[str]]  
     index: Optional[List[str]]  
+    positive_index: Optional[List[int]]
 
 
-    def process_dataset(self, df):
+    def process_dataset(self, df, positive_index:int=-1):
         self.title = df["title"].tolist()
         self.urls = df['url'].tolist()
         self.authors = df['authors'].tolist()
@@ -51,6 +52,7 @@ class ArticleResponse(BaseModel):
         self.text = df['text'].tolist()
         self.thumbnail= df['thumbnail'].tolist()
         self.index= df['index'].tolist()
+        self.positive_index = positive_index
 
     def process_document(self, doc):
         titles = []
