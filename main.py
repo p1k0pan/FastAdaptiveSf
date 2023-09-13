@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 import pandas as pd
+import torch
 from modules import controller as con, random_story
 from modules import authorization as auth
 
@@ -29,6 +30,7 @@ REFRESH_TOKEN_EXPIRED = 30
 document_store=None
 retriever=None
 ranker=None
+device='cpu'
 
 # connect database
 model.Base.metadata.create_all(bind=config.engine)
@@ -51,6 +53,7 @@ async def lifespan(app: FastAPI):
     global document_store
     global retriever 
     global ranker
+    global device
 
     print("start loading model and dataset")
     # df = con.load_corpus()
@@ -72,6 +75,13 @@ async def lifespan(app: FastAPI):
     # )
     # print("initializing ranker:")
     # ranker = SentenceTransformersRanker(model_name_or_path="cross-encoder/ms-marco-MiniLM-L-6-v2", top_k=50)
+
+    if torch.cuda.is_available():
+        device = 'cuda'
+    elif torch.backends.mps.is_available():
+        device = 'mps'
+    else:
+        device = 'cpu'
 
     print("ready to go")
     yield # ctrl-c stop the program would run code below
@@ -212,16 +222,16 @@ async def create_user(request: schema.UserSchema, db: Session =db_session):
 async def update_histories(request: schema.UserSchema, db: Session =db_session,token=Depends(token_verify)):
     # detect upload_urls exception
 
-    if token.code == "201" or token.code== "200":
+    # if token.code == "201" or token.code== "200":
 
-        if request.user_name == None or request.upload_urls == None:
-            return schema.Response(status="Failed", code='400', message='User name or upload file is empty', result=None)
+    if request.user_name == None or request.upload_urls == None:
+        return schema.Response(status="Failed", code='400', message='User name or upload file is empty', result=None)
 
-        status, code, msg, result = crud.update_histories(user_name=request.user_name, upload_urls=request.upload_urls)
-        return schema.Response(status=status, code=code, message=msg, result=result)
+    status, code, msg, result = crud.update_histories(user_name=request.user_name, upload_urls=request.upload_urls, device=device)
+    return schema.Response(status=status, code=code, message=msg, result=result)
 
-    else:
-        return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
+    # else:
+    #     return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
 @app.get("/initial_tag_story", tags=["Tag"])
 async def initial_tag_story(tag:str=""):
