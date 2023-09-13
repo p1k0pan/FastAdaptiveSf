@@ -18,6 +18,7 @@ from haystack.document_stores.faiss import FAISSDocumentStore
 from haystack.nodes import EmbeddingRetriever, SentenceTransformersRanker, TransformersSummarizer
 from haystack import Pipeline
 
+import json
 import time
 
 corpus_embeddings = None # model from main dataset
@@ -208,6 +209,20 @@ async def get_user(user_name:str, db: Session =db_session ):
 
     _users = crud.get_user(db, user_name)
     return schema.Response(status="Ok", code="200", message="Success get user", result=_users)
+
+@app.get('/user/history',tags=["User"])
+async def get_user(user_name:str, db: Session =db_session ):
+    file_path = f"history/{user_name}.json"
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        return schema.Response(status="Ok", code="200", message="successful get user history", result=data)
+    except FileNotFoundError:
+        print(f"The file {file_path} does not exist. Creating an empty JSON.")
+        return schema.Response(status="Failed", code="404", message="file not exist", result={})
+    except json.JSONDecodeError:
+        print(f"The file {file_path} is not a valid JSON file. Creating an empty JSON.")
+        return schema.Response(status="Failed", code="400", message="not valid Json file", result={})
 
 @app.post("/user", tags=["User"])
 async def create_user(request: schema.UserSchema, db: Session =db_session): 
