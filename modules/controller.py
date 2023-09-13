@@ -67,7 +67,12 @@ def search_query(query:str, corpus_embeddings, client, retriever, ranker):
         query_embedding = _embed_text(query)
         query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, debug=False)
         rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
-        article_response.process_dataset(rerank_result)
+        rerank_result = rerank_result.reset_index(drop=True)
+
+        # get the result that scroe>0
+        positive_indices = rerank_result[rerank_result['score'] > 0].index.tolist()
+
+        article_response.process_dataset(rerank_result, positive_indices[-1])
 
         # rerank_result = _get_hits_from_haystack(query,retriever, ranker)
         # article_response.process_document(rerank_result)
@@ -86,8 +91,16 @@ def search_query_history(query:str, corpus_embeddings, client, user_name):
         query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, debug=False)
 
         rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
+        rerank_result = rerank_result.reset_index(drop=True)
 
-        query_corpus_result_embedding = _embed_text(rerank_result.clean_sentence.values)
+        # get the result that scroe>0
+        positive_indices = rerank_result[rerank_result['score'] > 0].index.tolist()
+        print("positive indices: ", positive_indices)
+        positive_rows = rerank_result[rerank_result.index.isin(positive_indices)]
+        negative_rows = rerank_result[~rerank_result.index.isin(positive_indices)]
+        print(positive_rows)
+
+        query_corpus_result_embedding = _embed_text(positive_rows.clean_sentence.values)
 
         # user_history = _read_history(user_name)
         # if not user_history.empty:
@@ -98,13 +111,14 @@ def search_query_history(query:str, corpus_embeddings, client, user_name):
 
         if user_keyword_embeddings.numel() != 0:
             history_rank = _rank_hits_history(user_keyword_embeddings, query_corpus_result_embedding, rerank_result)
+            result_df = pd.concat([history_rank, negative_rows])
 
             article_response = schema.ArticleResponse()
-            article_response.process_dataset(history_rank)
+            article_response.process_dataset(result_df, positive_indices[-1])
             return schema.Response(status='Ok', code='200', message='success', result=article_response)
         else:
             article_response = schema.ArticleResponse()
-            article_response.process_dataset(rerank_result)
+            article_response.process_dataset(rerank_result, positive_indices[-1])
             return schema.Response(status='Ok', code='200', message='success without history', result=article_response)
 
     except ConnectionError:
@@ -271,6 +285,7 @@ def _rank_hits_history(history_emb, rerank_emb, df) -> pd.DataFrame:
 
     print("\nhistory Hits:")
 
+    df = df.iloc[0:int(doc_average_score.shape[0])].copy()
     df['Cosine Similarity'] = doc_average_score.tolist()   
     df = df.sort_values(by='Cosine Similarity', ascending=False)
     df = df.reset_index(drop=True)

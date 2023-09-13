@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 import pandas as pd
+import torch
 from modules import controller as con, random_story
 from modules import authorization as auth
 
@@ -17,6 +18,7 @@ from haystack.document_stores.faiss import FAISSDocumentStore
 from haystack.nodes import EmbeddingRetriever, SentenceTransformersRanker, TransformersSummarizer
 from haystack import Pipeline
 
+import json
 import time
 
 corpus_embeddings = None # model from main dataset
@@ -29,6 +31,7 @@ REFRESH_TOKEN_EXPIRED = 30
 document_store=None
 retriever=None
 ranker=None
+device='cpu'
 
 # connect database
 model.Base.metadata.create_all(bind=config.engine)
@@ -51,6 +54,7 @@ async def lifespan(app: FastAPI):
     global document_store
     global retriever 
     global ranker
+    global device
 
     print("start loading model and dataset")
     # df = con.load_corpus()
@@ -72,6 +76,13 @@ async def lifespan(app: FastAPI):
     # )
     # print("initializing ranker:")
     # ranker = SentenceTransformersRanker(model_name_or_path="cross-encoder/ms-marco-MiniLM-L-6-v2", top_k=50)
+
+    if torch.cuda.is_available():
+        device = 'cuda'
+    elif torch.backends.mps.is_available():
+        device = 'mps'
+    else:
+        device = 'cpu'
 
     print("ready to go")
     yield # ctrl-c stop the program would run code below
@@ -199,6 +210,20 @@ async def get_user(user_name:str, db: Session =db_session ):
     _users = crud.get_user(db, user_name)
     return schema.Response(status="Ok", code="200", message="Success get user", result=_users)
 
+@app.get('/user/history',tags=["User"])
+async def get_user(user_name:str, db: Session =db_session ):
+    file_path = f"history/{user_name}.json"
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        return schema.Response(status="Ok", code="200", message="successful get user history", result=data)
+    except FileNotFoundError:
+        print(f"The file {file_path} does not exist. Creating an empty JSON.")
+        return schema.Response(status="Failed", code="404", message="file not exist", result={})
+    except json.JSONDecodeError:
+        print(f"The file {file_path} is not a valid JSON file. Creating an empty JSON.")
+        return schema.Response(status="Failed", code="400", message="not valid Json file", result={})
+
 @app.post("/user", tags=["User"])
 async def create_user(request: schema.UserSchema, db: Session =db_session): 
     if request.user_name == None or request.password == None:
@@ -212,16 +237,16 @@ async def create_user(request: schema.UserSchema, db: Session =db_session):
 async def update_histories(request: schema.UserSchema, db: Session =db_session,token=Depends(token_verify)):
     # detect upload_urls exception
 
-    if token.code == "201" or token.code== "200":
+    # if token.code == "201" or token.code== "200":
 
-        if request.user_name == None or request.upload_urls == None:
-            return schema.Response(status="Failed", code='400', message='User name or upload file is empty', result=None)
+    if request.user_name == None or request.upload_urls == None:
+        return schema.Response(status="Failed", code='400', message='User name or upload file is empty', result=None)
 
-        status, code, msg, result = crud.update_histories(user_name=request.user_name, upload_urls=request.upload_urls)
-        return schema.Response(status=status, code=code, message=msg, result=result)
+    status, code, msg, result = crud.update_histories(user_name=request.user_name, upload_urls=request.upload_urls, device=device)
+    return schema.Response(status=status, code=code, message=msg, result=result)
 
-    else:
-        return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
+    # else:
+    #     return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
 @app.get("/initial_tag_story", tags=["Tag"])
 async def initial_tag_story(tag:str=""):
