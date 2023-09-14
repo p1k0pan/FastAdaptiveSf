@@ -1,98 +1,208 @@
 // Login & Register
 
-var usernameLogin = document.getElementById( 'username-login' );
-var passwordLogin = document.getElementById( 'password-login' );
-const loginButton = document.getElementById( 'login-button' );
+window.addEventListener("DOMContentLoaded", (e) => {
+  const loginButton = document.getElementById("login-button");
 
-loginButton.addEventListener("click", function(e){ // https://stackoverflow.com/questions/56478681/send-post-request-from-chrome-extension
+  if (loginButton) {
+    var usernameLogin = document.getElementById("username-login");
+    var passwordLogin = document.getElementById("password-login");
+
+    const body = JSON.stringify({
+      user_name: String(usernameLogin),
+      password: String(passwordLogin),
+    });
+
+    loginButton.addEventListener('click', function (e) {
+      login(e, body); // Pass the event object 'e' to the 'login' function
+    }, false);
+  }
+});
+
+
+
+function login(e, body) {
   e.preventDefault();
-  console.log("login")
+  console.log("login");
 
-  var res = "0"
+  var res = "0";
+  const username = body["user_name"]
+
   const authorizationData = {
-    username: usernameLogin,
+    username: String(username),
     access_token: null,
     refresh_token: null,
-  }
+  };
 
-  const endpoint = "http://127.0.0.1:8000" + "/" + `login`;
-  const body = {
-    user_name: usernameLogin,
-    password: passwordLogin,
-  }
+    const endpoint = "http://127.0.0.1:8000" + "/" + `login`;
+    const method = "POST";
+    console.log(String(username));
 
-  return new Promise(function (resolve, reject) { // https://stackoverflow.com/questions/48969495/in-javascript-how-do-i-should-i-use-async-await-with-xmlhttprequest
+    return new Promise(function (resolve, reject) {
+      let req = new XMLHttpRequest();
+      req.open(method, endpoint, true);
+      req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      req.send(body);
+
+      req.onload = function () {
+      var data = JSON.parse(req.responseText);
+
+      if (data) {
+        res = data.code;
+        console.log("res: " + String(res));
+
+        if (res === "200" || res === "201") {
+          console.log("user login successful!");
+          var result = data.result;
+          console.log(result.access_token);
+
+          authorizationData.access_token = result.access_token;
+          authorizationData.refresh_token = result.refresh_token;
+
+          resolve(res); // req.response
+        } else {
+          if (res === "400") {
+            var message = data.message;
+            console.log("user login not successful!");
+
+            if (message === "Invalid user name or user not found") {
+              console.log("Invalid user name or user not found!");
+            }
+            if (message === "Invalid password") {
+              console.log("Invalid password!");
+            }
+          }
+
+          resolve("400");
+          reject({
+            status: this.status,
+            statusText: req.statusText,
+          });
+        }
+        }
+      };
+
+      req.onerror = function () {
+        console.error("** An error occurred during the XMLHttpRequest for the login");
+        resolve("0");
+
+        reject({
+          status: this.status,
+          statusText: req.statusText,
+        });
+      };
+    });
+}
+
+
+
+
+
+
+
+
+window.addEventListener("DOMContentLoaded", (e) => {
+  const registerButton = document.getElementById( 'register-button' );
+  if (registerButton) {
+    registerButton.addEventListener('click', function (e) {
+      register(e); // Pass the event object 'e' to the 'register' function
+    }, false);
+  }
+});
+
+
+async function register(e) {
+  const usernameRegister = document.getElementById( 'username-register' );
+  const passwordRegister = document.getElementById( 'password-register' );
+
+  const body = JSON.stringify({
+    user_name: String(usernameRegister),
+    password: String(passwordRegister),
+  });
+
+
+  try {
+    const res = await createUser(e, body);
+    
+    if(res === "200" || res === "201"){
+    await login(e, body);
+    } else {
+      console.log("could not log in: there was an error during registration!")
+    }
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+function createUser(e, body) {
+  e.preventDefault();
+  console.log("register")
+
+  var res = "0";
+  const username = body["user_name"]
+  const password = body["password"]
+
+  const endpoint = "http://127.0.0.1:8000" + "/" + `user`;
+  const method = "POST";
+
+  return new Promise(function (resolve, reject) {
     let req = new XMLHttpRequest();
-    req.open("POST", endpoint); // , true);
-    //req.setRequestHeader('Authorization', 'Bearer ' + access_token);
+    req.open(method, endpoint, true);
     req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    req.send(body); // JSON.stringify(body) TODO
+    req.send(body);
 
     req.onload = function () {
-        res = req.response.data["code"]
+      var data = JSON.parse(req.responseText);
 
-        if (this.status >= 200 && this.status < 300) { // 200 or 201
-            console.log("user login successful!")
-            var result = req.response.data["result"]
-            console.log(result["access_token"])
-    
-            authorizationData["access_token"] = result["access_token"]
-            authorizationData["refresh_token"] = result["refresh_token"]
+      if(data) {
+        res = data.code;
+        console.log("res: " + String(res));
 
-            resolve(req.response);
-        } else {
-            if(req.response.data["code"] === "400") {
-              console.log("user login not successful!")
-            
-              if(req.response.data["message"] === "Invalid user name or user not found"){
-                console.log("Invalid user name or user not found!")
-              }
-              if(req.response.data["message"] === "Invalid password"){
-                console.log("Invalid password!")
-              }
-            }
-
-            reject({
-                status: this.status,
-                statusText: req.statusText
-            });
-        }
+        if (res === "200" || res === "201") {
+          console.log("user created successfully!");
+        } 
+      }
     };
+
     req.onerror = function () {
-        reject({
-            status: this.status,
-            statusText: req.statusText
-        });
+      console.error("** An error occurred during the XMLHttpRequest for the creation of a new user");
+      resolve(res);
+
+      reject({
+        status: this.status,
+        statusText: req.statusText,
+      });
     };
-    req.send();
+
+    resolve(res);
+  });
+}
 
 
-    // Ways of getting response data / response headers
-    req.onreadystatechange = function() { // Call a function when the state changes. TODO
-      if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-          console.log("Got response 200!");
-          alert(req.responseText);
-          console.log(this.responseText);
-      }
 
-      if (client.readyState === client.HEADERS_RECEIVED) {
-        const contentType = client.getResponseHeader("Content-Type"); // Authorization
-      }
-    }
+
+
+// Switch between register.html and login.html
+document.addEventListener('DOMContentLoaded', function() {
+  const redirectToLoginLink = document.querySelector("#toLogin-link");
+  const redirectToRegisterLink = document.querySelector("#toRegister-link");
+  
+  if (redirectToLoginLink) {
+    redirectToLoginLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = 'login.html';
+    });
+  }
+
+  if (redirectToRegisterLink) {
+    redirectToRegisterLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = 'register.html';
+      // Redirect the user to the "register.html" page
+      // chrome.tabs.create({ url: "register.html" });
+    });
+  }
 });
 
-  
-});
 
-
-
-
-
-
-const usernameRegister = document.getElementById( 'username-register' );
-const passwordRegister = document.getElementById( 'password-register' );
-const registerButton = document.getElementById( 'register-button' );
-registerButton.addEventListener( 'click', () => {
-  console.log("register")
-  
-} );

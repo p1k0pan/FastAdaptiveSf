@@ -100,24 +100,6 @@
         <div class="login-form">
             <form action="/examples/actions/confirmation.php" method="post">
                 <h2 class="text-center">Sign in</h2>		
-                <div class="text-center social-btn">
-                    <a class="btn btn-outline-dark btn-block" href="#" role="button" style="text-transform:none">
-                        <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
-                        Sign in with <b>Google</b>
-                    </a>
-                    <a class="btn btn-outline-dark btn-block" href="#" role="button" style="text-transform:none">
-                        <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
-                        Sign in with <b>Facebook</b>
-                    </a>
-                    <a class="btn btn-outline-dark btn-block" href="#" role="button" style="text-transform:none">
-                        <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="" src="https://commons.wikimedia.org/wiki/File:Logo_of_Twitter.svg" />
-                        Sign in with <b>Twitter</b>
-                    </a>
-                    <a class="btn btn-outline-dark btn-block" href="#" role="button" style="text-transform:none">
-                        <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="" src="./assets/logos/Google_Logo.svg" />
-                        Sign in with <b>Github</b>
-                    </a>
-                </div>
 
                 <div class="or-seperator"><i>or</i></div>
                 <div class="form-group">
@@ -127,7 +109,7 @@
                                 <span class="fa fa-user"></span>
                             </span>                    
                         </div>
-                        <input type="text" class="form-control" name="username" placeholder="Username" required="required" id="username-login">
+                        <input type="text" class="form-control" name="username" placeholder="Username" required="required" id="username-register">
                     </div>
                 </div>
                 <div class="form-group">
@@ -137,21 +119,20 @@
                                 <i class="fa fa-lock"></i>
                             </span>                    
                         </div>
-                        <input type="password" class="form-control" name="password" placeholder="Password" required="required" id="password-login">
+                        <input type="password" class="form-control" name="password" placeholder="Password" required="required" id="password-register">
                     </div>
                 </div>        
                 <div class="form-group">
-                    <button type="submit" class="btn btn-success btn-block login-btn" id="login-button">Login</button>
+                    <button type="submit" class="btn btn-success btn-block login-btn" id="register-button">Register</button>
                 </div>
                 <div class="clearfix">
                     <label class="float-left form-check-label"><input type="checkbox"> Remember me</label>
-                    <a href="#" class="float-right text-success">Forgot Password?</a>
                 </div>  
             
             </form>
-            <div class="hint-text">Don't have an account? <a href="#" class="text-success" id="register-button">Register Now!</a></div>
+            <div class="hint-text">Already have an account? <a href="#" class="text-success" id="toLogin-link">Log in now!</a></div>
         </div>
     </body>
     
-<script src="./scripts/authentication.js"></script>
+    <script src="/scripts/authentication.js"></script>
 </html>
