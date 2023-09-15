@@ -20,6 +20,7 @@ from haystack import Pipeline
 
 import json
 import time
+from collections import defaultdict
 
 corpus_embeddings = None # model from main dataset
 client=None
@@ -215,13 +216,18 @@ async def get_user(user_name:str, db: Session =db_session ):
     return schema.Response(status="Ok", code="200", message="Success get user", result=_users)
 
 @app.get('/user/history',tags=["User"])
-async def get_user(user_name:str, db: Session =db_session ):
+async def get_user(user_name:str, token=Depends(token_verify)):
     if token.code == "201" or token.code== "200":
         file_path = f"history/{user_name}.json"
         try:
             with open(file_path, 'r') as f:
                 data = json.load(f)
-            return schema.Response(status="Ok", code="200", message="successful get user history", result=data)
+                grouped_data = defaultdict(list)
+                for item in data:
+                    date = item['date']
+                    grouped_data[date].append(item)
+                result = dict(grouped_data)
+            return schema.Response(status="Ok", code="200", message="successful get user history", result=result)
         except FileNotFoundError:
             print(f"The file {file_path} does not exist. Creating an empty JSON.")
             return schema.Response(status="Failed", code="404", message="file not exist", result={})

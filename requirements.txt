@@ -6,7 +6,6 @@ fastapi[all]
 gradio_client
 sqlalchemy
 psycopg2-binary
-newspaper3k
 pyjwt
 trafilatura
 farm-haystack

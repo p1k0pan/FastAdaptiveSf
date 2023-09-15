@@ -10,6 +10,9 @@ from tqdm import tqdm
 
 import json
 import os
+from datetime import date
+ 
+# Returns the current local date
 
 
 def get_all_user(db: Session, skip: int = 0, limit: int = 100):
@@ -52,10 +55,11 @@ def update_histories(user_name: str, upload_urls:List, device:str):
         flag=False
         print("file not found")
 
+    today = str(date.today())
     for url in tqdm(upload_urls):
         # condition: when file not exist or file exist and url not exist
         if not flag or (flag and not df['url'].isin([str(url)]).any()):
-            new_history_item, content_to_emb_item = extract_url(str(url), i)
+            new_history_item, content_to_emb_item = extract_url(str(url), i, today)
             
             # condition: when extract function is correct with returning valid value(including "")
             if new_history_item is not None and content_to_emb_item is not None:
@@ -88,7 +92,7 @@ def update_histories(user_name: str, upload_urls:List, device:str):
     return ['Ok', '200', 'Success update data', user_name]
 
 
-def extract_url(url, i):
+def extract_url(url, i, d):
 
     new_history =[]
     content_to_emb =[]
@@ -107,7 +111,7 @@ def extract_url(url, i):
             title = ""
             content=""
 
-        item={ 'index': i,'title': title, 'url': str(url), 'content': content}
+        item={ 'index': i,'title': title, 'url': str(url), 'content': content, "date": d}
 
         new_history.append(item)
     except Exception as e:
