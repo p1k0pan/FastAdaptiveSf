@@ -132,7 +132,7 @@ async def login_to_create_token(response:Response, user: schema.UserSchema, db: 
 
             return schema.Response(status="Ok",
                         code="200",
-                        message="login success", result={"access_token": access_token, "refresh_token": refresh_token})
+                                   message="login success", result={"user_name": _user.user_name,"access_token": access_token, "refresh_token": refresh_token})
 
 @app.get("/token_verify", tags=["Authorization"])
 async def token_verify(response: Response, request:Request,db: Session =db_session, refresh:bool=False):
@@ -146,13 +146,17 @@ async def token_verify(response: Response, request:Request,db: Session =db_sessi
                 return schema.Response(status="credentials exception",
                             code="400",
                             message="token is invalid", result=None)
+            # 201 = refresh 
             if code=="201":
                 # assign a token
                 access_token = auth.create_token(_user.user_name, ACCESS_TOKEN_EXPIRED)
                 refresh_token = auth.create_token(_user.user_name, REFRESH_TOKEN_EXPIRED)
                 response.headers["access_token"] = access_token
                 response.headers["refresh_token"] = refresh_token
-                return schema.Response(status=status, code=code, message=msg, result={"access_token": access_token, "refresh_token": refresh_token})
+                return schema.Response(status=status, code=code, message=msg, result={"user_name": result,"access_token": access_token, "refresh_token": refresh_token})
+            elif code=="401":
+                return schema.Response(status=status, code=code, message=msg, result={"user_name": _user.user_name})
+
 
         return schema.Response(status=status, code=code, message=msg, result=result)
     except KeyError:
@@ -212,17 +216,20 @@ async def get_user(user_name:str, db: Session =db_session ):
 
 @app.get('/user/history',tags=["User"])
 async def get_user(user_name:str, db: Session =db_session ):
-    file_path = f"history/{user_name}.json"
-    try:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-        return schema.Response(status="Ok", code="200", message="successful get user history", result=data)
-    except FileNotFoundError:
-        print(f"The file {file_path} does not exist. Creating an empty JSON.")
-        return schema.Response(status="Failed", code="404", message="file not exist", result={})
-    except json.JSONDecodeError:
-        print(f"The file {file_path} is not a valid JSON file. Creating an empty JSON.")
-        return schema.Response(status="Failed", code="400", message="not valid Json file", result={})
+    if token.code == "201" or token.code== "200":
+        file_path = f"history/{user_name}.json"
+        try:
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+            return schema.Response(status="Ok", code="200", message="successful get user history", result=data)
+        except FileNotFoundError:
+            print(f"The file {file_path} does not exist. Creating an empty JSON.")
+            return schema.Response(status="Failed", code="404", message="file not exist", result={})
+        except json.JSONDecodeError:
+            print(f"The file {file_path} is not a valid JSON file. Creating an empty JSON.")
+            return schema.Response(status="Failed", code="400", message="not valid Json file", result={})
+    else:
+        return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
 @app.post("/user", tags=["User"])
 async def create_user(request: schema.UserSchema, db: Session =db_session): 
