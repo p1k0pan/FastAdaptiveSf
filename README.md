@@ -160,7 +160,7 @@ example: http://127.0.0.1:8000/highlight?url=url123
 
 return the index of paragraph
 
-````json
+```json
 {
     "code": "200",
     "status": "Ok",
