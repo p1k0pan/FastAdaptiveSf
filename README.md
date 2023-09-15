@@ -156,7 +156,7 @@ return structure with search with history
 
 ## highlight
 
-example: http://127.0.0.1:8000/highlight?index=83692
+example: http://127.0.0.1:8000/highlight?url=url123
 
 return the index of paragraph
 
@@ -364,6 +364,8 @@ password incorrect:
 ### token verify
 
 example: http://127.0.0.1:8000/token_verify (GET)
+
+example when need refresh: http://127.0.0.1:8000/token_verify?refresh=True
 
 **header should set a filed named `Authorization` with token value, every request should contain token**
 
