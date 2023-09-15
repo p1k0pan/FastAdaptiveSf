@@ -197,7 +197,7 @@ response:
     }
   ]
 }
-````
+```
 
 ### create a user
 
