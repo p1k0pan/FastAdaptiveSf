@@ -2,6 +2,14 @@
 
 //////////////////////////////// GET LOCAL HISTORY /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/* TEMPORARY
+
+
+
+
+
+
+
 
 // Upload history & visited websites
 
@@ -143,6 +151,16 @@ historyButton.addEventListener( 'click', () => {
 
 
 
+
+
+
+/* TEMPORARY
+
+
+
+
+
+
 const allowCollection = new Boolean(false);
 // Add a website everytime the user visits a new one with the plugin, if it is allowed to collect them
 async function addWebsite() {
@@ -192,7 +210,7 @@ visitedWebsitesViaPluginButton.addEventListener( 'click', () => {
 
 
 
-
+/* TEMPORARY
 
 
 
@@ -226,9 +244,35 @@ localizeHtmlPage(document.body);
 
 
 
+
+
+
+
+
+
+*/ // TEMPORARY
+
 //////////////////////////////// GET LOCAL HISTORY /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+
+
+  function toggleDropdown() {
+    document.getElementById("myDropdown").classList.toggle("show");
+  }
+  
+  window.addEventListener('click', function(event) {
+    if (!event.target.matches('.dropbtn')) {
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i < dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+          openDropdown.classList.remove('show');
+        }
+      }
+    }
+  });
 
 
 
@@ -288,14 +332,15 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
 
         // highlighting
-        let currentUrl = ""
-        chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => { // currentWindow: true
-            let url = tabs[0].url;
-            currentUrl = url
-            // use `url` here inside the callback because it's asynchronous!
-        });
+        try {
+          const currentUrl = await getCurrentTabUrl();
+          console.log("Current URL:", currentUrl);
+          await highlightUrlContent(e, currentUrl);
+          // You can use `currentUrl` here or perform other actions.
+        } catch (error) {
+          console.error("Error:", error);
+        }
 
-        await highlightUrlContent(e, currentUrl);
       });
 
       uploadHistoryMenuButton.addEventListener('click', async function(e) {
@@ -397,8 +442,16 @@ function patchHistory(e, history) {
             logoutUser(e)
         } else {
             // refresh tokens
-            refreshAuthorizationTokens(e, authorizationData.refresh_token)
+            refreshAuthorizationTokens(e)
         } 
+
+        if(res === "400") {
+          console.log("No history")
+          chrome.runtime.sendMessage( '', {
+            type: 'notification',
+            message: "You have not uploaded a history yet!"
+          });
+        }
       }
 
       resolve(res);
@@ -420,7 +473,20 @@ function patchHistory(e, history) {
 
 
 
-
+async function getCurrentTabUrl() {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+      if (chrome.runtime.lastError) {
+        // Handle any errors that occurred during the query
+        reject(chrome.runtime.lastError);
+      } else if (tabs && tabs[0] && tabs[0].url) {
+        resolve(tabs[0].url);
+      } else {
+        reject(new Error("Unable to retrieve the current tab's URL."));
+      }
+    });
+  });
+}
 
 
 
@@ -430,8 +496,6 @@ function patchHistory(e, history) {
 // http://127.0.0.1:8000/highlight?url=www.politico.eu/article/nato-chief-jens-stoltenberg-warns-ukraine-allies-to-prepare-for-long-war/
 function highlightUrlContent(e, currentUrl) {
     e.preventDefault();
-    console.log("highlight current url")
-    console.log(currentUrl)
     var res = "0";
   
     const username = localStorage.getItem('username');
@@ -454,12 +518,14 @@ function highlightUrlContent(e, currentUrl) {
   
         if(data) {
           res = data.code;
+          message = data.message;
           if (typeof res === 'undefined') {
             res = "0";
           }
           console.log("res: " + String(res));
+          console.log("mes: " + String(message));
   
-          if (res === "200" || res === "201") {
+          if (res === "200" || res === "201" || res === "400") {
             console.log("highlights received succesfully!");
             var result = data.result;
             console.log(result)
