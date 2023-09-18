@@ -1,17 +1,6 @@
-// Test
-async function fetchData() {
-    const res=await fetch ("https://api.coronavirus.data.gov.uk/v1/data");
-    const record=await res.json();
-    document.getElementById("date").innerHTML=record.data[0].date;
-    document.getElementById("areaName").innerHTML=record.data[0].areaName;
-    document.getElementById("latestBy").innerHTML=record.data[0].latestBy;
-    document.getElementById("deathNew").innerHTML=record.data[0].deathNew;
-}
-fetchData();
 
 
-
-
+//////////////////////////////// GET LOCAL HISTORY /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 // Upload history & visited websites
@@ -125,6 +114,7 @@ async function fetchHistory(divName) {
 }
 
 
+/*
 const historyButton = document.getElementById('history-button');
 historyButton.addEventListener( 'click', () => {
   console.log("history")
@@ -140,7 +130,7 @@ historyButton.addEventListener( 'click', () => {
     type: 'notification',
     message: "Search history has been sent to our server to provide you with specific interests!"
   });
-} );
+} );*/
 
 /*
 <body>
@@ -184,7 +174,7 @@ async function addWebsite() {
   chrome.storage.sync.set(storageCache);
 }
 
-
+/*
 const visitedWebsitesViaPluginButton = document.getElementById( 'visited-button' );
 visitedWebsitesViaPluginButton.addEventListener( 'click', () => {
   console.log("visited")
@@ -194,7 +184,7 @@ visitedWebsitesViaPluginButton.addEventListener( 'click', () => {
 
     // Send result.key to server TODO
   });
-} );
+} );*/
 
 
 
@@ -236,7 +226,7 @@ localizeHtmlPage(document.body);
 
 
 
-
+//////////////////////////////// GET LOCAL HISTORY /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -247,17 +237,31 @@ localizeHtmlPage(document.body);
 
 // Switch between uploadHistory home page and highlighting home page
 document.addEventListener('DOMContentLoaded', function() {
-    const uploadHistoryButton = document.getElementById('history-button');
-    const uploadHistoryMenuButton = document.getElementById('historyMenu-button');
+    const uploadHistoryButton = document.getElementById('historyUpload-button');
+    const uploadHistoryMenuButton = document.getElementById('historyUploadInMenu-button');
 
-    const activateHighlightingButton = document.getElementById('highlighting-button');
+    const activateHighlightingButton = document.getElementById('highlight-button');
 
     const menu = document.getElementById('menu-button');
     
     if (uploadHistoryButton) {
       uploadHistoryButton.addEventListener('click', async function(e) {
+        console.log("upload history page")
         e.preventDefault();
         
+
+        let resultUrls = []
+        document.addEventListener('DOMContentLoaded', function () {
+          resultUrls = fetchHistory('typedUrl_div');
+        });
+
+        // send resultUrls to server TODO
+
+        chrome.runtime.sendMessage( '', {
+          type: 'notification',
+          message: "Search history has been sent to our server to provide you with specific interests!"
+        });
+
         // upload history
         chrome.storage.sync.get(["visitedWebsites"]).then((result) => {
             console.log("Value currently is " + result.key);
@@ -280,6 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
     if (activateHighlightingButton) {
       activateHighlightingButton.addEventListener('click', async function(e) {
+        console.log("highlight page")
         e.preventDefault();
 
         // highlighting
@@ -312,25 +317,22 @@ function patchHistory(e, history) {
   console.log("uploadHistory")
   var res = "0";
 
-  const authorizationData = {
-    username: null,
-    access_token: null,
-    refresh_token: null,
-  };
+  const username = localStorage.getItem('username');
+  const access_token = localStorage.getItem('access_token');
 
   const endpoint = "http://127.0.0.1:8000" + "/" + `user`;
   const method = "PATCH";
 
   const body = JSON.stringify({
-    user_name: authorizationData.username,
-    upload_urls: history,
+    user_name: username,
+    upload_urls: history, // "upload_urls": ["https://www.aljazeera.com/news/2023/4/19/thousands-try-to-flee-sudan-as-truce-fails", ]
   });
   console.log("sending history to backend ...")
 
   return new Promise(function (resolve, reject) {
     let req = new XMLHttpRequest();
     req.open(method, endpoint, true);
-    req.setRequestHeader("Authorization", authorizationData.access_token);
+    req.setRequestHeader("Authorization", access_token);
     req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     req.send(body);
 
@@ -355,9 +357,11 @@ function patchHistory(e, history) {
         // with refresh token
         if (res === "401") {
             console.log("trying to use the refresh token")
+            const refresh_token = localStorage.getItem('refresh_token');
+
             let req2 = new XMLHttpRequest();
             req2.open(method, endpoint, true);
-            req2.setRequestHeader("Authorization", authorizationData.refresh_token);
+            req2.setRequestHeader("Authorization", refresh_token);
             req2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             req2.send(body);
 
@@ -423,31 +427,25 @@ function patchHistory(e, history) {
 
 
 
-
+// http://127.0.0.1:8000/highlight?url=www.politico.eu/article/nato-chief-jens-stoltenberg-warns-ukraine-allies-to-prepare-for-long-war/
 function highlightUrlContent(e, currentUrl) {
     e.preventDefault();
     console.log("highlight current url")
+    console.log(currentUrl)
     var res = "0";
   
-    const authorizationData = {
-      username: null,
-      access_token: null,
-      refresh_token: null,
-    };
+    const username = localStorage.getItem('username');
+    const access_token = localStorage.getItem('access_token');
   
-    const endpoint = "http://127.0.0.1:8000" + "/" + `highlight`;
+    const endpoint = "http://127.0.0.1:8000" + "/" + `highlight?url=` + String(currentUrl);
+    console.log(endpoint)
     const method = "GET";
-  
-    const body = JSON.stringify({
-      user_name: authorizationData.username,
-      current_url: currentUrl,
-    });
     console.log("fetching paragraphs to highlight ...")
   
     return new Promise(function (resolve, reject) {
       let req = new XMLHttpRequest();
       req.open(method, endpoint, true);
-      req.setRequestHeader("Authorization", authorizationData.access_token);
+      req.setRequestHeader("Authorization", access_token);
       req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
       req.send();
   
@@ -471,9 +469,11 @@ function highlightUrlContent(e, currentUrl) {
           // with refresh token
           if (res === "401") {
               console.log("trying to use the refresh token")
+              const refresh_token = localStorage.getItem('refresh_token');
+
               let req2 = new XMLHttpRequest();
               req2.open(method, endpoint, true);
-              req2.setRequestHeader("Authorization", authorizationData.refresh_token);
+              req2.setRequestHeader("Authorization", refresh_token);
               req2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
               req2.send();
   

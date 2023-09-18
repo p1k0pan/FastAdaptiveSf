@@ -29,8 +29,8 @@ async function login(e, body, username) {
 
   var res = "0";
 
-    const endpoint = "http://127.0.0.1:8000" + "/" + `login`;
-    const method = "POST";
+  const endpoint = "http://127.0.0.1:8000" + "/" + `login`;
+  const method = "POST";
 
     return new Promise(function (resolve, reject) {
       let req = new XMLHttpRequest();
@@ -127,10 +127,16 @@ async function register(e, username, password) {
 
   try {
     const res = await createUser(e, body);
+    console.log("res after registration:")
+    console.log(res)
     
     if(res === "200" || res === "201"){
     await login(e, body, username);
-    } else {
+    } else if (res === "400") {
+      console.log("user already exists! proceeding to log in with the existing user ...")
+      await login(e, body, username);
+    }
+    else {
       console.log("could not log in: there was an error during registration!")
     }
 
@@ -297,12 +303,14 @@ function userHasHistory(e) {
       }
 
 
+      // redirect
       if (historyPresent) {
-        //window.location.href = 'home_highlighting.html';
+        console.log("history present")
+        window.location.href = 'home_highlighting.html';
 
       } else {
-        console.log("No")
-        //window.location.href = 'home_uploadHistory.html';
+        console.log("No history present")
+        window.location.href = 'home_uploadHistory.html';
       }
       resolve(res);
     };
@@ -334,7 +342,7 @@ function refreshAuthorizationTokens(e) {
   console.log(refresh_token)
 
 
-  const endpoint = "http://127.0.0.1:8000" + "/" + `token_verify?refresh=true`;
+  const endpoint = "http://127.0.0.1:8000" + "/" + `token_verify?refresh=True`;
   const method = "GET";
 
   return new Promise(function (resolve, reject) {
@@ -361,6 +369,8 @@ function refreshAuthorizationTokens(e) {
           localStorage.removeItem('username');
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
+          localStorage.clear();
+
           localStorage.setItem('username', result.user_name);
           localStorage.setItem('access_token', result.access_token);
           localStorage.setItem('refresh_token', result.refresh_token);
@@ -372,6 +382,8 @@ function refreshAuthorizationTokens(e) {
           console.log(new_username)
           console.log(new_access_token)
           console.log(new_refresh_token)
+          print("")
+          console.log(result.refresh_token)
 
         } else if (res === "400") {
           logoutUser(e)
