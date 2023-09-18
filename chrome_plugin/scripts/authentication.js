@@ -1,5 +1,6 @@
 // Login & Register
 
+// Does the login Button currently exist in the user view? Is it rendered?
 window.addEventListener("DOMContentLoaded", (e) => {
   const loginButton = document.getElementById("login-button");
 
@@ -22,7 +23,7 @@ window.addEventListener("DOMContentLoaded", (e) => {
 
 
 
-
+// log a user into the system
 async function login(e, body, username) {
   e.preventDefault();
   console.log("login");
@@ -99,7 +100,7 @@ async function login(e, body, username) {
 
 
 
-
+// Does the registerButton currently exist in the user view? Is it rendered?
 window.addEventListener("DOMContentLoaded", (e) => {
   const registerButton = document.getElementById('register-button');
 
@@ -115,6 +116,7 @@ window.addEventListener("DOMContentLoaded", (e) => {
 });
 
 
+// register this user by creating it and then logging in
 async function register(e, username, password) {
   e.preventDefault();
   console.log("register")
@@ -146,6 +148,7 @@ async function register(e, username, password) {
 }
 
 
+// create a new user
 function createUser(e, body) {
   e.preventDefault();
   console.log("createUser")
@@ -195,7 +198,7 @@ function createUser(e, body) {
 
 
 
-
+// Does this user have a history? this decides which home page will be shown
 function userHasHistory(e) {
   e.preventDefault();
   console.log("check if the user already uploaded a history at one point; if a history is present")
@@ -332,7 +335,7 @@ function userHasHistory(e) {
 
 
 
-
+// refresh both tokens
 function refreshAuthorizationTokens(e) {
   e.preventDefault();
   var res = "0";
@@ -411,7 +414,7 @@ function refreshAuthorizationTokens(e) {
 
 
 
-
+// logout
 function logoutUser(e) {
   e.preventDefault();
   console.log("logout the current user!")
@@ -429,7 +432,10 @@ function logoutUser(e) {
 
 
 
-// Switch between register.html and login.html
+
+
+
+// Switch between register.html and login.html --> REDIRECTS
 document.addEventListener('DOMContentLoaded', function() {
   const redirectToLoginLink = document.querySelector("#toLogin-link");
   const redirectToRegisterLink = document.querySelector("#toRegister-link");
