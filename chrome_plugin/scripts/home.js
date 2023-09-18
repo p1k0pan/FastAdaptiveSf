@@ -256,7 +256,7 @@ localizeHtmlPage(document.body);
 
 
 
-
+// currently not used to toggle a dropdown menu
   function toggleDropdown() {
     document.getElementById("myDropdown").classList.toggle("show");
   }
@@ -281,6 +281,7 @@ localizeHtmlPage(document.body);
 
 // Switch between uploadHistory home page and highlighting home page
 document.addEventListener('DOMContentLoaded', function() {
+    // get the important buttons to add click events
     const uploadHistoryButton = document.getElementById('historyUpload-button');
     const uploadHistoryMenuButton = document.getElementById('historyUploadInMenu-button');
 
@@ -288,6 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const menu = document.getElementById('menu-button');
     
+    // see which button is currently being shown/relevant
     if (uploadHistoryButton) {
       uploadHistoryButton.addEventListener('click', async function(e) {
         console.log("upload history page")
@@ -356,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-
+// upload a new history
 function patchHistory(e, history) {
   e.preventDefault();
   console.log("uploadHistory")
@@ -472,7 +474,7 @@ function patchHistory(e, history) {
 
 
 
-
+// get the current tab/url
 async function getCurrentTabUrl() {
   return new Promise((resolve, reject) => {
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
@@ -492,8 +494,8 @@ async function getCurrentTabUrl() {
 
 
 
-
-// http://127.0.0.1:8000/highlight?url=www.politico.eu/article/nato-chief-jens-stoltenberg-warns-ukraine-allies-to-prepare-for-long-war/
+// Get highlight paragraphs from the current tab/url
+// example:     http://127.0.0.1:8000/highlight?url=www.politico.eu/article/nato-chief-jens-stoltenberg-warns-ukraine-allies-to-prepare-for-long-war/
 function highlightUrlContent(e, currentUrl) {
     e.preventDefault();
     var res = "0";
@@ -610,6 +612,7 @@ function highlightUrlContent(e, currentUrl) {
 
 
 
+// refresh both tokens
   function refreshAuthorizationTokens(e) {
     e.preventDefault();
     var res = "0";
@@ -684,7 +687,7 @@ function highlightUrlContent(e, currentUrl) {
   
   
   
-  
+  // logout
   function logoutUser(e) {
     e.preventDefault();
     console.log("logout the current user!")
