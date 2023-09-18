@@ -22,44 +22,26 @@
                 font-size: 2em;
                 color: ghostwhite;
 
-                background-color: #10b019;
+                background-color: ghostwhite;
             }
 
             span {
                 text-align: center;
             }
 
-            #sign_out {
-                background-color: rgb(172, 27, 107);
-                width: 50px;
-                height: 50px;
-                transform: rotate(45deg);
-                transition-duration: 0.4s;
-
-                cursor: pointer;
-
-            }
-
-            @keyframes choosing {
-                100% {
-                    transform: rotate(405deg) scale(2.5);
-                    box-shadow: 0px 0px 20px 2px white; ;
-                }
-            }
-
-            #sign_out:hover {
-                animation-name: choosing;
-                animation-direction: normal;
-                animation-fill-mode: forwards;
-                animation-duration: 0.4s;
-            }
+            
         </style>
     </head>
     
     <body>
         <span>Welcome, you are now signed in.</span>
-        <div id="sign_out"></div>
+        <button class="btn" id="historyUploadInMenu-button">Part of menu at top</button> 
+
+        <section>
+            <button class="btn" id="highlight-button">Highlight</button> 
+            <button class="btn" id="historyUpload-button">Upload history</button> 
+        </section>
     </body>
 
-<script src="./scripts/home.js"></script>
+<script src="/scripts/home.js"></script>
 </html>

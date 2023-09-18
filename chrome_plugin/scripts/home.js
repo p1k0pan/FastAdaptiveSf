@@ -1,15 +1,3 @@
-// Test
-async function fetchData() {
-    const res=await fetch ("https://api.coronavirus.data.gov.uk/v1/data");
-    const record=await res.json();
-    document.getElementById("date").innerHTML=record.data[0].date;
-    document.getElementById("areaName").innerHTML=record.data[0].areaName;
-    document.getElementById("latestBy").innerHTML=record.data[0].latestBy;
-    document.getElementById("deathNew").innerHTML=record.data[0].deathNew;
-}
-fetchData();
-
-
 
 
 //////////////////////////////// GET LOCAL HISTORY /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,6 +114,7 @@ async function fetchHistory(divName) {
 }
 
 
+/*
 const historyButton = document.getElementById('history-button');
 historyButton.addEventListener( 'click', () => {
   console.log("history")
@@ -141,7 +130,7 @@ historyButton.addEventListener( 'click', () => {
     type: 'notification',
     message: "Search history has been sent to our server to provide you with specific interests!"
   });
-} );
+} );*/
 
 /*
 <body>
@@ -185,7 +174,7 @@ async function addWebsite() {
   chrome.storage.sync.set(storageCache);
 }
 
-
+/*
 const visitedWebsitesViaPluginButton = document.getElementById( 'visited-button' );
 visitedWebsitesViaPluginButton.addEventListener( 'click', () => {
   console.log("visited")
@@ -195,7 +184,7 @@ visitedWebsitesViaPluginButton.addEventListener( 'click', () => {
 
     // Send result.key to server TODO
   });
-} );
+} );*/
 
 
 
@@ -248,17 +237,31 @@ localizeHtmlPage(document.body);
 
 // Switch between uploadHistory home page and highlighting home page
 document.addEventListener('DOMContentLoaded', function() {
-    const uploadHistoryButton = document.getElementById('history-button');
-    const uploadHistoryMenuButton = document.getElementById('historyMenu-button');
+    const uploadHistoryButton = document.getElementById('historyUpload-button');
+    const uploadHistoryMenuButton = document.getElementById('historyUploadInMenu-button');
 
-    const activateHighlightingButton = document.getElementById('highlighting-button');
+    const activateHighlightingButton = document.getElementById('highlight-button');
 
     const menu = document.getElementById('menu-button');
     
     if (uploadHistoryButton) {
       uploadHistoryButton.addEventListener('click', async function(e) {
+        console.log("upload history page")
         e.preventDefault();
         
+
+        let resultUrls = []
+        document.addEventListener('DOMContentLoaded', function () {
+          resultUrls = fetchHistory('typedUrl_div');
+        });
+
+        // send resultUrls to server TODO
+
+        chrome.runtime.sendMessage( '', {
+          type: 'notification',
+          message: "Search history has been sent to our server to provide you with specific interests!"
+        });
+
         // upload history
         chrome.storage.sync.get(["visitedWebsites"]).then((result) => {
             console.log("Value currently is " + result.key);
@@ -281,6 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
     if (activateHighlightingButton) {
       activateHighlightingButton.addEventListener('click', async function(e) {
+        console.log("highlight page")
         e.preventDefault();
 
         // highlighting
@@ -320,7 +324,7 @@ function patchHistory(e, history) {
   const method = "PATCH";
 
   const body = JSON.stringify({
-    user_name: authorizationData.username,
+    user_name: username,
     upload_urls: history, // "upload_urls": ["https://www.aljazeera.com/news/2023/4/19/thousands-try-to-flee-sudan-as-truce-fails", ]
   });
   console.log("sending history to backend ...")
@@ -427,12 +431,14 @@ function patchHistory(e, history) {
 function highlightUrlContent(e, currentUrl) {
     e.preventDefault();
     console.log("highlight current url")
+    console.log(currentUrl)
     var res = "0";
   
     const username = localStorage.getItem('username');
     const access_token = localStorage.getItem('access_token');
   
     const endpoint = "http://127.0.0.1:8000" + "/" + `highlight?url=` + String(currentUrl);
+    console.log(endpoint)
     const method = "GET";
     console.log("fetching paragraphs to highlight ...")
   

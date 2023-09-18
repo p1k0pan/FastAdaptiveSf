@@ -29,8 +29,8 @@ async function login(e, body, username) {
 
   var res = "0";
 
-    const endpoint = "http://127.0.0.1:8000" + "/" + `login`;
-    const method = "POST";
+  const endpoint = "http://127.0.0.1:8000" + "/" + `login`;
+  const method = "POST";
 
     return new Promise(function (resolve, reject) {
       let req = new XMLHttpRequest();
@@ -305,11 +305,12 @@ function userHasHistory(e) {
 
       // redirect
       if (historyPresent) {
-        //window.location.href = 'home_highlighting.html';
+        console.log("history present")
+        window.location.href = 'home_highlighting.html';
 
       } else {
-        console.log("No")
-        //window.location.href = 'home_uploadHistory.html';
+        console.log("No history present")
+        window.location.href = 'home_uploadHistory.html';
       }
       resolve(res);
     };
