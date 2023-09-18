@@ -10,57 +10,93 @@
                 margin: 0;
                 padding: 0;
 
-                width: 300px;
+                width: 450px;
                 height: 600px;
 
-                display: flex;
                 flex-direction: column;
-                justify-content: space-evenly;
                 align-items: center;
 
-                font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-                font-size: 2em;
-                color: ghostwhite;
-
-                background-color: ghostwhite;
             }
 
             span {
                 text-align: center;
             }
 
+            .navbar {
+                width: 450px;
+                margin: 20px auto;
+  	            font-size: 12px;
+            }
+            .text-center {
+            text-align: center;
+            }
             
+
+            .dropbtn {
+            background-color: #3498DB;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            }
+
+            .dropbtn:hover, .dropbtn:focus {
+            background-color: #2980B9;
+            }
+
+            .dropdown {
+            position: relative;
+            display: inline-block;
+            }
+
+            .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            overflow: auto;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            }
+
+            .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            }
+
+            .dropdown a:hover {background-color: #ddd;}
+
+            .show {display: block;}
         </style>
+
+
+
+        
     </head>
     
     <body>
-        <span>Welcome, you are now signed in.</span>
-        <button class="btn" id="historyUploadInMenu-button">Part of menu at top</button> 
+          <nav class="navbar navbar-dark bg-dark">
+            <div class="container-fluid">
+              <button class="navbar-toggler" type="button" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation" id="historyUploadInMenu-button">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+
+              <a class="navbar-brand">
+                <div class="text-center">Adaptive Storyfinder</div>
+                <div class="text-center">Extension</div>
+              </a>
+
+            </div>
+          </nav>
 
         <section>
-            <button class="btn" id="highlight-button">Highlight</button> 
             <button class="btn" id="historyUpload-button">Upload history</button> 
         </section>
 
-        <table class="table table-bordered">
-            <thead>
-            <tr>
-                <th>Date</th>
-                <th>Country</th>
-                <th>Confirmed</th>
-                <th>Deaths</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td id="date"></td>
-                <td id="areaName"></td>
-                <td id="latestBy"></td>
-                <td id="deathNew"></td>
-            </tr>
-            </tbody>
-        </table>
+        <script src="/scripts/home.js"></script>
     </body>
 
-<script src="/scripts/home.js"></script>
 </html>
