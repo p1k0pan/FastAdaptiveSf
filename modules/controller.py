@@ -6,10 +6,13 @@ from sentence_transformers import SentenceTransformer, util, CrossEncoder
 from io import StringIO
 import os
 from db import schema
-from newspaper import Article, Config
+# from newspaper import Article, Config
 from trafilatura import fetch_url, extract
-from haystack import Pipeline
+# from haystack import Pipeline
 import time
+from sklearn.preprocessing import Normalizer
+import json
+from ast import literal_eval
 
 result_num = 50
 
@@ -25,6 +28,24 @@ def _embed_text(text):
 
 bi_encoder = SentenceTransformer('multi-qa-mpnet-base-dot-v1', device=device)
 cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2',device=device)
+list_topic= ['U.S. NEWS', 'COMEDY', 'PARENTING', 'WORLD NEWS', 'CULTURE & ARTS',
+       'TECH', 'SPORTS', 'ENTERTAINMENT', 'POLITICS', 'WEIRD NEWS',
+       'ENVIRONMENT', 'EDUCATION', 'CRIME', 'SCIENCE', 'WELLNESS',
+       'BUSINESS', 'STYLE & BEAUTY', 'FOOD & DRINK', 'MEDIA',
+       'QUEER VOICES', 'HOME & LIVING', 'WOMEN', 'BLACK VOICES', 'TRAVEL',
+       'MONEY', 'RELIGION', 'LATINO VOICES', 'IMPACT', 'WEDDINGS',
+       'COLLEGE', 'PARENTS', 'ARTS & CULTURE', 'STYLE', 'GREEN', 'TASTE',
+       'HEALTHY LIVING', 'THE WORLDPOST', 'GOOD NEWS', 'WORLDPOST',
+       'FIFTY', 'ARTS', 'DIVORCE']
+
+label_dict = {}
+index=0
+label_empty_list=[]
+for l in list_topic:
+    label_dict[l] = index
+    index += 1
+    label_empty_list.append(0)
+
 
 def load_corpus():
     dataset_path = 'cleaned_medium_articles_v9.csv'
@@ -107,16 +128,18 @@ def search_query_history(query:str, corpus_embeddings, client, user_name):
         #     user_keyword_embeddings = _embed_text(user_history.clean_sentence.values)
             # print(f'user history shape: {user_keyword_embeddings.shape}')
 
-        user_keyword_embeddings = _read_history_embd(user_name)
+        user_topic_ratio, user_keyword_embeddings = _read_history_embd(user_name)
 
         if user_keyword_embeddings.numel() != 0:
-            history_rank = _rank_hits_history(user_keyword_embeddings, query_corpus_result_embedding, rerank_result)
+            history_rank = _rank_hits_history(user_topic_ratio, user_keyword_embeddings, query_corpus_result_embedding, positive_rows)
             result_df = pd.concat([history_rank, negative_rows])
+            result_df = result_df.reset_index(drop=True)
 
             article_response = schema.ArticleResponse()
             article_response.process_dataset(result_df, positive_indices[-1])
             return schema.Response(status='Ok', code='200', message='success', result=article_response)
         else:
+            print("user history is empty")
             article_response = schema.ArticleResponse()
             article_response.process_dataset(rerank_result, positive_indices[-1])
             return schema.Response(status='Ok', code='200', message='success without history', result=article_response)
@@ -128,12 +151,6 @@ def paragraph_highlighting(url:str, client, user_name):
 
     history_emb = _read_history_embd(user_name)
     if history_emb.numel() != 0:
-        # result = client.predict(
-        #                 index,False,None,
-        #                 api_name="/predict"
-        # )
-        # df_str = StringIO(result)
-        # df_result = pd.read_csv(df_str, sep='\t')
         downloaded = fetch_url(url) 
         result = extract(downloaded,no_fallback=True)
 
@@ -275,7 +292,7 @@ def _rank_hits_cross_encoder(hits_df,query):
     print(hits_df[["index","title","score"]].values)
     return hits_df.copy()
 
-def _rank_hits_history(history_emb, rerank_emb, df) -> pd.DataFrame:
+def _rank_hits_history(user_topic_ratio, history_emb, rerank_emb, positive_df) -> pd.DataFrame:
     cos_scores = util.pytorch_cos_sim(rerank_emb, history_emb)
     # print(f"cos: {type(cos_scores)}")
     doc_average_score = torch.mean(cos_scores, dim=1)
@@ -285,44 +302,55 @@ def _rank_hits_history(history_emb, rerank_emb, df) -> pd.DataFrame:
 
     print("\nhistory Hits:")
 
-    df = df.iloc[0:int(doc_average_score.shape[0])].copy()
-    df['Cosine Similarity'] = doc_average_score.tolist()   
-    df = df.sort_values(by='Cosine Similarity', ascending=False)
-    df = df.reset_index(drop=True)
+    # only positive score df
+    # positive_df = positive_df.iloc[0:int(doc_average_score.shape[0])].copy()
 
-    print(df[["index","title"]].values)
+    # normalizie cos-similarity
+    positive_df['Cosine Similarity'] = Normalizer(norm="l1").fit_transform(doc_average_score.cpu().reshape(1,-1)).tolist()[0]
+    # normalizie cross-encoder score
+    positive_df['score'] = Normalizer(norm="l1").fit_transform(positive_df['score'].values.reshape(1, -1)).tolist()[0]
+    # get topic score with user
+    for his in positive_df['topic2']:
+        article_topic=label_empty_list.copy()
+        his=literal_eval(his)
+        for topic in his:
+            article_topic[label_dict[topic]]+=1
+        # article topic occurence no need ratio rather directly * user_topic_ratio
+        positive_df["topic_score"]=sum(x * y for x, y in zip(user_topic_ratio, article_topic))
+    
+    # final score
+    positive_df['final_score']=positive_df['score'] * 0.5+ positive_df['Cosine Similarity']*0.3+ positive_df['topic_score']*0.2
 
-    return df
+    # calculate the final score
+    positive_df = positive_df.sort_values(by='final_score', ascending=False)
+    positive_df = positive_df.reset_index(drop=True)
+
+    print(positive_df.loc[:,("index","title", "Cosine Similarity", "score", "topic_score", "final_score")].values)
+    return positive_df
 
 def _read_history_embd(user_name:str):
     directory_name='history/'
-    user_file = user_name+'.pt'
+    user_file = user_name
 
     # print(os.getcwd())
-    if not os.path.exists(directory_name+user_file):
-        return torch.tensor([])
+    if not os.path.exists(directory_name+user_file+'.json'):
+        return None, torch.tensor([])
     else:
-        return torch.load(directory_name+user_file, map_location=torch.device(device))
+        # Step 1: Read the JSON file and extract the user history
+        with open(directory_name+user_file+'.json') as f:
+            user_history_data = json.load(f)
 
-#abandon
-def _read_history(user_name:str):
+        # # Step 3: Iterate over the topics in the user history and update the count in the dictionary
+        user_topic=label_empty_list.copy()
+        for his in user_history_data:
+            user_history_topics=his.get('topic',[])
+            for topic in user_history_topics:
+                user_topic[label_dict[topic]]+=1
 
-    directory_name='history/'
-    user_file = user_name+'.json'
+        total_occurrences = sum(user_topic)
 
-    # print(os.getcwd())
-    if not os.path.exists(directory_name+user_file):
-        return pd.DataFrame()
-    else:
-        with open(directory_name+user_file, 'r') as f:
-            data = json.load(f)
-            print("go with user")
+        # Step 5: Calculate the ratio for each topic
+        user_topic_ratio = [ value / total_occurrences for value in user_topic]
+        return user_topic_ratio, torch.load(directory_name+user_file+'.pt', map_location=torch.device(device))
 
-            history= []
-            for index in data:
-                history.append(data[index])
-            user_history = pd.DataFrame(history, columns=['sentence'])
-            user_history = clean_dataset.clean_sentences(user_history)
-            # print(user_history.head())
-            return user_history
 

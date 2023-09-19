@@ -14,9 +14,9 @@ from gradio_client import Client
 from typing import Union
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from haystack.document_stores.faiss import FAISSDocumentStore
-from haystack.nodes import EmbeddingRetriever, SentenceTransformersRanker, TransformersSummarizer
-from haystack import Pipeline
+# from haystack.document_stores.faiss import FAISSDocumentStore
+# from haystack.nodes import EmbeddingRetriever, SentenceTransformersRanker, TransformersSummarizer
+# from haystack import Pipeline
 
 import json
 import time
