@@ -7,13 +7,14 @@ from modules import controller, clean_dataset
 import pandas as pd
 from trafilatura import fetch_url, extract
 from tqdm import tqdm
+from transformers import pipeline
 
 import json
 import os
 from datetime import date
  
 # Returns the current local date
-
+pipe = pipeline("text-classification", model="Yueh-Huan/news-category-classification-distilbert", truncation=True)
 
 def get_all_user(db: Session, skip: int = 0, limit: int = 100):
     return db.query(model.User).offset(skip).limit(limit).all()
@@ -100,21 +101,50 @@ def extract_url(url, i, d):
 
         downloaded = fetch_url(url) 
         result = extract(downloaded,no_fallback=True)
-        content_to_emb.append(result) # what if the result is ""
+        topic=[]
+        title = ""
+        content="" 
 
         if result:
+            content_to_emb.append(result) # what if the result is ""
             title_index = result.find('\n')
             title = result[:title_index]
             content = result[title_index:]
+
+            count=0
+            max_labels=4
+            high_topic_score = 0.5
+            for part in split_text_into_parts(result, 250, 5):
+                cl=pipe(part)[0]
+                score = cl['score']
+                label = cl['label']
+                if count==0 or (count < max_labels and score >= high_topic_score and label not in topic):
+                    topic.append(label)
+                    count+=1
             
         else:
-            title = ""
-            content=""
-
-        item={ 'index': i,'title': title, 'url': str(url), 'content': content, "date": d}
+            content_to_emb.append("")
+            
+        item={ 'index': i,'title': title, 'url': str(url), 'content': content, "date": d, "topic": topic}
 
         new_history.append(item)
     except Exception as e:
         print(e)
         return (None, None)
     return (new_history, content_to_emb)
+
+def split_text_into_parts(text, max_words_per_part, max_parts):
+    words = text.split()
+    total_words = len(words)
+
+    parts = []
+    current_part_word_count = 0
+
+    word_limit = total_words if total_words <= max_words_per_part * max_parts else max_words_per_part * max_parts # limit amount of split parts
+    while current_part_word_count < word_limit:
+        truncated_words = words[current_part_word_count:current_part_word_count+max_words_per_part]
+        truncated_text = ' '.join(truncated_words)
+        current_part_word_count+=max_words_per_part
+        parts.append(truncated_text)
+        
+    return parts

@@ -8,4 +8,5 @@ sqlalchemy
 psycopg2-binary
 pyjwt
 trafilatura
-farm-haystack
+tf-nightly
+
