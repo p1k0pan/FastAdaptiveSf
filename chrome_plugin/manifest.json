@@ -6,7 +6,7 @@
 
 
     "action":{
-        "default_popup": "/views/authentication.html",
+        "default_popup": "/views/login.html",
         "default_title": "Latest Covid Report",
 
         "default_icon": {
@@ -28,7 +28,10 @@
     },
     "options_page": "",
     "content_scripts": [
-    ],
+      ],
+      "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self';"
+      },
 
     "host_permissions": [
         "http://*/*", 

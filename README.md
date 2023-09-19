@@ -5,6 +5,8 @@ FastAPI Adaptive Storyfinder
 Please download the model and dataset from https://huggingface.co/spaces/AdaptiveStoryfinder/medium_query_topk/tree/main
 and put it on root.
 
+Up to date file: `corpus_embeddings_v5.pt`, `cleaned_medium_articles_v14.csv`
+
 ## start
 
 First: Install Python 3.8.16 / Python 3.10 <br />
@@ -154,11 +156,11 @@ return structure with search with history
 
 ## highlight
 
-example: http://127.0.0.1:8000/highlight?index=83692
+example: http://127.0.0.1:8000/highlight?url=url123
 
 return the index of paragraph
 
-````json
+```json
 {
     "code": "200",
     "status": "Ok",
@@ -167,7 +169,8 @@ return the index of paragraph
         19,
         4
     ]
-}```
+}
+```
 
 ## Crud
 
@@ -195,7 +198,7 @@ response:
     }
   ]
 }
-````
+```
 
 ### create a user
 
@@ -257,6 +260,59 @@ response:
     }
 ```
 
+### get history from a user
+
+example: http://127.0.0.1:8000/user/history?user_name=user1 (GET)
+
+response:
+
+```json
+{
+    "code": "200",
+    "status": "Ok",
+    "message": "successful get user history",
+    "result": {
+        
+            "date1": [
+               {
+                  "index": 0,
+                  "title": "Apple - Fruits",
+                  "url": "https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm",
+                  "content": "\nAn apple is a sweet, edible fruit produced by an apple tree (Malus domestic). In France, it is the most consumed edible fruit and the third in the planet. The main types of apples come from the domestic apple or common apple. The species of Malus Domestica has about 20,000 varieties and cultivars around the world. The fruit has a characteristic stocky shape and often spherical, it is eaten when ripe, raw, cooked, or dried. Its juice is drunk fresh or pasteurized. When fermented, it becomes cider. Associated with the fruit forbidden in the Book of Genesis, it often symbolizes original sin. The fruit we consume today is descended from the Malus Sieversii species; it has been consumed by humans since the Neolithic age in the Central. Kazakhstan claims its origin, but the apple was already consumed by the Chinese 3,000 years ago. From a botanical point of view, it is a complex fruit, something between the berry and the drupe, often called a false fruit. Because a real fruit is formed from the ovary of a flower. An apple's flesh is not derived from the ovary but instead it is a swollen receptacle (or part of the stem). The actual fruit is in the core, the bit we throw away. The same is true of pears. Its colors at maturity change from green to red, passing through a wide variety of intermediate shades: pale green, yellow, or orange. The success of this fruit is undisputed, because today there are more than 20,000 varieties of apples of which 7,000 are regularly cultivated across the globe. China, the United States and Poland are the three largest producers of apples. China harvests 44 million tons, the United States 4.6 million tons and Poland 3.6 million tons. The EU is also one of the leading producers, has increased its production by 33% on average for the past three years. France harvests 1.5 million tons."
+              },
+              {
+                  "index": 1,
+                  "title": "",
+                  "url": "https://www.healthline.com/nutrition/10-health-benefits-of-apples",
+                  "content": ""
+              },
+         ],
+         "date2": []
+         
+   }
+            
+```
+
+when file not exist
+
+```json
+{
+    "code": "404",
+    "status": "Failed",
+    "message": "file not exist",
+    "result": {}
+```
+
+when json not valid
+
+```json
+{
+    "code": "400",
+    "status": "Failed",
+    "message": "not valid Json file",
+    "result": {}
+```
+
 ## Authorization
 
 ### login to create token
@@ -316,6 +372,8 @@ password incorrect:
 ### token verify
 
 example: http://127.0.0.1:8000/token_verify (GET)
+
+example when need refresh: http://127.0.0.1:8000/token_verify?refresh=True
 
 **header should set a filed named `Authorization` with token value, every request should contain token**
 

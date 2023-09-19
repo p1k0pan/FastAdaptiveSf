@@ -9,3 +9,4 @@ psycopg2-binary
 pyjwt
 trafilatura
 tf-nightly
+
