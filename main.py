@@ -155,11 +155,9 @@ async def token_verify(response: Response, request:Request,db: Session =db_sessi
                 response.headers["access_token"] = access_token
                 response.headers["refresh_token"] = refresh_token
                 return schema.Response(status=status, code=code, message=msg, result={"user_name": result,"access_token": access_token, "refresh_token": refresh_token})
-            elif code=="401":
-                return schema.Response(status=status, code=code, message=msg, result={"user_name": _user.user_name})
 
-
-        return schema.Response(status=status, code=code, message=msg, result=result)
+        return schema.Response(status=status, code=code, message=msg, result={"user_name": result})
+        # return schema.Response(status=status, code=code, message=msg, result=result)
     except KeyError:
         return schema.Response(status="Failed", code='404', message="Token not found in Header", result=None)
 
