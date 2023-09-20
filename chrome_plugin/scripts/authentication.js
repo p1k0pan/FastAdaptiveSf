@@ -53,12 +53,15 @@ async function login(e, body, username) {
           console.log("user login successful!");
           var result = data.result;
 
-          localStorage.setItem('username', String(username));
+          localStorage.setItem('username', String(result.username));
           localStorage.setItem('access_token', result.access_token);
           localStorage.setItem('refresh_token', result.refresh_token);
           
           try {
             userHasHistory(e);
+            // var name = localStorage.getItem(String(result.username))
+            // var access_token = localStorage.getItem('access_token')
+            // var refresh_token = localStorage.getItem('refresh_token')
 
           } catch (error) {
             console.error(error);
