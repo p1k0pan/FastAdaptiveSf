@@ -53,15 +53,20 @@ async function login(e, body, username) {
           console.log("user login successful!");
           var result = data.result;
 
-          localStorage.setItem('username', String(result.username));
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('refresh_token')
+          localStorage.removeItem('username')
+          localStorage.clear();
+          localStorage.setItem('username', String(result.user_name));
           localStorage.setItem('access_token', result.access_token);
           localStorage.setItem('refresh_token', result.refresh_token);
           
           try {
-            userHasHistory(e);
+            // userHasHistory(e);
             // var name = localStorage.getItem(String(result.username))
             // var access_token = localStorage.getItem('access_token')
             // var refresh_token = localStorage.getItem('refresh_token')
+            console.log("has history")
 
           } catch (error) {
             console.error(error);
