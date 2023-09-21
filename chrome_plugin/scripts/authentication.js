@@ -53,15 +53,18 @@ async function login(e, body, username) {
           console.log("user login successful!");
           var result = data.result;
 
-          localStorage.setItem('username', String(result.username));
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('refresh_token')
+          localStorage.removeItem('username')
+          localStorage.clear();
+          localStorage.setItem('username', String(result.user_name));
           localStorage.setItem('access_token', result.access_token);
           localStorage.setItem('refresh_token', result.refresh_token);
           
           try {
-            userHasHistory(e);
-            // var name = localStorage.getItem(String(result.username))
-            // var access_token = localStorage.getItem('access_token')
-            // var refresh_token = localStorage.getItem('refresh_token')
+            // userHasHistory(e);
+            detectHistory(e)
+            // console.log("has history")
 
           } catch (error) {
             console.error(error);
@@ -96,11 +99,6 @@ async function login(e, body, username) {
       };
     });
 }
-
-
-
-
-
 
 
 // Does the registerButton currently exist in the user view? Is it rendered?
@@ -195,11 +193,6 @@ function createUser(e, body) {
     };
   });
 }
-
-
-
-
-
 
 // Does this user have a history? this decides which home page will be shown
 function userHasHistory(e) {
@@ -334,10 +327,6 @@ function userHasHistory(e) {
 }
 
 
-
-
-
-
 // refresh both tokens
 function refreshAuthorizationTokens(e) {
   e.preventDefault();
@@ -415,8 +404,6 @@ function refreshAuthorizationTokens(e) {
 }
 
 
-
-
 // logout
 function logoutUser(e) {
   e.preventDefault();
@@ -429,13 +416,6 @@ function logoutUser(e) {
 
   window.location.href = 'login.html';
 }
-
-
-
-
-
-
-
 
 
 // Switch between register.html and login.html --> REDIRECTS

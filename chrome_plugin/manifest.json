@@ -6,7 +6,8 @@
 
 
     "action":{
-        "default_popup": "/views/login.html",
+        // "default_popup": "/views/login.html",
+        "default_popup": "/views/startup.html",
         "default_title": "Latest Covid Report",
 
         "default_icon": {
