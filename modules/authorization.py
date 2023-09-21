@@ -60,7 +60,7 @@ def token_validation(token:str, refresh=False):
                 return ["Failed", '401', "Token can be refresh", unverified_data["user_name"]]
             else:
                 # not in refresh time
-                return ['Failed',"400", 'Signature verification failed. Token has expired. Login agian', None]
+                return ['Failed',"403", 'Signature verification failed. Token has expired. Login agian', None]
     except jwt.InvalidSignatureError as e:
         # Signature verification failed
         print(e)
