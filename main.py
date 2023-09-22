@@ -196,7 +196,7 @@ async def search_query_history(query:str="",token=Depends(token_verify)):
 async def highlight_paragraph(url:str="",token=Depends(token_verify)):
 
     if token.code == "201" or token.code== "200":
-        result= con.paragraph_highlighting(url, client, token.result)
+        result= con.paragraph_highlighting(url, client, token.result["user_name"])
         return result
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
@@ -227,10 +227,10 @@ async def get_user(user_name:str, token=Depends(token_verify)):
                 result = dict(grouped_data)
             return schema.Response(status="Ok", code="200", message="successful get user history", result=result)
         except FileNotFoundError:
-            print(f"The file {file_path} does not exist. Creating an empty JSON.")
+            print(f"The file {file_path} does not exist.")
             return schema.Response(status="Failed", code="404", message="file not exist", result={})
         except json.JSONDecodeError:
-            print(f"The file {file_path} is not a valid JSON file. Creating an empty JSON.")
+            print(f"The file {file_path} is not a valid JSON file.")
             return schema.Response(status="Failed", code="400", message="not valid Json file", result={})
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
