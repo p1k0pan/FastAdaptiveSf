@@ -10,8 +10,10 @@
                 margin: 0;
                 padding: 0;
 
-                width: 450px;
-                height: 600px;
+                /* width: 450px;
+                height: 600px; */
+                width: 280px;
+                height: 350px;
 
                 flex-direction: column;
                 align-items: center;
@@ -23,9 +25,21 @@
             }
 
             .navbar {
-                width: 450px;
+                /* width: 450px; */
                 margin: 20px auto;
   	            font-size: 12px;
+            }
+            .navbar-toggler-icon{
+              width: 1em;
+              height: 1em;
+            }
+            .navbar-brand{
+              padding-top: .3125rem;
+              /* padding-bottom: .3125rem; */
+              /* margin-right: 1rem; */
+              font-size: 1.2rem;
+              text-decoration: none;
+              white-space: nowrap;
             }
             .text-center {
             text-align: center;
@@ -72,8 +86,48 @@
             .show {display: block;}
         </style>
 
+        <style>
+          .highlight-btn{
+            height: 88px;
+            margin-top: 20px;
+            width: 88px;
+          }
+          .highlight-section{
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            height: 160px;
+            justify-content: flex-start;
+            position: relative; 
+          }
+          .highlight-img{
+            border-radius: 50%;
+            height: 100%;
+            object-fit: none;
+            width: 100%;
+          }
+          .highlight-text{
+            bottom: 20px;
+            font-family: Nunito,sans-serif;
+            font-size: 18px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 24px;
+            position: absolute;
+          }
+          .text{
+            bottom: 0px;
+            position: absolute;
+            font-size: 12px;
+          }
+          .btn{
+            background: transparent;
+            border: none;
+            margin: 0;
+            padding: 0;
+          }
 
-
+        </style>
         
     </head>
     
@@ -86,17 +140,23 @@
 
               <a class="navbar-brand">
                 <div class="text-center">Adaptive Storyfinder</div>
-                <div class="text-center">Extension</div>
+                <!-- <div class="text-center">Extension</div> -->
               </a>
 
             </div>
           </nav>
 
-        <section>
-            <button class="btn" id="highlight-button">Highlight</button> 
+        <section class="highlight-section">
+            <button class="highlight-btn btn" id="highlight-button">
+              <img src="../assets/icons/enabled_button.svg" class="highlight-img" id="enable-img"
+              style="box-shadow: rgba(123, 255, 86, 0.8) 0px 0px 16px, rgba(0, 0, 0, 0.2) 0px 2px 4px inset;">
+            </button> 
+            <h2 class="highlight-text" id="enable-text" style="color: #5ad139;"> Highlight enable</h2>
+            <text class="text" id="msg-user" style="opacity: 0;">hello</h2>
         </section>
 
-        <script src="/scripts/home.js"></script>
     </body>
+    <script src="/scripts/home.js"></script>
+    <script src="/scripts/util.js"></script>
 
 </html>

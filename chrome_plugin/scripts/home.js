@@ -273,23 +273,116 @@ localizeHtmlPage(document.body);
       }
     }
   });
-
-
-
-
+  async function getCurrentTab() {
+    let queryOptions = { active: true, currentWindow: true };
+    let [tab] = await chrome.tabs.query(queryOptions);
+    return tab;
+  }
 
 
 // Switch between uploadHistory home page and highlighting home page
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function(e) {
     // get the important buttons to add click events
     const uploadHistoryButton = document.getElementById('historyUpload-button');
     const uploadHistoryMenuButton = document.getElementById('historyUploadInMenu-button');
 
     const activateHighlightingButton = document.getElementById('highlight-button');
+    const highlightImg = document.getElementById('enable-img');
+    const highlightText = document.getElementById('enable-text');
+    const msgUser = document.getElementById('msg-user');
 
     const menu = document.getElementById('menu-button');
     
-    // see which button is currently being shown/relevant
+    var isDisabled = localStorage.getItem("highlight")
+    if (isDisabled == null){
+      isDisabled = "true"
+    }
+
+    // first load, if isDisabled from last setting is true, show disabled button
+    if(isDisabled == "false"){
+      highlightImg.src="../assets/icons/enabled_button.svg"
+      highlightImg.style="box-shadow: rgba(123, 255, 86, 0.8) 0px 0px 16px, rgba(0, 0, 0, 0.2) 0px 2px 4px inset;"
+      highlightText.style.color = "#5ad139"
+      highlightText.textContent="Highlight enabled"
+
+      // highlight enable then automatically run highlight
+      try {
+        var tabs = await getCurrentTab();
+        console.log("Current URL:", tabs.url);
+        await highlightUrlContent(e, tabs.url).then((resArr)=>{
+          var res = resArr[0]
+          var msg = resArr[1]
+          if (res==="201" || res==="200"){
+            msgUser.style="opacity:1; color: green;"
+          }else{
+            msgUser.style="opacity:1; color: red;"
+          }
+          msgUser.innerHTML= msg
+        });
+        // You can use `currentUrl` here or perform other actions.
+      } catch (error) {
+        console.error("Error:", error);
+      } 
+    }else if (isDisabled == "true"){
+      highlightImg.src="../assets/icons/disabled_button.svg"
+      highlightImg.style=""
+      highlightText.style.color = "#a3aebc"
+      highlightText.textContent="Highlight disabled"
+    }
+
+    if (activateHighlightingButton) {
+      activateHighlightingButton.addEventListener('click', async function(e) {
+        e.preventDefault();
+        if(isDisabled == "false"){
+          // is Disabled = false (now is enable)
+          highlightImg.src="../assets/icons/disabled_button.svg"
+          highlightImg.style=""
+          highlightText.style.color = "#a3aebc"
+          highlightText.textContent="Highlight disabled"
+          msgUser.style="opacity:0;"
+          isDisabled="true"
+          localStorage.setItem("highlight", isDisabled)
+        }else if (isDisabled=="true"){
+          highlightImg.src="../assets/icons/enabled_button.svg"
+          highlightImg.style="box-shadow: rgba(123, 255, 86, 0.8) 0px 0px 16px, rgba(0, 0, 0, 0.2) 0px 2px 4px inset;"
+          highlightText.style.color = "#5ad139"
+          highlightText.textContent="Highlight enabled"
+          isDisabled='false'
+          localStorage.setItem("highlight", isDisabled)
+
+          // highlight enable then automatically run highlight
+          try {
+            var tabs = await getCurrentTab();
+            console.log("Current URL:", tabs.url);
+            await highlightUrlContent(e, tabs.url).then((resArr)=>{
+              var res = resArr[0]
+              var msg = resArr[1]
+              if (res==="201" || res==="200"){
+                msgUser.style="opacity:1; color: green;"
+              }else{
+                msgUser.style="opacity:1; color: red;"
+              }
+              msgUser.innerHTML= msg
+            });
+            // You can use `currentUrl` here or perform other actions.
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        }
+
+        
+
+      });
+
+      uploadHistoryMenuButton.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        // upload history
+        history = []
+        await patchHistory(e, history);
+      });
+    }
+ // see which button is currently being shown/relevant
     if (uploadHistoryButton) {
       uploadHistoryButton.addEventListener('click', async function(e) {
         console.log("upload history page")
@@ -327,35 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
         await patchHistory(e, history);
       });
     }
-  
-    if (activateHighlightingButton) {
-      activateHighlightingButton.addEventListener('click', async function(e) {
-        console.log("highlight page")
-        e.preventDefault();
-
-        // highlighting
-        try {
-          const currentUrl = await getCurrentTabUrl();
-          console.log("Current URL:", currentUrl);
-          await highlightUrlContent(e, currentUrl);
-          // You can use `currentUrl` here or perform other actions.
-        } catch (error) {
-          console.error("Error:", error);
-        }
-
-      });
-
-      uploadHistoryMenuButton.addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        // upload history
-        history = []
-        await patchHistory(e, history);
-      });
-    }
   });
-
-
 
 
 // upload a new history
@@ -472,8 +537,6 @@ function patchHistory(e, history) {
 }
 
 
-
-
 // get the current tab/url
 async function getCurrentTabUrl() {
   return new Promise((resolve, reject) => {
@@ -487,10 +550,8 @@ async function getCurrentTabUrl() {
         reject(new Error("Unable to retrieve the current tab's URL."));
       }
     });
-  });
+   });
 }
-
-
 
 
 
@@ -502,9 +563,9 @@ function highlightUrlContent(e, currentUrl) {
   
     const username = localStorage.getItem('username');
     const access_token = localStorage.getItem('access_token');
+    const refresh_token = localStorage.getItem('refresh_token');
   
     const endpoint = "http://127.0.0.1:8000" + "/" + `highlight?url=` + String(currentUrl);
-    console.log(endpoint)
     const method = "GET";
     console.log("fetching paragraphs to highlight ...")
   
@@ -517,6 +578,8 @@ function highlightUrlContent(e, currentUrl) {
   
       req.onload = function () {
         var data = JSON.parse(req.responseText);
+        console.log(data)
+        var msg = "default"
   
         if(data) {
           res = data.code;
@@ -524,64 +587,39 @@ function highlightUrlContent(e, currentUrl) {
           if (typeof res === 'undefined') {
             res = "0";
           }
-          console.log("res: " + String(res));
-          console.log("mes: " + String(message));
   
-          if (res === "200" || res === "201" || res === "400") {
+          if (res === "200" || res === "201" ) {
             console.log("highlights received succesfully!");
             var result = data.result;
             console.log(result)
+            console.log("code is 200 and need inject highlight")
+            // after inject
+            msg = "Highlight succesfully!"
+            // msgUser.style="opacity:1; color: green;"
+            // msgUser.textContent="Highlight succesfully!"
+            // inject code
+          } else if (res === "400") {
+              console.log("history is empty");
+              msg = "history is empty"
+              // msgUser.style="opacity:1; color: red;"
+              // msgUser.textContent="user history is empty"
+          }else if (res === "500") {
+              console.log("extract function error");
+              msg = "extract function error"
+              // msgUser.style="opacity:1; color: red;"
+              // msgUser.textContent="extract function error"
+          }else if (res === "401"){
+            token_verify("True", access_token,refresh_token,username, false)
+            // if token refresh is failed, it would redirect, following code would not be executed
+            console.log("continue work on inject highlight")
+            // after inject
+            msg = "Highlight succesfully!"
           }
-  
-  
-          // with refresh token
-          if (res === "401") {
-              console.log("trying to use the refresh token")
-              const refresh_token = localStorage.getItem('refresh_token');
-
-              let req2 = new XMLHttpRequest();
-              req2.open(method, endpoint, true);
-              req2.setRequestHeader("Authorization", refresh_token);
-              req2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-              req2.send();
-  
-              req2.onload = function () {
-                  var data2 = JSON.parse(req2.responseText);
-  
-                  if(data2) {
-                      res = data2.code;
-                      console.log("res: " + String(res));
-  
-                      if (res === "200" || res === "201") {
-                          console.log("highlights received succesfully by using the refresh token!");
-                          var result = data2.result;
-                          console.log(result)
-                      }
-                  }
-              }
-              req2.onerror = function () {
-                  console.error("** An error occurred during the XMLHttpRequest for the creation of a new user");
-                  resolve("0");
-            
-                  reject({
-                    status: this.status,
-                    statusText: req.statusText,
-                  });
-              };
+          else{
+            console.log("error in else")
           }
-  
-  
-          // tokens expired or refresh them both again 
-          if (res === "402") {
-              // logout
-              logoutUser(e)
-          } else {
-              // refresh tokens
-              refreshAuthorizationTokens(e)
-          } 
         }
-  
-        resolve(res);
+        resolve([res,msg]);
       };
   
       req.onerror = function () {
@@ -595,21 +633,6 @@ function highlightUrlContent(e, currentUrl) {
       };
     });
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // refresh both tokens
