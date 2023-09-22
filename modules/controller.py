@@ -149,74 +149,41 @@ def search_query_history(query:str, corpus_embeddings, client, user_name):
 
 def paragraph_highlighting(url:str, client, user_name):
 
-    history_emb = _read_history_embd(user_name)
+    user_topic_ratio, history_emb = _read_history_embd(user_name)
     if history_emb.numel() != 0:
         downloaded = fetch_url(url) 
         result = extract(downloaded,no_fallback=True)
+        if result :
 
-        paragraphs=result.split('\n')
-        paragraphs.pop(0) # first item is title
-        print(f"paragraphs len: {len(paragraphs)}")
+            paragraphs=result.split('\n')
+            paragraphs.pop(0) # first item is title
+            print(f"paragraphs len: {len(paragraphs)}")
 
+            para_emb = _embed_text(paragraphs) #shape: (n,384) n-> numbers of paragraphs
+            cos_scores = util.pytorch_cos_sim(para_emb, history_emb)
+            doc_average_score = torch.mean(cos_scores, dim=1).cpu().numpy()
 
+            # Create a dictionary with order (index) and score
+            score_order_dict = {i: score for i, score in enumerate(doc_average_score)}
 
-        ######################### NEW #########################
-        url = "" # URL FROM FRONTEND via endpoint
+            # Sort the dictionary based on scores (highest to lowest)
+            sorted_score_order_dict = {k: v for k, v in sorted(score_order_dict.items(), key=lambda item: item[1], reverse=True)}
+            print(sorted_score_order_dict)
 
-        paragraphs = []
-        text = ""
-        try:
-            # Parsing the text out of a website (I dont think this works, because we can talk about pretty much any URL here not just "articles" like in medium)
-            article = Article(url)
-            article.download()
-            text = article.parse()
-        except Exception as e:
-            print(e)
-            return "Parsing the website text did not work!"
-        
+            # pop up the first 3 paragraph and score need to over threshold
+            average = sum(doc_average_score) / len(score_order_dict)
+            threshold = 0.15
+            highlighted_paragraph=[]
+            for key in sorted_score_order_dict:
+                if sorted_score_order_dict[key]>threshold and len(highlighted_paragraph)<4:
+                    highlighted_paragraph.append(paragraphs[key])
+                else:
+                    break
 
-        
-        # Split text into paragraphs
-        #paragraphs = [para.strip() for para in text.strip().split('\n\n')]
-        for content in text.splitlines():
-            try:
-                if content:
-                    paragraphs.append(content.strip())
+            return schema.Response(status='Ok', code='200', message='highlight success', result=highlighted_paragraph)
+        else:
+            return schema.Response(status='Failed', code='500', message='extract function failed', result=None)
 
-            except Exception as e:
-                print(e)
-                paragraphs.append("")
-            
-        # Print paragraphs
-        #for idx, paragraph in enumerate(paragraphs, start=1):
-            #print(f"Paragraph {idx}:\n{paragraph}\n{'-' * 40}")
-        ######################### NEW #########################
-
-
-
-        para_emb = _embed_text(paragraphs) #shape: (n,384) n-> numbers of paragraphs
-        history_emb = _read_history_embd(user_name)
-        cos_scores = util.pytorch_cos_sim(para_emb, history_emb)
-        doc_average_score = torch.mean(cos_scores, dim=1).cpu().numpy()
-
-        # Create a dictionary with order (index) and score
-        score_order_dict = {i: score for i, score in enumerate(doc_average_score)}
-
-        # Sort the dictionary based on scores (highest to lowest)
-        sorted_score_order_dict = {k: v for k, v in sorted(score_order_dict.items(), key=lambda item: item[1], reverse=True)}
-        print(sorted_score_order_dict)
-
-        # pop up the first 3 paragraph and score need to over threshold
-        average = sum(doc_average_score) / len(score_order_dict)
-        threshold = 0.15
-        highlighted_paragraph=[]
-        for key in sorted_score_order_dict:
-            if sorted_score_order_dict[key]>threshold and len(highlighted_paragraph)<4:
-                highlighted_paragraph.append(paragraphs[key])
-            else:
-                break
-
-        return schema.Response(status='Ok', code='200', message='highlight success', result=highlighted_paragraph)
     else:
         return schema.Response(status='Failed', code='400', message='history is null', result=None)
 
