@@ -27,19 +27,19 @@ class Response(GenericModel, Generic[T]):
     code: str
     status: str
     message: str
-    result: Optional[T]
+    result: Optional[T] = None
 
 class ArticleResponse(BaseModel):
-    title: Optional[List[str]]
-    urls: Optional[List[str]]
-    authors: Optional[List[str]]
-    timestamp: Optional[List[str]]
-    # tags: Optional[List[str]]
-    topic2: Optional[List[str]]
-    text: Optional[List[str]]
-    thumbnail: Optional[List[str]]  
-    index: Optional[List[str]]  
-    positive_index: Optional[List[int]]
+    title: Optional[List[str]] = None
+    urls: Optional[List[str]] = None
+    authors: Optional[List[str]] = None
+    timestamp: Optional[List[str]] = None
+    # tags: Optional[List[str]] = None
+    topic2: Optional[List[str]] = None
+    text: Optional[List[str]] = None
+    thumbnail: Optional[List[str]] = None  
+    index: Optional[List[int]] = None  
+    positive_index: Optional[int] = None
 
 
     def process_dataset(self, df, positive_index:int=-1):
