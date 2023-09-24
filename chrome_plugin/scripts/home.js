@@ -279,6 +279,18 @@ localizeHtmlPage(document.body);
     return tab;
   }
 
+  function sendMessageToContent(action, tabId){
+    return new Promise((resolve, reject) => {
+      chrome.tabs.sendMessage(tabId, {action:action},function (response) {
+        if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError);
+              reject(chrome.runtime.lastError)
+            } else {
+              resolve(response)
+            }
+      })
+    })
+  }
 
 // Switch between uploadHistory home page and highlighting home page
 document.addEventListener('DOMContentLoaded', async function(e) {
@@ -297,6 +309,16 @@ document.addEventListener('DOMContentLoaded', async function(e) {
     if (isDisabled == null){
       isDisabled = "true"
     }
+
+    // get parse
+    tabId= await getCurrentTab()
+    sendMessageToContent("parse", tabId.id).then((response)=>{
+      if (response.code == 200){
+        console.log("success parse:", response.result)
+      }else if (response.code == 400){
+        console.log("not a medium site")
+      }
+    })
 
     // first load, if isDisabled from last setting is true, show disabled button
     if(isDisabled == "false"){
@@ -353,7 +375,7 @@ document.addEventListener('DOMContentLoaded', async function(e) {
           // highlight enable then automatically run highlight
           try {
             var tabs = await getCurrentTab();
-            console.log("Current URL:", tabs.url);
+            console.log("Current URL:", tabs);
             await highlightUrlContent(e, tabs.url).then((resArr)=>{
               var res = resArr[0]
               var msg = resArr[1]
