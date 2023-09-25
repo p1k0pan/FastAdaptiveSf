@@ -37,6 +37,7 @@ function token_verify(is_refresh, access_token, refresh_token, username_stored, 
                 if(data.code == "201"){
                     // delete the old one and store the new one
                     console.log("data code is 201")
+                    var isDisabled = localStorage.getItem("highlight")
                     localStorage.removeItem('access_token')
                     localStorage.removeItem('refresh_token')
                     localStorage.removeItem('username')
@@ -44,6 +45,7 @@ function token_verify(is_refresh, access_token, refresh_token, username_stored, 
                     localStorage.setItem('username', String(result.user_name));
                     localStorage.setItem('access_token', result.access_token);
                     localStorage.setItem('refresh_token', result.refresh_token);
+                    localStorage.setItem('higlight', isDisabled)
 
                 }
 
