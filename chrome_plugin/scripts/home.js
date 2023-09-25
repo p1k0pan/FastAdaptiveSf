@@ -283,7 +283,7 @@ localizeHtmlPage(document.body);
     return new Promise((resolve, reject) => {
       chrome.tabs.sendMessage(tabId, {action:action},function (response) {
         if (chrome.runtime.lastError) {
-              console.error(chrome.runtime.lastError);
+              console.log(chrome.runtime.lastError);
               reject(chrome.runtime.lastError)
             } else {
               resolve(response)
@@ -310,85 +310,123 @@ document.addEventListener('DOMContentLoaded', async function(e) {
       isDisabled = "true"
     }
 
-    // get parse
+    // get parse and figure out if it's a medium site
     tabId= await getCurrentTab()
     var content = null
-    var response = await sendMessageToContent("parse", tabId.id)
-    if (response.code == 200){
-      console.log("success parse:", response.result)
-      content = response.result
-    }else if (response.code == 400){
-      console.log("not a medium site")
+    var isMedium = false
+    try{
+      var response = await sendMessageToContent("parse", tabId.id)
+      if (response.code == 200){
+        // console.log("success parse:", response.result)
+        content = response.result
+        isMedium = true
+      }else if (response.code == 400){
+        console.log("not a medium site")
+        isMedium = false
+      }
+    } catch(e){
+      var msg = "please refresh page first"
+      console.log(msg)
+      msgUser.style="opacity:1; color: red;"
+      msgUser.innerHTML=msg
+      isMedium = false
     }
 
-    // first load, if isDisabled from last setting is true, show disabled button
-    if(isDisabled == "false"){
-      console.log("disable is false, get highlight")
-      changeHighlightStyle(false, highlightImg, highlightText)
-
-      // highlight enable then automatically run highlight
+    // initialize with medium site
+    if (isMedium){
+      // request highlight
       try {
-        highlightParagraphsContent(e, JSON.stringify(content)).then((resArr)=>{
-          var res = resArr[0]
-          var msg = resArr[1]
-          if (res==="201" || res==="200"){
-            msgUser.style="opacity:1; color: green;"
-          }else{
-            msgUser.style="opacity:1; color: red;"
-          }
-          msgUser.innerHTML= msg
-        });
+        var highlight_result=null
+        highlight_result= await highlightParagraphsContent(e, JSON.stringify(content))
+        var res = highlight_result[0]
+        var msg = highlight_result[1]
+        var data =highlight_result[2]
+        if (res==="201" || res==="200"){
+            if(isDisabled == "false"){
+              changeHighlightStyle(false, highlightImg, highlightText)
+              msgUser.style="opacity:1; color: green;"
+              chrome.tabs.sendMessage(tabId.id, {action:"highlight",data: data })
+            }
+            else if (isDisabled == "true"){
+              changeHighlightStyle(true, highlightImg, highlightText)
+              chrome.tabs.sendMessage(tabId.id, {action:"revert_highlight",data: data })
+            }
+
+        }else{msgUser.style="opacity:1; color: red;"}
+
+        msgUser.innerHTML= msg
 
       } catch(error){
-        console.error("Error:", error);
+        console.log("Error:", error);
       }
-    }else if (isDisabled == "true"){
+    }
+    else{
       changeHighlightStyle(true, highlightImg, highlightText)
+      msgUser.style="opacity:1; color: red;"
+      msgUser.innerHTML="This is not a medium site"
     }
 
-    if (activateHighlightingButton) {
-      activateHighlightingButton.addEventListener('click', async function(e) {
-        e.preventDefault();
-        if(isDisabled == "false"){
-          // is Disabled = false (now is enable)
-          changeHighlightStyle(true,highlightImg, highlightText)
-          msgUser.style="opacity:0;"
-          isDisabled="true"
-          localStorage.setItem("highlight", isDisabled)
-        }else if (isDisabled=="true"){
-          changeHighlightStyle(false,highlightImg, highlightText)
-          isDisabled='false'
-          localStorage.setItem("highlight", isDisabled)
+    //after loading the above code, set loading false and display content and Show the page content
+    var loadingElement = document.querySelector('.loading');
+    loadingElement.style.display = 'none';
+    var spinerElement = document.querySelector('.spiner');
+    spinerElement.style.display='none'
+    var contentElement = document.getElementById('main-content');
+    contentElement.style.display = '';
 
-          // highlight enable then automatically run highlight
-          try {
-            highlightParagraphsContent(e, JSON.stringify(content)).then((resArr)=>{
-              var res = resArr[0]
-              var msg = resArr[1]
-              if (res==="201" || res==="200"){
-                msgUser.style="opacity:1; color: green;"
-              }else{
-                msgUser.style="opacity:1; color: red;"
+    //click the button
+    if (activateHighlightingButton && isMedium) {
+    }else{console.log("is medium is false")}
+
+    activateHighlightingButton.addEventListener('click', async function(e) {
+      e.preventDefault();
+
+      if (isMedium){
+        try {
+          var highlight_result=null
+          highlight_result= await highlightParagraphsContent(e, JSON.stringify(content))
+          var res = highlight_result[0]
+          var msg = highlight_result[1]
+          var data =highlight_result[2]
+          if (res==="201" || res==="200"){
+              if(isDisabled == "false"){
+                changeHighlightStyle(true,highlightImg, highlightText)
+                msgUser.style="opacity:0;"
+                isDisabled="true"
+                localStorage.setItem("highlight", isDisabled)
+                chrome.tabs.sendMessage(tabId.id, {action:"revert_highlight",data: data })
               }
-              msgUser.innerHTML= msg
-            });
-          } catch(error){
-            console.error("Error:", error);
-          }
+              else if (isDisabled == "true"){
+                changeHighlightStyle(false,highlightImg, highlightText)
+                msgUser.style="opacity:1; color: green;"
+                isDisabled='false'
+                localStorage.setItem("highlight", isDisabled)
+                chrome.tabs.sendMessage(tabId.id, {action:"highlight",data: data })
+              }
+      
+          }else{msgUser.style="opacity:1; color: red;"}
+    
+          msgUser.innerHTML= msg
+    
+        } catch(error){
+          console.log("Error:", error);
         }
+      }else{
+        changeHighlightStyle(true, highlightImg, highlightText)
+        msgUser.style="opacity:1; color: red;"
+        msgUser.innerHTML="This is not a medium site"
+      }
 
-        
 
-      });
+    });
 
-      uploadHistoryMenuButton.addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        // upload history
-        history = []
-        await patchHistory(e, history);
-      });
-    }
+    uploadHistoryMenuButton.addEventListener('click', async function(e) {
+      e.preventDefault();
+      
+      // upload history
+      history = []
+      await patchHistory(e, history);
+    });
  // see which button is currently being shown/relevant
     if (uploadHistoryButton) {
       uploadHistoryButton.addEventListener('click', async function(e) {
@@ -594,19 +632,15 @@ function highlightParagraphsContent(e, body) {
             console.log("code is 200 and need inject highlight")
             // after inject
             msg = "Highlight succesfully!"
-            // msgUser.style="opacity:1; color: green;"
-            // msgUser.textContent="Highlight succesfully!"
-            // inject code
           } else if (res === "400") {
               console.log("history is empty");
               msg = "history is empty"
-              // msgUser.style="opacity:1; color: red;"
-              // msgUser.textContent="user history is empty"
+             
           }else if (res === "401"){
             token_verify("True", access_token,refresh_token,username, false)
             // if token refresh is failed, it would redirect, following code would not be executed
             console.log("continue work on inject highlight")
-            // after inject
+            
             msg = "Highlight succesfully!"
           }
           else{
