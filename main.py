@@ -7,6 +7,7 @@ from modules import authorization as auth
 from sqlalchemy import text
 from db import config, schema, crud, model
 from sqlalchemy.orm import Session
+from typing import List
 
 from fastapi import FastAPI, Depends, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -192,11 +193,19 @@ async def search_query_history(query:str="",token=Depends(token_verify)):
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
     # return {"title": "test"}
 
-@app.get("/highlight", tags=["Search"])
-async def highlight_paragraph(url:str="",token=Depends(token_verify)):
+# @app.get("/highlight", tags=["Search"])
+# async def highlight_paragraph(url:str="",token=Depends(token_verify)):
 
+#     if token.code == "201" or token.code== "200":
+#         result= con.paragraph_highlighting(url, client, token.result["user_name"])
+#         return result
+#     else:
+#         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
+
+@app.post("/highlight", tags=["Search"])
+async def highlight_paragraph(request:List[schema.ParagraphSchema],token=Depends(token_verify)):
     if token.code == "201" or token.code== "200":
-        result= con.paragraph_highlighting(url, client, token.result["user_name"])
+        result= con.paragraph_text_highlighting(request, token.result["user_name"])
         return result
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)

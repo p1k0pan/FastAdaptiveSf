@@ -14,6 +14,13 @@ class UserSchema(BaseModel):
     class Config:
         orm_mode = True
 
+class ParagraphSchema(BaseModel):
+    # paragraphs: Optional[List[Dict]] = None
+    text: Optional[str] = None
+    id: Optional[str] = None
+
+    class Config:
+        orm_mode = True
 
 # class Request(GenericModel, Generic[T]):
 #     parameter: Optional[T] = Field(...)

@@ -1,40 +1,28 @@
 function parse_paragraph(){
     const p = document.querySelectorAll('p')
-    var p_content = []
     const h1 = document.querySelectorAll('h1')
-    var h1_content = []
     const h2 = document.querySelectorAll('h2')
-    var h2_content = []
     const li = document.querySelectorAll('li')
-    var li_content = []
     const content_to_extract = [p, h1, h2, li]
+    var content=[]
     content_to_extract.forEach((tag)=>{
+      var skip=1
       tag.forEach((element)=>{
         var data ={
           text: element.textContent,
           id: element.id
         }
-        if (data.id === ""){
+        if (data.id === "" || (tag===h1 && skip===1)){
+          // remove h1 first element cause it is title of article
           return
         }
         if (element.textContent.length > 0){
-          if (tag === p){
-            p_content.push(data)
-          }
-          else if (tag === h1){
-            h1_content.push(data)
-          }
-          else if (tag === h2){
-            h2_content.push(data)
-          }
-          else if (tag === li){
-            li_content.push(data)
-          }
+          content.push(data)
         }
+        skip+=1
       })
     })
-    h1_content = h1_content.slice(1)
-    return {p: p_content, h1: h1_content, h2: h2_content, li: li_content}
+    return content
     
   }
   
