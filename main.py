@@ -245,19 +245,19 @@ async def create_user(request: schema.UserSchema, db: Session =db_session):
     return schema.Response(status=status, code=code, message=msg, result=result)
 
 @app.patch("/user", tags=["User"])
-async def update_histories(request: schema.UserSchema, db: Session =db_session,token=Depends(token_verify)):
+async def update_histories(request: schema.UserSchema,token=Depends(token_verify)):
     # detect upload_urls exception
 
-    # if token.code == "201" or token.code== "200":
+    if token.code == "201" or token.code== "200":
 
-    if request.user_name == None or request.upload_urls == None:
-        return schema.Response(status="Failed", code='400', message='User name or upload file is empty', result=None)
+        if request.user_name == None or request.upload_urls == None:
+            return schema.Response(status="Failed", code='400', message='User name or upload file is empty', result=None)
 
-    status, code, msg, result = crud.update_histories(user_name=request.user_name, upload_urls=request.upload_urls, device=device)
-    return schema.Response(status=status, code=code, message=msg, result=result)
+        status, code, msg, result = crud.update_histories(user_name=request.user_name, upload_urls=request.upload_urls, device=device)
+        return schema.Response(status=status, code=code, message=msg, result=result)
 
-    # else:
-    #     return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
+    else:
+        return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
 @app.get("/initial_tag_story", tags=["Tag"])
 async def initial_tag_story(tag:str=""):
