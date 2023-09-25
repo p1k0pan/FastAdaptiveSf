@@ -279,6 +279,18 @@ localizeHtmlPage(document.body);
     return tab;
   }
 
+  function sendMessageToContent(action, tabId){
+    return new Promise((resolve, reject) => {
+      chrome.tabs.sendMessage(tabId, {action:action},function (response) {
+        if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError);
+              reject(chrome.runtime.lastError)
+            } else {
+              resolve(response)
+            }
+      })
+    })
+  }
 
 // Switch between uploadHistory home page and highlighting home page
 document.addEventListener('DOMContentLoaded', async function(e) {
@@ -298,18 +310,25 @@ document.addEventListener('DOMContentLoaded', async function(e) {
       isDisabled = "true"
     }
 
+    // get parse
+    tabId= await getCurrentTab()
+    var content = null
+    var response = await sendMessageToContent("parse", tabId.id)
+    if (response.code == 200){
+      console.log("success parse:", response.result)
+      content = response.result
+    }else if (response.code == 400){
+      console.log("not a medium site")
+    }
+
     // first load, if isDisabled from last setting is true, show disabled button
     if(isDisabled == "false"){
-      highlightImg.src="../assets/icons/enabled_button.svg"
-      highlightImg.style="box-shadow: rgba(123, 255, 86, 0.8) 0px 0px 16px, rgba(0, 0, 0, 0.2) 0px 2px 4px inset;"
-      highlightText.style.color = "#5ad139"
-      highlightText.textContent="Highlight enabled"
+      console.log("disable is false, get highlight")
+      changeHighlightStyle(false, highlightImg, highlightText)
 
       // highlight enable then automatically run highlight
       try {
-        var tabs = await getCurrentTab();
-        console.log("Current URL:", tabs.url);
-        await highlightUrlContent(e, tabs.url).then((resArr)=>{
+        highlightParagraphsContent(e, JSON.stringify(content)).then((resArr)=>{
           var res = resArr[0]
           var msg = resArr[1]
           if (res==="201" || res==="200"){
@@ -319,15 +338,12 @@ document.addEventListener('DOMContentLoaded', async function(e) {
           }
           msgUser.innerHTML= msg
         });
-        // You can use `currentUrl` here or perform other actions.
-      } catch (error) {
+
+      } catch(error){
         console.error("Error:", error);
-      } 
+      }
     }else if (isDisabled == "true"){
-      highlightImg.src="../assets/icons/disabled_button.svg"
-      highlightImg.style=""
-      highlightText.style.color = "#a3aebc"
-      highlightText.textContent="Highlight disabled"
+      changeHighlightStyle(true, highlightImg, highlightText)
     }
 
     if (activateHighlightingButton) {
@@ -335,26 +351,18 @@ document.addEventListener('DOMContentLoaded', async function(e) {
         e.preventDefault();
         if(isDisabled == "false"){
           // is Disabled = false (now is enable)
-          highlightImg.src="../assets/icons/disabled_button.svg"
-          highlightImg.style=""
-          highlightText.style.color = "#a3aebc"
-          highlightText.textContent="Highlight disabled"
+          changeHighlightStyle(true,highlightImg, highlightText)
           msgUser.style="opacity:0;"
           isDisabled="true"
           localStorage.setItem("highlight", isDisabled)
         }else if (isDisabled=="true"){
-          highlightImg.src="../assets/icons/enabled_button.svg"
-          highlightImg.style="box-shadow: rgba(123, 255, 86, 0.8) 0px 0px 16px, rgba(0, 0, 0, 0.2) 0px 2px 4px inset;"
-          highlightText.style.color = "#5ad139"
-          highlightText.textContent="Highlight enabled"
+          changeHighlightStyle(false,highlightImg, highlightText)
           isDisabled='false'
           localStorage.setItem("highlight", isDisabled)
 
           // highlight enable then automatically run highlight
           try {
-            var tabs = await getCurrentTab();
-            console.log("Current URL:", tabs.url);
-            await highlightUrlContent(e, tabs.url).then((resArr)=>{
+            highlightParagraphsContent(e, JSON.stringify(content)).then((resArr)=>{
               var res = resArr[0]
               var msg = resArr[1]
               if (res==="201" || res==="200"){
@@ -364,8 +372,7 @@ document.addEventListener('DOMContentLoaded', async function(e) {
               }
               msgUser.innerHTML= msg
             });
-            // You can use `currentUrl` here or perform other actions.
-          } catch (error) {
+          } catch(error){
             console.error("Error:", error);
           }
         }
@@ -536,24 +543,90 @@ function patchHistory(e, history) {
   });
 }
 
-
-// get the current tab/url
-async function getCurrentTabUrl() {
-  return new Promise((resolve, reject) => {
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-      if (chrome.runtime.lastError) {
-        // Handle any errors that occurred during the query
-        reject(chrome.runtime.lastError);
-      } else if (tabs && tabs[0] && tabs[0].url) {
-        resolve(tabs[0].url);
-      } else {
-        reject(new Error("Unable to retrieve the current tab's URL."));
-      }
-    });
-   });
+function changeHighlightStyle(isDisabled, highlightImg, highlightText){
+  if(!isDisabled){
+    highlightImg.src="../assets/icons/enabled_button.svg"
+    highlightImg.style="box-shadow: rgba(123, 255, 86, 0.8) 0px 0px 16px, rgba(0, 0, 0, 0.2) 0px 2px 4px inset;"
+    highlightText.style.color = "#5ad139"
+    highlightText.textContent="Highlight enabled" 
+  }else if (isDisabled){
+    highlightImg.src="../assets/icons/disabled_button.svg"
+    highlightImg.style=""
+    highlightText.style.color = "#a3aebc"
+    highlightText.textContent="Highlight disabled"
+  }
 }
 
-
+function highlightParagraphsContent(e, body) {
+    e.preventDefault();
+    var res = "0";
+  
+    const username = localStorage.getItem('username');
+    const access_token = localStorage.getItem('access_token');
+    const refresh_token = localStorage.getItem('refresh_token');
+  
+    const endpoint = "http://127.0.0.1:8000" + "/" + `highlight` ;
+    const method = "POST";
+    console.log("fetching paragraphs to highlight ...")
+  
+    return new Promise(function (resolve, reject) {
+      let req = new XMLHttpRequest();
+      req.open(method, endpoint, true);
+      req.setRequestHeader("Authorization", access_token);
+      req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      req.send(body);
+  
+      req.onload = function () {
+        var data = JSON.parse(req.responseText);
+        var msg = "default"
+        var result = null
+  
+        if(data) {
+          res = data.code;
+          message = data.message;
+          if (typeof res === 'undefined') {
+            resolve("0")
+          }
+  
+          if (res === "200" || res === "201" ) {
+            result = data.result;
+            console.log("highlights received succesfully!, result is", result);
+            console.log("code is 200 and need inject highlight")
+            // after inject
+            msg = "Highlight succesfully!"
+            // msgUser.style="opacity:1; color: green;"
+            // msgUser.textContent="Highlight succesfully!"
+            // inject code
+          } else if (res === "400") {
+              console.log("history is empty");
+              msg = "history is empty"
+              // msgUser.style="opacity:1; color: red;"
+              // msgUser.textContent="user history is empty"
+          }else if (res === "401"){
+            token_verify("True", access_token,refresh_token,username, false)
+            // if token refresh is failed, it would redirect, following code would not be executed
+            console.log("continue work on inject highlight")
+            // after inject
+            msg = "Highlight succesfully!"
+          }
+          else{
+            console.log("error in else")
+          }
+        }
+        resolve([res,msg, result]);
+      };
+  
+      req.onerror = function () {
+        console.error("** An error occurred during the XMLHttpRequest for the creation of a new user");
+        resolve("0");
+  
+        reject({
+          status: this.status,
+          statusText: req.statusText,
+        });
+      };
+    });
+  }
 
 // Get highlight paragraphs from the current tab/url
 // example:     http://127.0.0.1:8000/highlight?url=www.politico.eu/article/nato-chief-jens-stoltenberg-warns-ukraine-allies-to-prepare-for-long-war/

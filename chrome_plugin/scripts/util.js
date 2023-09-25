@@ -61,11 +61,10 @@ function token_verify(is_refresh, access_token, refresh_token, username_stored, 
             else if (data.code == "402"){
                 // print the error message to user
                 var log = "token expired";
-                console.log(log);
                 console.log("data code is ", data.code);
                 console.log("data msg is ", data.message);
-                window.location.href = "login.html";
                 alert(log)
+                window.location.href = "login.html";
             }
             else{
                 console.log("data code is ", data.code);

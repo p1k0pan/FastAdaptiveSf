@@ -63,7 +63,7 @@ async function login(e, body, username) {
           
           try {
             // userHasHistory(e);
-            detectHistory()
+            detectHistory(true) //need redirect
             // console.log("has history")
 
           } catch (error) {
