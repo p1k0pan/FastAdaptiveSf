@@ -22,7 +22,7 @@ const actions = {
       var res = "0"
       console.log("loading home page tags ...");
 
-      var selection = ["Technology", "Animal"] // "Life", "Animal",
+      var selection = ["Technology", "Health"] // "Life", "Animal",
       
       var results = []
 
@@ -34,16 +34,19 @@ const actions = {
         };
 
         var endpoint = "/"
-        endpoint = endpoint + `random?tag=${val}`;
+        endpoint = endpoint + `next_tag_story?tag=${val}`;
         console.log(endpoint)
 
         await axios.get(endpoint)
         .then(response => {
             console.log("tag request for " + val)
             console.log(response.data["code"])
+            var message = response.data["message"]
+            console.log("message")
+            console.log(message)
 
             if(response.data["code"] === "200" || response.data["code"] === "201") {
-                var data = response.data["result"]
+                    var data = response.data["result"]
                     this.results = [];
                     console.log(data)
               

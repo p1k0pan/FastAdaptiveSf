@@ -3,6 +3,8 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import LoginView from '../views/LoginView.vue'
+import TestView from '../views/testSearch.vue'
+import TestView_copy from '../views/testSearch_copy.vue'
 
 Vue.use(VueRouter)
 
@@ -16,6 +18,16 @@ const routes: Array<RouteConfig> = [
       console.log("entering home page")
 
     }, */
+  },
+  {
+    path: '/searchtest',
+    name: 'SearchTest',
+    component: TestView
+  },
+  {
+    path: '/searchtest_copy',
+    name: 'SearchTest_copy',
+    component: TestView_copy
   },
   {
     path: '/login',

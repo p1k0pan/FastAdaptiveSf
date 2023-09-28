@@ -106,7 +106,7 @@
 
     <main>
 
-      <div v-if="showSearchResult"
+      <div 
         style="bottom: 0;"
       >
         <b-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden">
@@ -128,11 +128,11 @@
 
 
 
-            <div class="cards" v-if="results.length > 0">
+            <div class="cards" v-if="testSearchData.length > 0">
               <ul class="list-group result-list">
                 <li
                   class="list-group-item result-list-item border-0"
-                  v-for="(itemDict, idx) in results"
+                  v-for="(itemDict, idx) in testSearchData"
                   :key="idx"
                 >
                   <v-container>
@@ -233,206 +233,6 @@
 
 
 
-
-
-      <div v-if="!showSearchResult"
-        style="bottom: 0;"
-      >
-
-      <div v-if="showTopics && !showHistories"
-        style="bottom: 0;"
-      >
-      
-      <b-row align-v="center" align-h="center" class="justify-content-md-center">
-          <b-col></b-col>
-
-          <b-col cols="8">
-            <b-row class="mb-4 mt-4"></b-row>
-
-            <div class="container-fluid">
-        
-
-              <div v-if="!this.$store.getters.tagsLoaded"> loading topics ...</div>
-              <ul class="list-group " v-if="this.$store.getters.stateTags">
-                <li
-                  class="list-group-item no-border mb-2"
-                  v-for="(item, index) in this.$store.getters.stateTags"
-                  :key="index"
-                >
-
-                   <h3> {{ item["tag"] }} </h3>
-                  <b-row class="mb-4"></b-row>
-
-
-                  <v-container style="position:relative">
-                    <v-slide-group show-arrows="always" id="article-slider">
-                      <v-slide-item 
-                        v-for="(sites, index) in item['sites']"
-                        :key="index">
-                      
-
-
-
-                      <b-card class="mr-2">
-                        <div class="thumbnail">
-                          <a :href="sites['url']" target="_blank" class="linkAsText">
-                            <img :src="sites['thumbnail']" alt="..." style="width:100%">
-                            <div class="wordBreak overflowY">
-                              <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ sites["title"] }} </h5>
-
-
-                            </div>
-                          </a>
-                        </div>
-                      </b-card>
-     <!--
-                  <v-container style="position:relative">
-                    <label for="article-slider"> {{ item["tag"] }} </label>
-
-                    <v-slide-group multiple show-arrows="always" id="article-slider">
-                      <v-slide-item 
-                        v-for="(sites, index) in item['sites']"
-                        :key="index">
-
-                      
-                      <b-card no-body class="overflow-hidden mb-3 mx-3 topic div"
-                      >
-                        <b-card-header>
-                          <b-card-img :src="sites['thumbnail']" alt="Image" fluid-grow bottom></b-card-img>
-                        </b-card-header>
-                        <b-card-body class="h-100 d-flex flex-column">
-                            <b-card-text>
-                            <p> {{ sites["title"] }} </p>
-                            </b-card-text>
-                        </b-card-body>
-                      </b-card>-->
-
-                  
-                      </v-slide-item>
-                    </v-slide-group>
-                  </v-container>
-
-
-                </li>
-              </ul>
-        <!--
-              <ul class="horizontalList" style="position:relative; overflow-x:auto">
-                <li
-                  class="horizontalList"
-                  v-for="(itemDict, index) in tags"
-                  :key="index"
-                >
-                  <b-card no-body class="overflow-hidden mb-3">
-                    Card
-                    <b-card-body class="h-100 d-flex flex-column">
-                          <b-card-text>
-                          <p>{{ itemDict["text"] }}</p>
-                          </b-card-text>
-                        </b-card-body>
-                  </b-card>
-
-                </li>
-              </ul>
--->
-
-            </div>
-          </b-col>
-
-          <b-col></b-col>
-        </b-row>
-
-      </div>
-
-
-      <div v-if="showHistories && !showTopics"
-        style="bottom: 0;"
-      >
-      
-      
-      <v-card>
-      <v-card-title>
-
-        <v-text-field
-            v-model="searchHistory"
-            label="Search"
-            single-line
-            hide-details
-        ></v-text-field>
-
-
-        <v-dialog
-          max-width="500px"
-          >
-          <template v-slot:activator="{ props }">
-            <v-btn
-              color="primary"
-              dark
-              class="mb-2"
-              v-bind="props"
-            >
-            Open Dialog
-            </v-btn>
-          </template>
-          <template v-slot:default="{ privacyDialog }">
-          <v-card>
-            <v-card-title>
-              <span class="text-h5">Information regarding your privacy</span>
-            </v-card-title>
-
-            <v-card-text>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </v-card-text>
-
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="blue-darken-1"
-                variant="text"
-                @click="privacyDialog.value = false"
-              >
-                Close
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-          </template>
-        </v-dialog>
-
-
-
-      </v-card-title>
-
-      <v-data-table
-        :headers="historyTableHeaders"
-        :items="testHistoryData"
-        :expanded.sync="expandedHistory"
-        :loading="loadingHistoryTable"
-        :server-items-length="totalPeople"
-        show-expand
-        single-expand
-        item-key="upload"
-        :search="searchHistory">
-
-        <template v-slot:expanded-item="{ headers, item }">
-        
-
-            <td :colspan="headers.length">
-                <div class="row sp-details">
-                  <v-card
-                    class="mx-auto"
-                  >
-                    <v-list :items="item.sites"></v-list>
-                  </v-card>
-                </div>
-            </td>
-        </template>
-      </v-data-table>
-    </v-card>
-
-      </div>
-
-
-      </div>
-      
     </main>
 
     <!-- <p>{{ loginStatus }}</p>
@@ -464,7 +264,7 @@ import SummaryModal from '@/components/SummaryModal.vue'
 const dropzoneOpen = ref(false);
 
 export default Vue.extend({
-  name: "Home",
+  name: "SearchTest_old",
 
   components: {
     FileUpload,
@@ -511,48 +311,120 @@ export default Vue.extend({
 
       
 
-      testHistoryData: [
+
+
+      positive_index: 2, // side displays 2, 3, 4
+      testSearchData: [
         {
-          date: '14.09.2023',
-          upload: 1,
-          sites: [
-            {
-              index: 0,
-              title: "Apple - Fruits",
-              url: "https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm",
-              content: "\nAn apple is a sweet, edible fruit produced by an apple tree (Malus domestic). In France, it is the most consumed edible fruit and the third in the planet. The main types of apples come from the domestic apple or common apple. The species of Malus Domestica has about 20,000 varieties and cultivars around the world. The fruit has a characteristic stocky shape and often spherical, it is eaten when ripe, raw, cooked, or dried. Its juice is drunk fresh or pasteurized. When fermented, it becomes cider. Associated with the fruit forbidden in the Book of Genesis, it often symbolizes original sin. The fruit we consume today is descended from the Malus Sieversii species; it has been consumed by humans since the Neolithic age in the Central. Kazakhstan claims its origin, but the apple was already consumed by the Chinese 3,000 years ago. From a botanical point of view, it is a complex fruit, something between the berry and the drupe, often called a false fruit. Because a real fruit is formed from the ovary of a flower. An apple's flesh is not derived from the ovary but instead it is a swollen receptacle (or part of the stem). The actual fruit is in the core, the bit we throw away. The same is true of pears. Its colors at maturity change from green to red, passing through a wide variety of intermediate shades: pale green, yellow, or orange. The success of this fruit is undisputed, because today there are more than 20,000 varieties of apples of which 7,000 are regularly cultivated across the globe. China, the United States and Poland are the three largest producers of apples. China harvests 44 million tons, the United States 4.6 million tons and Poland 3.6 million tons. The EU is also one of the leading producers, has increased its production by 33% on average for the past three years. France harvests 1.5 million tons."
-            },
-            {
-              index: 1,
-              title: "",
-              url: "https://www.healthline.com/nutrition/10-health-benefits-of-apples",
-              content: ""
-            },
-          ]
+          id: 0,
+          title: "Going Down the Restaurant Memory Lane of My Childhood",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: "['Danna Reich Colman']",
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: "['Food', 'Beverly Hills', 'Recipe']",
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
         },
         {
-          date: '18.09.2023',
-          upload: 2,
-          sites: [
-            {
-              index: 0,
-              title: "Apple - Fruits",
-              url: "https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm",
-              content: "\nAn apple is a sweet, edible fruit produced by an apple tree (Malus domestic). In France, it is the most consumed edible fruit and the third in the planet. The main types of apples come from the domestic apple or common apple. The species of Malus Domestica has about 20,000 varieties and cultivars around the world. The fruit has a characteristic stocky shape and often spherical, it is eaten when ripe, raw, cooked, or dried. Its juice is drunk fresh or pasteurized. When fermented, it becomes cider. Associated with the fruit forbidden in the Book of Genesis, it often symbolizes original sin. The fruit we consume today is descended from the Malus Sieversii species; it has been consumed by humans since the Neolithic age in the Central. Kazakhstan claims its origin, but the apple was already consumed by the Chinese 3,000 years ago. From a botanical point of view, it is a complex fruit, something between the berry and the drupe, often called a false fruit. Because a real fruit is formed from the ovary of a flower. An apple's flesh is not derived from the ovary but instead it is a swollen receptacle (or part of the stem). The actual fruit is in the core, the bit we throw away. The same is true of pears. Its colors at maturity change from green to red, passing through a wide variety of intermediate shades: pale green, yellow, or orange. The success of this fruit is undisputed, because today there are more than 20,000 varieties of apples of which 7,000 are regularly cultivated across the globe. China, the United States and Poland are the three largest producers of apples. China harvests 44 million tons, the United States 4.6 million tons and Poland 3.6 million tons. The EU is also one of the leading producers, has increased its production by 33% on average for the past three years. France harvests 1.5 million tons."
-            },
-            {
-              index: 1,
-              title: "",
-              url: "https://www.healthline.com/nutrition/10-health-benefits-of-apples",
-              content: ""
-            },
-          ]
+          id: 1,
+          title: "I ordered chole bhature and received customer experience in return",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: "['Danna Reich Colman']",
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: "['Business', 'Loyalty Program', 'Restaurant Business', 'Rewards Programs', 'Loyalty']",
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
         },
+        {
+          id: 2,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: "['Danna Reich Colman']",
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: "['Food', 'Beverly Hills', 'Recipe']",
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+
+
+
+        {
+          id: 3,
+          title: "Going Down the Restaurant Memory Lane of My Childhood",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: "['Danna Reich Colman']",
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: "['Food', 'Beverly Hills', 'Recipe']",
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 4,
+          title: "I ordered chole bhature and received customer experience in return",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: "['Danna Reich Colman']",
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: "['Business', 'Loyalty Program', 'Restaurant Business', 'Rewards Programs', 'Loyalty']",
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 5,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: "['Danna Reich Colman']",
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: "['Food', 'Beverly Hills', 'Recipe']",
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        
       ],
-
-
     };
   },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   beforeCreate() {
@@ -634,8 +506,11 @@ export default Vue.extend({
     },
 
     formatTags(tags: any) {
-      let temp = new Array(tags);
-      let tagsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
+      //let temp = new Array(tags);
+      //let tagsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
+
+      var temp = tags.replace(/'/g, '"');
+      const tagsArray = JSON.parse(temp);
       return tagsArray
     },
 
@@ -678,43 +553,15 @@ export default Vue.extend({
         this.allHistories = [
         {
           date: '14.09.2023',
-          upload: 1,
-          sites: [
-            {
-              index: 0,
-              title: "Apple - Fruits",
-              url: "https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm",
-              content: "\nAn apple is a sweet, edible fruit produced by an apple tree (Malus domestic). In France, it is the most consumed edible fruit and the third in the planet. The main types of apples come from the domestic apple or common apple. The species of Malus Domestica has about 20,000 varieties and cultivars around the world. The fruit has a characteristic stocky shape and often spherical, it is eaten when ripe, raw, cooked, or dried. Its juice is drunk fresh or pasteurized. When fermented, it becomes cider. Associated with the fruit forbidden in the Book of Genesis, it often symbolizes original sin. The fruit we consume today is descended from the Malus Sieversii species; it has been consumed by humans since the Neolithic age in the Central. Kazakhstan claims its origin, but the apple was already consumed by the Chinese 3,000 years ago. From a botanical point of view, it is a complex fruit, something between the berry and the drupe, often called a false fruit. Because a real fruit is formed from the ovary of a flower. An apple's flesh is not derived from the ovary but instead it is a swollen receptacle (or part of the stem). The actual fruit is in the core, the bit we throw away. The same is true of pears. Its colors at maturity change from green to red, passing through a wide variety of intermediate shades: pale green, yellow, or orange. The success of this fruit is undisputed, because today there are more than 20,000 varieties of apples of which 7,000 are regularly cultivated across the globe. China, the United States and Poland are the three largest producers of apples. China harvests 44 million tons, the United States 4.6 million tons and Poland 3.6 million tons. The EU is also one of the leading producers, has increased its production by 33% on average for the past three years. France harvests 1.5 million tons."
-            },
-            {
-              index: 1,
-              title: "",
-              url: "https://www.healthline.com/nutrition/10-health-benefits-of-apples",
-              content: ""
-            },
-          ]
+          upload: "History 1",
+          urls: ["https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm", "https://www.healthline.com/nutrition/10-health-benefits-of-apples"],
         },
         {
           date: '18.09.2023',
-          upload: 2,
-          sites: [
-            {
-              index: 0,
-              title: "Apple - Fruits",
-              url: "https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm",
-              content: "\nAn apple is a sweet, edible fruit produced by an apple tree (Malus domestic). In France, it is the most consumed edible fruit and the third in the planet. The main types of apples come from the domestic apple or common apple. The species of Malus Domestica has about 20,000 varieties and cultivars around the world. The fruit has a characteristic stocky shape and often spherical, it is eaten when ripe, raw, cooked, or dried. Its juice is drunk fresh or pasteurized. When fermented, it becomes cider. Associated with the fruit forbidden in the Book of Genesis, it often symbolizes original sin. The fruit we consume today is descended from the Malus Sieversii species; it has been consumed by humans since the Neolithic age in the Central. Kazakhstan claims its origin, but the apple was already consumed by the Chinese 3,000 years ago. From a botanical point of view, it is a complex fruit, something between the berry and the drupe, often called a false fruit. Because a real fruit is formed from the ovary of a flower. An apple's flesh is not derived from the ovary but instead it is a swollen receptacle (or part of the stem). The actual fruit is in the core, the bit we throw away. The same is true of pears. Its colors at maturity change from green to red, passing through a wide variety of intermediate shades: pale green, yellow, or orange. The success of this fruit is undisputed, because today there are more than 20,000 varieties of apples of which 7,000 are regularly cultivated across the globe. China, the United States and Poland are the three largest producers of apples. China harvests 44 million tons, the United States 4.6 million tons and Poland 3.6 million tons. The EU is also one of the leading producers, has increased its production by 33% on average for the past three years. France harvests 1.5 million tons."
-            },
-            {
-              index: 1,
-              title: "",
-              url: "https://www.healthline.com/nutrition/10-health-benefits-of-apples",
-              content: ""
-            },
-          ]
+          upload: "History 2",
+          urls: [],
         },
-      ],
-
-
+        ]
         this.loadingHistoryTable = false
 
       } catch (error) {
@@ -728,8 +575,12 @@ export default Vue.extend({
     formatAuthors(authors: any){
       //authors = JSON.parse(authors.replace(/,]$/, ']').replace(/'/g, '"'))
       //authors.replace(/\[|\]/g,'').split(',')
-      let temp = new Array(authors);
-      let authorsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
+
+      //let temp = new Array(authors);
+      //let authorsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
+
+      var temp = authors.replace(/'/g, '"');
+      const authorsArray= JSON.parse(temp);
       return authorsArray
     },
 
@@ -982,7 +833,7 @@ export default Vue.extend({
 
       } else {
         // Update history management list
-        await this.getAllHistories();
+        await this.$store.dispatch("allHistories", data);
 
         var res = "0"
         const authorizationData = {
