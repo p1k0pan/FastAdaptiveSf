@@ -1,4 +1,3 @@
-from contextlib import asynccontextmanager
 import pandas as pd
 import torch
 from modules import controller as con, random_story
@@ -22,11 +21,12 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import json
 import time
 from collections import defaultdict
+from contextlib import asynccontextmanager
 
 corpus_embeddings = None # model from main dataset
 client=None
 tag_sampler={}
-initial_tags=['Technology', 'Health']
+initial_tags=['WELLNESS', 'BUSINESS']
 presented_tag_story={}
 ACCESS_TOKEN_EXPIRED = 10
 REFRESH_TOKEN_EXPIRED = 30
@@ -65,7 +65,12 @@ async def lifespan(app: FastAPI):
 
     print('initializing tags')
     # initial tag sampler
-    # [await initial_tag_story(tag) for tag in initial_tags]
+    # for i in range(len(initial_tags)):
+    #     result=random_story.random_stories(initial_tags[i],client)
+    #     if result.code == '200':
+    #         dfs = result.result
+    #         tag_sampler[initial_tags[i]]=dfs
+    # # [await initial_tag_story(tag) for tag in initial_tags]
     # presented_tag_story = {tag: [] for tag in initial_tags}
     # print(tag_sampler.keys())
 
@@ -186,7 +191,7 @@ async def search_query_history(query:str="",token=Depends(token_verify)):
     query = query.replace("_", " ")
     if token.code == "201" or token.code== "200":
         print(token.result)
-        query_corpus_result= con.search_query_history(query,corpus_embeddings=corpus_embeddings, client=client, user_name= token.result)
+        query_corpus_result= con.search_query_history(query,corpus_embeddings=corpus_embeddings, client=client, user_name= token.result['user_name'])
         return query_corpus_result
 
     else:
