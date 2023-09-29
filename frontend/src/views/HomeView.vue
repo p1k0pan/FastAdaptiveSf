@@ -401,31 +401,121 @@
 
       </v-card-title>
 
+      <v-responsive
+         class="overflow-y-auto">
       <v-data-table
         :headers="historyTableHeaders"
         :items="testHistoryData"
         :expanded.sync="expandedHistory"
         :loading="loadingHistoryTable"
-        :server-items-length="totalPeople"
         show-expand
         single-expand
-        item-key="upload"
+        item-key="upload_number"
+        :hide-default-footer="true"
         :search="searchHistory">
 
-        <template v-slot:expanded-item="{ headers, item }">
-        
+        <template v-slot:top>
 
-            <td :colspan="headers.length">
-                <div class="row sp-details">
+        <v-dialog v-model="deleteHistoryDialog" max-width="600px">
+          <v-card>
+            <v-card-title class="text-h5">Are you sure you want to fully remove this history<br> upload and all of its URLs?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="green-darken-1"
+                variant="text"
+                @click="deleteHistoryDialog = false"
+              >
+                No
+              </v-btn>
+              <v-btn
+                color="green-darken-1"
+                @click="deleteHistoryDialog = false"
+              >
+                Yes, remove this history upload!
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        </template>
+        <template v-slot:item.actions="{ item }">
+        <v-icon
+        v-if='item.upload_number !== "..."'
+        small
+        color="red"
+        @click.stop="deleteHistoryUpload(item)"
+        >
+        mdi-delete
+        </v-icon>
+        </template>
+        
+    
+        <template v-slot:expanded-item="{ headers, item}">
+
+            <td :colspan="headers.length" v-if='item.upload_number !== "..."'>
+                <div class="row sp-details" style="margin-top: 0.2%; margin-bottom: -2%;">
                   <v-card
                     class="mx-auto"
                   >
-                    <v-list :items="item.sites"></v-list>
+                    
+
+
+                  <v-data-table
+                    :headers="URLTableHeaders"
+                    :items="item.sites"
+                    :sort-by="[{ key: 'index', order: 'asc' }]"
+                    class="">
+
+                    <template v-slot:top>
+
+                        <v-dialog v-model="deleteUrlDialog" max-width="600px">
+                          <v-card>
+                            <v-card-title class="text-h5">Are you sure you want to remove this URL?</v-card-title>
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn
+                                color="green-darken-1"
+                                variant="text"
+                                @click="deleteUrlDialog = false"
+                              >
+                                No
+                              </v-btn>
+                              <v-btn
+                                color="green-darken-1"
+                                @click="deleteUrlDialog = false"
+                              >
+                                Yes, remove the URL!
+                              </v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                    </template>
+                    <template v-slot:item.actions="{ item }">
+                      <v-icon
+                        v-if='item.upload_number !== "..."'
+                        small
+                        color="red"
+                        @click.stop="deleteHistoryURL(item)"
+                      >
+                        mdi-delete
+                      </v-icon>
+                    </template>
+
+                  </v-data-table> 
+
+
+
                   </v-card>
                 </div>
             </td>
+            <td :colspan="headers.length" v-else>
+              Upload more histories for a more comprehensive experience!
+            </td>
+
         </template>
+
       </v-data-table>
+      </v-responsive>
     </v-card>
 
       </div>
@@ -495,13 +585,26 @@ export default Vue.extend({
       searchHistory: '',
       loadingHistoryTable: false,
       expandedHistory: [],
+      deleteUrlDialog: false,
+      deleteHistoryDialog: false,
       historyTableHeaders: [
         {
           text: 'Date',
           align: 'left',
           value: 'date',
         },
-        { text: 'Upload', value: 'upload' },
+        { text: 'Upload Number', value: 'upload_number' },
+        { text: 'Delete', value: 'actions', sortable: false, align: 'right',},
+      ],
+      URLTableHeaders: [
+        {
+          text: 'Number',
+          align: 'left',
+          value: 'index',
+        },
+        { text: 'Title', value: 'title' },
+        { text: 'URL', value: 'url' },
+        { text: 'Delete', value: 'actions', sortable: false, align: 'right',},
       ],
 
       allHistories: [
@@ -509,11 +612,11 @@ export default Vue.extend({
       //topics: this.$store.dispatch("loadTags"),
 
       
-
+      selectedHistoryUpload: [],
       testHistoryData: [
         {
           date: '14.09.2023',
-          upload: 1,
+          upload_number: 1,
           sites: [
             {
               index: 0,
@@ -531,20 +634,26 @@ export default Vue.extend({
         },
         {
           date: '18.09.2023',
-          upload: 2,
+          upload_number: 2,
           sites: [
             {
               index: 0,
-              title: "Apple - Fruits",
+              title: "NE W Apple - Fruits",
               url: "https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm",
               content: "\nAn apple is a sweet, edible fruit produced by an apple tree (Malus domestic). In France, it is the most consumed edible fruit and the third in the planet. The main types of apples come from the domestic apple or common apple. The species of Malus Domestica has about 20,000 varieties and cultivars around the world. The fruit has a characteristic stocky shape and often spherical, it is eaten when ripe, raw, cooked, or dried. Its juice is drunk fresh or pasteurized. When fermented, it becomes cider. Associated with the fruit forbidden in the Book of Genesis, it often symbolizes original sin. The fruit we consume today is descended from the Malus Sieversii species; it has been consumed by humans since the Neolithic age in the Central. Kazakhstan claims its origin, but the apple was already consumed by the Chinese 3,000 years ago. From a botanical point of view, it is a complex fruit, something between the berry and the drupe, often called a false fruit. Because a real fruit is formed from the ovary of a flower. An apple's flesh is not derived from the ovary but instead it is a swollen receptacle (or part of the stem). The actual fruit is in the core, the bit we throw away. The same is true of pears. Its colors at maturity change from green to red, passing through a wide variety of intermediate shades: pale green, yellow, or orange. The success of this fruit is undisputed, because today there are more than 20,000 varieties of apples of which 7,000 are regularly cultivated across the globe. China, the United States and Poland are the three largest producers of apples. China harvests 44 million tons, the United States 4.6 million tons and Poland 3.6 million tons. The EU is also one of the leading producers, has increased its production by 33% on average for the past three years. France harvests 1.5 million tons."
             },
             {
               index: 1,
-              title: "",
+              title: "NEW 2",
               url: "https://www.healthline.com/nutrition/10-health-benefits-of-apples",
               content: ""
             },
+          ]
+        },
+        {
+          date: '',
+          upload_number: '...',
+          sites: [
           ]
         },
       ],
@@ -591,6 +700,7 @@ export default Vue.extend({
     tagsLoaded: function () {
       return this.$store.getters.tagsLoaded
     },
+    
   },
 
   mounted() {
@@ -658,6 +768,18 @@ export default Vue.extend({
 
     closePrivacyDialog(){
         this.privacyDialog = false
+    },
+
+    deleteHistoryURL (item) {
+      //this.editedIndex = this.desserts.indexOf(item)
+      //this.editedItem = Object.assign({}, item)
+      this.deleteUrlDialog = true
+    },
+
+    deleteHistoryUpload (item) {
+      //this.editedIndex = this.desserts.indexOf(item)
+      //this.editedItem = Object.assign({}, item)
+      this.deleteHistoryDialog = true
     },
 
 
@@ -1326,7 +1448,9 @@ a {
 }
 
 
-
+.v-data-table__expanded.v-data-table__expanded__content {
+  box-shadow: none !important;
+}
 
 /* Small devices (landscape phones, 544px and up) */
 @media (min-width: 544px) {
