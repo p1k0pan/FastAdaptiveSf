@@ -420,18 +420,35 @@ document.addEventListener('DOMContentLoaded', async function(e) {
 
     });
 
-    uploadHistoryMenuButton.addEventListener('click', async function(e) {
-      e.preventDefault();
-      
-      // upload history
-      history = []
-      await patchHistory(e, history);
-    });
- // see which button is currently being shown/relevant
+
+
+
+    if (uploadHistoryMenuButton) {
+      uploadHistoryMenuButton.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        // upload history
+        history = []
+        await patchHistory(e, history);
+      });
+    }
+
+
+    // see which button is currently being shown/relevant
     if (uploadHistoryButton) {
       uploadHistoryButton.addEventListener('click', async function(e) {
         console.log("upload history page")
         e.preventDefault();
+
+        chrome.runtime.onInstalled.addListener(function() {
+          // Example: Print the user's browsing history URLs to the console
+          chrome.history.search({ text: "", startTime: 0 }, function(data) {
+            data.forEach(function(page) {
+              console.log("home.js");
+              console.log(page.url);
+            });
+          });
+        });
         
 
         let resultUrls = []
@@ -453,14 +470,6 @@ document.addEventListener('DOMContentLoaded', async function(e) {
             // Send result.key to server TODO
           });
         
-        history = []
-        await patchHistory(e, history);
-      });
-
-      uploadHistoryMenuButton.addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        // upload history
         history = []
         await patchHistory(e, history);
       });
