@@ -44,6 +44,7 @@ def update_histories(user_name: str, upload_urls:List, device:str):
 
     new_history =[]
     content_to_emb =[]
+    topics={}
     try:
         df = pd.read_json(directory_name+user_file+".json")
         i= int(df['index'].iloc[-1])
@@ -89,6 +90,21 @@ def update_histories(user_name: str, upload_urls:List, device:str):
         torch.save(new_emb, directory_name+user_file+".pt")
     df.to_json(directory_name+user_file+".json", orient='records', indent=4)
     
+    # get occurence of topic
+    for i in new_history:
+        for t in i["topic"]:
+            if t in topics:
+                topics[t]+=1
+            else:
+                topics[t]=1
+    sorted_occurrence = dict(sorted(topics.items(), key=lambda x: x[1], reverse=True))
+    keys = list(sorted_occurrence.keys())
+    first_key = keys[0] if len(keys) > 0 else None
+    second_key = keys[1] if len(keys) > 1 else None
+    with open(directory_name+user_file+".txt", 'w') as file:
+        file.write(str(first_key) + "\n")
+        file.write(str(second_key) + "\n")
+
 
     return ['Ok', '200', 'Success update data', user_name]
 

@@ -148,11 +148,15 @@ return structure with search with history
 
 Initialized story sampler by tags when backend startup
 
-current initialized tags = `["Technology", "Health"]`
+current initialized tags = `["TECH", "WELLNESS"]`
 
-example: http://127.0.0.1:8000/next_tag_story?tag=Technology
+example: http://127.0.0.1:8000/next_tag_story?tag=TECH
 
-return structure with search with history
+return structure like search result
+
+When user login, also request the same endpoint but with new parameter
+
+example: http://127.0.0.1:8000/next_tag_story?user_name=user1
 
 ## highlight
 

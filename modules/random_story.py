@@ -27,17 +27,12 @@ class DataFrameSampler:
 
         return pd.DataFrame(sampled_data)
 
-def random_stories(tag:str, client):
+def random_stories(tag:str,df):
 
-    try:
-        result = client.predict(
-                        None,True,tag,
-                        api_name="/predict"
-        )
-
-        df_str = StringIO(result)
-        df_t:pd.DataFrame = pd.read_csv(df_str, sep='\t')
-        dfs = DataFrameSampler(df_t)
+    res = df[df['topic2'].apply(lambda x: tag in x)].copy()
+    if not res.empty:
+        dfs = DataFrameSampler(res)
         return schema.Response(status='Ok', code='200', message='successful initialize random story sampler', result=dfs)
-    except ConnectionError:
-        return schema.Response(status='Failed', code='500', message='connection failed', result=None)
+    else:
+        return schema.Response(status='Ok', code='400', message='tag is not in df', result=None)
+

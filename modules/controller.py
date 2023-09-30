@@ -48,7 +48,7 @@ for l in list_topic:
 
 
 def load_corpus():
-    dataset_path = 'cleaned_medium_articles_v9.csv'
+    dataset_path = 'cleaned_medium_articles_v14.csv'
     print("load corpus dataset")
     df = pd.read_csv(dataset_path)
     return df
@@ -78,7 +78,7 @@ def random_stories(tag:str, client):
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
-def search_query(query:str, corpus_embeddings, client, retriever, ranker):
+def search_query(query:str, corpus_embeddings, client, retriever, ranker, df):
     print(query)
     # print(f'query shape: {query_embedding.shape}')
 
@@ -86,7 +86,7 @@ def search_query(query:str, corpus_embeddings, client, retriever, ranker):
 
         article_response = schema.ArticleResponse()
         query_embedding = _embed_text(query)
-        query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, debug=False)
+        query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, df=df)
         rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
         rerank_result = rerank_result.reset_index(drop=True)
 
@@ -102,14 +102,14 @@ def search_query(query:str, corpus_embeddings, client, retriever, ranker):
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
-def search_query_history(query:str, corpus_embeddings, client, user_name):
+def search_query_history(query:str, corpus_embeddings, client, user_name, df):
 
     print(query)
     # print(f'query shape: {query_embedding.shape}')
 
     try:
         query_embedding = _embed_text(query)
-        query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, debug=False)
+        query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, df=df)
 
         rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
         rerank_result = rerank_result.reset_index(drop=True)
@@ -232,7 +232,7 @@ def _get_hits_from_haystack(query:str, retriever, ranker):
 
     return result
 
-def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client, debug=False):
+def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client, df=None):
     hits = util.semantic_search(question_embedding, corpus_embeddings, top_k=top_k)
     hits = hits[0]  # Get the hits for the first query
 
@@ -244,8 +244,7 @@ def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client, debu
         result_index.append(idx)
         scores.append(item['score'])
 
-    if debug:
-        df = load_corpus()
+    if df is not None:
         df_result = df.iloc[result_index].copy()
     else:
 

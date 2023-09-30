@@ -20,20 +20,56 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 import json
 import time
+import os
 from collections import defaultdict
 from contextlib import asynccontextmanager
 
 corpus_embeddings = None # model from main dataset
 client=None
 tag_sampler={}
-initial_tags=['WELLNESS', 'BUSINESS']
-presented_tag_story={}
+initial_tags=['WELLNESS', 'TECH']
+user_tag_sampler={}
 ACCESS_TOKEN_EXPIRED = 10
 REFRESH_TOKEN_EXPIRED = 30
 document_store=None
 retriever=None
 ranker=None
 device='cpu'
+df = con.load_corpus()
+client=None
+# client = Client("http://127.0.0.1:7860")
+# client = Client("https://adaptivestoryfinder-medium-query-topk.hf.space/")
+
+print('initializing common tags')
+# initial tag sampler
+for i in range(len(initial_tags)):
+    result=random_story.random_stories(initial_tags[i], df)
+    if result.code == '200':
+        dfs = result.result
+        tag_sampler[initial_tags[i]]=dfs
+print(tag_sampler.keys())
+
+print('initializing user tags')
+folder_path = "history"
+for filename in os.listdir(folder_path):
+    if filename.endswith(".txt"):
+        file_path = os.path.join(folder_path, filename)
+
+        with open(file_path, "r") as file:
+            content = file.read()
+            tag_list = content.split()
+            user_tags={}
+
+            for t in tag_list:
+                if t not in initial_tags:
+                    result=random_story.random_stories(t, df)
+                    if result.code == '200':
+                        dfs = result.result
+                        user_tags[t]=dfs
+                else:
+                    user_tags[t]=tag_sampler[t]
+            user_tag_sampler[filename[:-4]]=user_tags
+print(user_tag_sampler["user1"].keys())
 
 # connect database
 model.Base.metadata.create_all(bind=config.engine)
@@ -51,8 +87,6 @@ app = FastAPI()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global corpus_embeddings
-    global client
-    global presented_tag_story
     global document_store
     global retriever 
     global ranker
@@ -61,24 +95,13 @@ async def lifespan(app: FastAPI):
     print("start loading model and dataset")
     # df = con.load_corpus()
     corpus_embeddings=con.load_corpus_tensor()
-    client = Client("https://adaptivestoryfinder-medium-query-topk.hf.space/")
 
-    print('initializing tags')
-    # initial tag sampler
-    # for i in range(len(initial_tags)):
-    #     result=random_story.random_stories(initial_tags[i],client)
-    #     if result.code == '200':
-    #         dfs = result.result
-    #         tag_sampler[initial_tags[i]]=dfs
-    # # [await initial_tag_story(tag) for tag in initial_tags]
-    # presented_tag_story = {tag: [] for tag in initial_tags}
-    # print(tag_sampler.keys())
 
     # initial haystack document_stores, retriever, ranker
-    # document_store = FAISSDocumentStore.load(index_path="all_medium_faiss_v2.faiss", config_path="all_medium_faiss_v2.json")
     # assert document_store.faiss_index_factory_str == "Flat"
     # print("initializing retriever:")
     # retriever = EmbeddingRetriever(
+    # document_store = FAISSDocumentStore.load(index_path="all_medium_faiss_v2.faiss", config_path="all_medium_faiss_v2.json")
     #     document_store=document_store, embedding_model="sentence-transformers/multi-qa-MiniLM-L6-cos-v1",top_k=50
     # )
     # print("initializing ranker:")
@@ -179,7 +202,7 @@ async def search_query(query:str=""):
     # pipeline2.add_node(component=ranker, name='Ranker', inputs=['Retriever'])
     # result = pipeline2.run(query=query)
     query_corpus_result= con.search_query(query,corpus_embeddings=corpus_embeddings, client=client,
-                                          retriever=retriever, ranker= ranker)
+                                          retriever=retriever, ranker= ranker, df=df)
     T2 = time.time()
     print('Running time: %sms' % ((T2 - T1)*1000))
     return query_corpus_result
@@ -191,7 +214,7 @@ async def search_query_history(query:str="",token=Depends(token_verify)):
     query = query.replace("_", " ")
     if token.code == "201" or token.code== "200":
         print(token.result)
-        query_corpus_result= con.search_query_history(query,corpus_embeddings=corpus_embeddings, client=client, user_name= token.result['user_name'])
+        query_corpus_result= con.search_query_history(query,corpus_embeddings=corpus_embeddings, client=client, user_name= token.result['user_name'], df=df)
         return query_corpus_result
 
     else:
@@ -288,17 +311,30 @@ async def initial_tag_story(tag:str=""):
         return result
 
 @app.get("/next_tag_story", tags=["Tag"])
-async def next_story(tag:str=""):
-    if tag=="":
-        return schema.Response(status="Failed", code='400', message='tag empty', result=None)
-    else:
+async def next_story(tag:str="", user_name:str=""):
+    if user_name!="":
         try:
-            dfs= tag_sampler[tag]
-            articles = dfs.random_sample()
-
+            articles = pd.DataFrame()
+            for t in user_tag_sampler[user_name]:
+                dfs = user_tag_sampler[user_name][t] 
+                articles = pd.concat([articles, dfs.random_sample()], ignore_index=True)
             article_response = schema.ArticleResponse()
             article_response.process_dataset(articles)
-            presented_tag_story[tag].append(article_response)
             return schema.Response(status='Ok', code='200', message='success', result=article_response)
-        except:
+        except Exception as e:
+            print(e)
             return schema.Response(status="Failed", code='400', message='tag is not initialize', result=None)
+    else:
+        if tag=="":
+            return schema.Response(status="Failed", code='400', message='tag empty', result=None)
+        else:
+            try:
+                dfs= tag_sampler[tag]
+                articles = dfs.random_sample()
+
+                article_response = schema.ArticleResponse()
+                article_response.process_dataset(articles)
+                return schema.Response(status='Ok', code='200', message='success', result=article_response)
+            except Exception as e:
+                print(e)
+                return schema.Response(status="Failed", code='400', message='tag is not initialize', result=None)
