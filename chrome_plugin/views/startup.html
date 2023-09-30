@@ -7,6 +7,26 @@
     
     <body>
         Welcome!
+
+        
+        <section>
+            <button class="btn" id="historyUpload-button">Upload history</button> 
+        </section>
+
+        <section id="history-form" style="display: none;">
+            <form id="historyOptionsForm">
+              <label for="timeRange">Select time range:</label>
+              <select id="timeRange" name="timeRange">
+                <option value="hour">Last hour</option>
+                <option value="day">Last 24 hours</option>
+                <option value="week">Last 7 days</option>
+                <option value="4weeks">Last 4 weeks</option>
+                <option value="alltime">All time</option>
+              </select>
+              <button type="submit" class="btn btn-primary">Confirm upload</button>
+            </form>
+        </section>
+
     </body>
 <script src="/scripts/util.js"></script>
 <script src="/scripts/script.js"></script>
