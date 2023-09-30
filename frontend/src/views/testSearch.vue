@@ -111,19 +111,58 @@
         style="bottom: 0;"
       >
         <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden">
-          <v-col cols="2"></v-col>
+          <v-col cols="2">
+
+            <div class="cards" v-if="testSearchData.length > 0">
+              <v-container style="margin-left: -1%; margin-top: -1%;">
+                <div class="container-fluid">
+                  <h4 style="margin-top: 0%;">All topics </h4>
+
+                  <div style="margin-bottom: 1%;">
+                    <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none; margin-right: 2%" @click="unselectAllTags">Unselect All</b-button>
+                    <v-divider vertical></v-divider>
+                    <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;" @click="selectAllTags">Select All</b-button>
+                  </div>
+
+                  <div v-for="(tag, index) in allTags" class="checkbox_div" :key="index">
+                    <label>
+                      <input type="checkbox" v-model="selectedTags" :value="tag">
+                      <span class="checkbox-material">
+                        <span class="check">
+                        </span>
+                      </span> {{tag}}
+                      <span> ({{ tagCounts[tag] }})</span>
+                    </label>
+                  </div>
+
+                  <v-divider></v-divider>
+
+                  <div v-for="(tag, index) in selectedTags" class="checkbox_div" :key="index">
+                    <label>
+                      <span class="checkbox-material">
+                        <span class="check"></span>
+                      </span> {{ tag }}
+                    </label>
+                  </div>
+
+                </div>
+              </v-container>
+            </div>
+          </v-col>
+
+
 
           <v-col cols="6">
             <b-card border-variant="light">
 
 
-            <div class="container-fluid">
+            <div class="container-fluid" style="margin-bottom:-1%;">
 
             <div class="cards" v-if="testSearchData.length > 0">
               <ul class="list-group">
                 <li
                   class="list-group-item border-0"
-                  v-for="(itemDict, idx) in testSearchData"
+                  v-for="(itemDict, idx) in mainResults"
                   :key="idx"
                 >
 
@@ -147,7 +186,7 @@
                     <v-col cols="12">
                       <div class="titleDiv" style="margin-top:1%;">
                         <a :href="itemDict['url']"  target="_blank" class="linkAsText">
-                          <b-card-title class="wordBreak" title-tag="h5"> {{itemDict["title"]}} </b-card-title>
+                          <b-card-title class="wordBreak" title-tag="h4"> {{itemDict["title"]}} </b-card-title>
                         </a>
 
                         <span> 
@@ -168,7 +207,7 @@
                     </v-col>
 
                     <v-col cols="12">
-                      <b-card-text class="wordBreak overflow-auto">
+                      <b-card-text class="wordBreak overflow-auto" style="margin-top: 0.1%;">
                         <p class="three-lines"> {{ itemDict["text"] }} </p> <!-- https://codepen.io/raevilman/pen/OJpQXjg/left -->
                       </b-card-text>
                     </v-col>
@@ -202,45 +241,63 @@
 
 
           
-          <v-col cols="4">
+          <v-col cols="4" style="width: 90%;">
             
             <div class="cards" v-if="testSearchData.length > 0">
               <v-container style="margin-left: -2%;">
                 <div class="container-fluid">
-                  <h4 style="margin-top: 6%;">Top topics</h4>
+                  <h4 style="margin-top: 0%; margin-left: 0.1%;">Top topics</h4>
 
+                  <div class="tag-container">
                   <ul class="d-flex flex-wrap" style="margin-left: -4%;">
                     <li
                       class="list-group-item border-0"
-                      v-for="(tag, idx) in top_tags"
+                      v-for="(tag, idx) in topTags"
                       :key="tag + idx"
                     >
                       <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;"> {{ tag.replace("'", "").replace("'", "") }} </b-button>
                       
                     </li>
                   </ul>
+                  </div>
+                </div>
+              </v-container>
+            </div>
+
+            <v-divider class="border-opacity-20" style="margin-top: 2%;"> </v-divider>
+
+            
+            <div class="cards" v-if="testSearchData.length > 0">
+              <v-container style="margin-left: -1%; margin-top: -1%;">
+                <div class="container-fluid">
+                  <h6 style="margin-top: 0%;">You might also be interested in ...</h6>
                 </div>
               </v-container>
             </div>
 
 
-            <v-divider></v-divider>
-
-
             <div class="cards" v-if="testSearchData.length > 0">
-              <ul class="list-group" style="margin-left: -4%;">
+              <ul class="list-group" style="margin-left: -4%; margin-top: -3%;">
                 <li
                   class="list-group-item border-0"
-                  v-for="(itemDict, idx) in testSearchData"
+                  v-for="(itemDict, idx) in sideResults"
                   :key="idx"
                 >
 
                 <v-container style="margin-left: -2%;">
                   <v-row no-gutters>
+                    
+                    <v-col cols="12">
+                        <div class="authorDiv" style="margin-bottom:-1%;" v-if='getAuthorsLength(itemDict["authors"], idx)'>
+                          <p class=""> {{ formatAuthorsForSideView(itemDict["authors"]) }} </p>
 
+                          <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
+                        </div>
+                    </v-col>
+                    
                     <v-col cols="12">
                       <a :href="itemDict['url']"  target="_blank">
-                        <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0 resultImg"></b-card-img>
+                        <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0 resultImg" style="width: 100%;"></b-card-img>
                       </a>
                     </v-col>
 
@@ -253,7 +310,7 @@
                     </v-col>
 
                     <v-col cols="12">
-                      <b-card-text class="wordBreak overflow-auto">
+                      <b-card-text class="wordBreak overflow-auto" >
                         <p class="three-lines"> {{ itemDict["text"] }} </p> <!-- https://codepen.io/raevilman/pen/OJpQXjg/left -->
                       </b-card-text>
                     </v-col>
@@ -352,10 +409,19 @@ export default Vue.extend({
 
       
 
+        
+      allTags: [],
+      topTags: [],
+      tagCounts: {},
+      selectedTags: [],
 
-      all_tags: ['Food', 'Beverly Hills', 'Recipe', 'Business', 'Loyalty Program', 'Restaurant Business', 'Rewards Programs', 'Loyalty'],
-      top_tags: ['Recipe', 'Food', 'Beverly Hills', 'Recipe', 'Food', 'Beverly Hills', 'Recipe', 'Food', 'Beverly Hills', 'Recipe', 'Food', 'Beverly Hills', 'Recipe', 'Food', 'Beverly Hills'],
-      positive_index: 2, // side displays 2, 3, 4
+      positive_index: 0, // side displays 2, 3, 4
+      main_split_index: 0, 
+      mainResults: [],
+      sideResults: [],
+      extendedResults: [],
+      
+
       testSearchData: [
         {
           id: 0,
@@ -488,6 +554,50 @@ export default Vue.extend({
     const results = ref([]);
     //await this.handleView();
 
+
+
+    //////////////////////////////////////////
+        
+        this.positive_index = 2,
+        this.results = this.testSearchData
+
+
+        var mainResults = this.results.slice(0, this.positive_index)
+        this.main_split_index = this.positive_index + mainResults.length
+        var extendedResults = this.results.slice(this.main_split_index, this.results.length)
+
+        this.extendedResults = extendedResults
+        this.sideResults = this.results.slice(this.positive_index, this.positive_index + mainResults.length)
+        this.mainResults = mainResults.concat(extendedResults);
+
+        var topTags = []
+        var tagCounts = {};
+        for (let i = 0; i < this.results.length; i++) {
+          var articleTags = this.results[i]["tags"]
+
+          for (let j = 0; j < articleTags.length; j++) {
+            var tag = articleTags[j];
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+          }
+        }
+
+        // sort tags in popularity order
+        var sortedTags = Object.keys(tagCounts).sort(function(a, b) {
+          return tagCounts[b] - tagCounts[a];
+        });
+
+        var amountOfTopTags = 8
+        for (let i = 0; i < Math.min(sortedTags.length, amountOfTopTags); i++) {
+          topTags.push(sortedTags[i]);
+        }
+
+        this.allTags = sortedTags
+        this.topTags = topTags
+        this.tagCounts = tagCounts
+        this.selectedTags = [...this.allTags];
+
+    //////////////////////////////////////////
+
     return {
       searchQuery,
       results,
@@ -544,11 +654,12 @@ export default Vue.extend({
       // this.$router.push("/");
     },
 
+
+    
     formatDate(date: any) {
       const dateToFormat = dayjs(date);
       return dateToFormat.format('dddd MMMM D, YYYY');
     },
-
     formatTags(tags: any) {
       //let temp = new Array(tags);
       //let tagsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
@@ -640,6 +751,24 @@ export default Vue.extend({
       return authorsString
     },
 
+    formatAuthorsForSideView(authors: any){
+      var authorsString = authors.join(", ").replace("'", "").replace("'", "");
+
+      if (authorsString.endsWith(',')) {
+        authorsString = authorsString.slice(0, -1);
+      }
+
+      var commaCount = authorsString.split(",").length - 1;
+      let firstAuthor;
+      if (commaCount > 0){
+      firstAuthor = authorsString.split(", ")[0] + " et al.";
+      } else {
+      firstAuthor = authorsString;
+      }
+
+      return firstAuthor
+    },
+
     openSummaryModal() {
       this.showSummaryModal = true;
     },
@@ -658,6 +787,13 @@ export default Vue.extend({
         });
     },
 
+
+    selectAllTags() {
+      this.selectedTags = [...this.allTags];
+    },
+    unselectAllTags() {
+      this.selectedTags = [];
+    },
 
 
 
@@ -816,6 +952,46 @@ export default Vue.extend({
       }
     }
       console.log("print this when the request is finished!");
+
+
+
+      if (typeof this.results !== 'undefined' && this.results.length > 0) {
+
+        var mainResults = this.results.slice(0, this.positive_index)
+        this.main_split_index = this.positive_index + mainResults.length
+        var extendedResults = this.results.slice(this.main_split_index, this.results.length)
+
+        this.extendedResults = extendedResults
+        this.sideResults = this.results.slice(this.positive_index, this.positive_index + mainResults.length)
+        this.mainResults = mainResults.concat(extendedResults);
+
+        var topTags = []
+        var tagCounts = {};
+        for (let i = 0; i < this.results.length; i++) {
+          var articleTags = this.results[i]["tags"]
+
+          for (let j = 0; j < articleTags.length; j++) {
+            var tag = articleTags[j];
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+          }
+        }
+
+        // sort tags in popularity order
+        var sortedTags = Object.keys(tagCounts).sort(function(a, b) {
+          return tagCounts[b] - tagCounts[a];
+        });
+
+        var amountOfTopTags = 8
+        for (let i = 0; i < Math.min(sortedTags.length, amountOfTopTags); i++) {
+          topTags.push(sortedTags[i]);
+        }
+
+        this.allTags = sortedTags
+        this.topTags = topTags
+        this.tagCounts = tagCounts
+        this.selectedTags = [...this.allTags];
+
+      }
     },
 
 
@@ -834,6 +1010,7 @@ export default Vue.extend({
 
       var indices = data["index"];
       var positive_index = data["positive_index"];
+      this.positive_index = positive_index
 
       //var img = new Image();
       var resizedImageURL = 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png';
@@ -1189,6 +1366,10 @@ a {
 }
 
 
+.side-results{
+  width: 80%;
+}
+
 .nav-item{
   
 }
@@ -1197,6 +1378,15 @@ a {
   display: flex;
   justify-content: space-between;
   width: 100%;
+}
+
+.one-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  white-space: normal;
 }
 
 .titleDiv {
@@ -1224,6 +1414,28 @@ a {
 .tagDiv {
   display: flex;
 }
+
+.tag-container{
+  max-height: 15vh;
+  overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tag-container::-webkit-scrollbar {
+  background: rgba(0, 0, 0, 0.1);
+}
+.tag-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.tag-container::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+.tag-container {
+  scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+  -moz-appearance: none; /* Hide the scrollbar track in Firefox */
+}
+
 
 .no-bullet-points{ 
   list-style-type: none;
