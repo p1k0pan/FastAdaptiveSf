@@ -69,7 +69,7 @@ for filename in os.listdir(folder_path):
                 else:
                     user_tags[t]=tag_sampler[t]
             user_tag_sampler[filename[:-4]]=user_tags
-print(user_tag_sampler["user1"].keys())
+print(user_tag_sampler.keys())
 
 # connect database
 model.Base.metadata.create_all(bind=config.engine)
