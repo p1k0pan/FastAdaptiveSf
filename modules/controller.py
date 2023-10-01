@@ -26,7 +26,8 @@ else:
 def _embed_text(text):
     return bi_encoder.encode(text, convert_to_tensor=True,show_progress_bar=True)
 
-bi_encoder = SentenceTransformer('multi-qa-mpnet-base-dot-v1', device=device)
+bi_encoder = SentenceTransformer('multi-qa-MiniLM-L6-cos-v1', device=device)
+# bi_encoder = SentenceTransformer('multi-qa-mpnet-base-dot-v1', device=device)
 cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2',device=device)
 list_topic= ['U.S. NEWS', 'COMEDY', 'PARENTING', 'WORLD NEWS', 'CULTURE & ARTS',
        'TECH', 'SPORTS', 'ENTERTAINMENT', 'POLITICS', 'WEIRD NEWS',
@@ -54,7 +55,7 @@ def load_corpus():
     return df
 
 def load_corpus_tensor():
-    tensor_path= 'corpus_embeddings_v5.pt'
+    tensor_path= 'corpus_embeddings_v6.pt'
     print("load corpus embedding")
     corpus_embeddings = torch.load(tensor_path, map_location=torch.device(device))
     return corpus_embeddings
@@ -309,6 +310,7 @@ def _rank_hits_history(user_topic_ratio, history_emb, rerank_emb, positive_df) -
 
     # normalizie cos-similarity
     positive_df['Cosine Similarity'] = Normalizer(norm="l1").fit_transform(doc_average_score.cpu().reshape(1,-1)).tolist()[0]
+
     # normalizie cross-encoder score
     positive_df['score'] = Normalizer(norm="l1").fit_transform(positive_df['score'].values.reshape(1, -1)).tolist()[0]
     # get topic score with user
@@ -319,15 +321,17 @@ def _rank_hits_history(user_topic_ratio, history_emb, rerank_emb, positive_df) -
             article_topic[label_dict[topic]]+=1
         # article topic occurence no need ratio rather directly * user_topic_ratio
         positive_df["topic_score"]=sum(x * y for x, y in zip(user_topic_ratio, article_topic))
+    positive_df['topic_score'] = Normalizer(norm="l1").fit_transform(positive_df['topic_score'].values.reshape(1, -1)).tolist()[0]
     
     # final score
-    positive_df['final_score']=positive_df['score'] * 0.5+ positive_df['Cosine Similarity']*0.3+ positive_df['topic_score']*0.2
+    positive_df['final_score']=positive_df['score'] * 0.2+ positive_df['Cosine Similarity']*0.5+ positive_df['topic_score']*0.3
+    # positive_df['final_score']=positive_df['score'] * 0.4+ positive_df['Cosine Similarity']*0.4+ positive_df['topic_score']*0.2
 
     # calculate the final score
     positive_df = positive_df.sort_values(by='final_score', ascending=False)
     positive_df = positive_df.reset_index(drop=True)
 
-    print(positive_df.loc[:,("index","title", "Cosine Similarity", "score", "topic_score", "final_score")].values)
+    print(positive_df.loc[:,("index","title", "score","Cosine Similarity", "topic_score", "final_score")].values)
     return positive_df
 
 def _read_history_embd(user_name:str):
