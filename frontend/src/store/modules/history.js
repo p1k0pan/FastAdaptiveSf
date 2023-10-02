@@ -129,7 +129,7 @@ const actions = {
 
     async allHistories(context, data) {
         var res = "0"
-        const histories = {}
+        const histories = []
 
 
         const username = data["username"]
@@ -158,6 +158,7 @@ const actions = {
                 // return success
                 if (response.data["code"] === "200" || response.data["code"] === "201") {
                     var result = response.data["result"]
+                    console.log("result is ", result)
 
                     var counter = 1;
                     for (const [key, value] of Object.entries(result)) {
@@ -269,7 +270,7 @@ const mutations = {
         state.history = history;
     },
 
-    SET_ALL_HISTORY(state, allHistories) {
+    SET_ALL_HISTORIES(state, allHistories) {
         state.allHistories = allHistories;
     },
 

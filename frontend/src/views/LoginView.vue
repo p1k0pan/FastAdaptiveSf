@@ -157,6 +157,9 @@ export default defineComponent({
         console.log("isAuthenticated:")
         if(this.$store.getters.isAuthenticated) {
           this.$router.push('/');
+    
+          this.$store.dispatch("loadUserTags",formDict);
+          console.log("login status is true")
 
         } else {
           console.log("Login failed.")
