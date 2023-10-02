@@ -7,7 +7,7 @@ Vue.use(Vuex)
 const state = {
     history: [],
     isHistoryValid: false,
-    status_code: 0,
+    status_code: "0",
 
     allHistories: [],
 };
@@ -29,10 +29,8 @@ const actions = {
     },
 
     async patchHistory(context, data) {
-
         context.commit('SET_STATUS_CODE', "0")
         var res = "0"
-        console.log("received uploaded file from component")
 
         const username = data["username"]
         const access_token = data["access_token"]
@@ -69,7 +67,6 @@ const actions = {
             if (response.data) {
                 // return success
                 if (response.data["code"] === "200" || response.data["code"] === "201") {
-                // do something
                 console.log("history uploaded successfully!")
                 }
                 // reject errors & warnings
@@ -111,8 +108,12 @@ const actions = {
         
       }
 
-        if(res == "404") {
-            
+        if (res == "404") {
+            console.log("error 404 while trying to upload the history ...")
+        }
+
+        if(res == undefined || res == 'undefined' || res ==null) {
+            res = "0"
         }
         
         context.commit('SET_STATUS_CODE', res) // res might be 402 now

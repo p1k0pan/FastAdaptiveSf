@@ -20,7 +20,7 @@ export default {
 </script>
 
 
-<<style>
+<style>
 .modal {
   position: fixed;
   top: 0;
