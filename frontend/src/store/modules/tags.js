@@ -104,6 +104,7 @@ const actions = {
       }
 
     },
+
     async loadUserTags(context, formDict) {
       context.commit('SET_LOADED', 0)
       const username = formDict["username"]
@@ -111,7 +112,7 @@ const actions = {
       console.log("loading home page tags ...");
 
       
-      var results = []
+        var results = []
 
 
         var endpoint = "/"
@@ -165,7 +166,7 @@ const actions = {
               
                       // entry["sites"].push(dict);
                     }
-                    // results.push(entry);
+                    results.push(entry);
                   }
                 }
          })

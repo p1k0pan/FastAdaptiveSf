@@ -772,6 +772,8 @@ export default Vue.extend({
 
   data() {
     return {
+      not_connected: true,
+
       loginStatus: this.$store.getters.isAuthenticated,
       searchStatus: 0,
       
@@ -828,9 +830,9 @@ export default Vue.extend({
           title: "Going Down the Restaurant Memory Lane of My Childhood",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: ['Danna Reich Colman', 'Danna Reich Colman', 'Danna Reich Colman'],
+          authors: `"['Danna Reich Colman', 'Danna Reich Colman', 'Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
-          tags: ['Food', 'Beverly Hills', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe'],
+          tags: `"['TECH', 'BUSINESS']"`,
           text: "Loremipsumdolorsitamet,consetetursadipscingelitr,seddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyamerat,seddiamvoluptua.Atveroetaccusametjustoduodoloresetearebum.Stetclitakasdgubergren,noseatakimatasanctusestLoremipsumdolorsitamet.Loremipsumdolorsitamet,consetetursadipscingelitr,seddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyamerat,seddiamvoluptua.Atveroetaccusametjustoduodoloresetearebum.Stetclitakasdgubergren,noseatakimatasanctusestLoremipsumdolorsitam",
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -840,9 +842,9 @@ export default Vue.extend({
           title: "I ordered chole bhature and received customer experience in return",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
-          authors: ['Danna Reich Colman'],
+          authors: `"['Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
-          tags: ['Business', 'Loyalty Program', 'Restaurant Business', 'Rewards Programs', 'Loyalty'],
+          tags: `"['TECH']"`,
           text: "text1",
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -852,9 +854,9 @@ export default Vue.extend({
           title: "Is Your Loyalty Program Rewarding the Right Customers?",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: ['Danna Reich Colman'],
+          authors: `"['Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
-          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          tags: `"['TECH', 'BUSINESS']"`,
           text: "text1",
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -867,9 +869,9 @@ export default Vue.extend({
           title: "Going Down the Restaurant Memory Lane of My Childhood",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: ['Danna Reich Colman'],
+          authors: `"['Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
-          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
           text: "text1",
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -879,9 +881,9 @@ export default Vue.extend({
           title: "I ordered chole bhature and received customer experience in return",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: ['Danna Reich Colman'],
+          authors: `"['Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
-          tags: ['Business', 'Loyalty Program', 'Restaurant Business', 'Rewards Programs', 'Loyalty'],
+          tags: `"['Business', 'Loyalty Program', 'Restaurant Business', 'Rewards Programs', 'Loyalty']"`,
           text: "text1",
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -891,9 +893,9 @@ export default Vue.extend({
           title: "Is Your Loyalty Program Rewarding the Right Customers?",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: ['Danna Reich Colman'],
+          authors: `"['Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
-          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
           text: "text1",
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -903,9 +905,9 @@ export default Vue.extend({
           title: "Is Your Loyalty Program Rewarding the Right Customers?",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: ['Danna Reich Colman'],
+          authors: `"['Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
-          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
           text: "text1",
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -915,9 +917,9 @@ export default Vue.extend({
           title: "Is Your Loyalty Program Rewarding the Right Customers?",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: ['Danna Reich Colman'],
+          authors: `"['Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
-          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
           text: "text1",
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -927,9 +929,9 @@ export default Vue.extend({
           title: "Is Your Loyalty Program Rewarding the Right Customers?",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: ['Danna Reich Colman'],
+          authors: `"['Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
-          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
           text: "text1",
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -939,9 +941,9 @@ export default Vue.extend({
           title: "Is Your Loyalty Program Rewarding the Right Customers?",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: ['Danna Reich Colman'],
+          authors: `"['Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
-          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
           text: "text1",
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -951,9 +953,9 @@ export default Vue.extend({
           title: "Is Your Loyalty Program Rewarding the Right Customers?",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: ['Danna Reich Colman'],
+          authors: `"['Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
-          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
           text: "text1",
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -1005,14 +1007,14 @@ export default Vue.extend({
           sites: [
             {
               index: 0,
-              title: "Apple - Fruits",
+              title: "Medizin-Nobelpreis für Wegbereiter der Covid-19-Impfung",
               url: "https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm",
               content: "\nAn apple is a sweet, edible fruit produced by an apple tree (Malus domestic). In France, it is the most consumed edible fruit and the third in the planet. The main types of apples come from the domestic apple or common apple. The species of Malus Domestica has about 20,000 varieties and cultivars around the world. The fruit has a characteristic stocky shape and often spherical, it is eaten when ripe, raw, cooked, or dried. Its juice is drunk fresh or pasteurized. When fermented, it becomes cider. Associated with the fruit forbidden in the Book of Genesis, it often symbolizes original sin. The fruit we consume today is descended from the Malus Sieversii species; it has been consumed by humans since the Neolithic age in the Central. Kazakhstan claims its origin, but the apple was already consumed by the Chinese 3,000 years ago. From a botanical point of view, it is a complex fruit, something between the berry and the drupe, often called a false fruit. Because a real fruit is formed from the ovary of a flower. An apple's flesh is not derived from the ovary but instead it is a swollen receptacle (or part of the stem). The actual fruit is in the core, the bit we throw away. The same is true of pears. Its colors at maturity change from green to red, passing through a wide variety of intermediate shades: pale green, yellow, or orange. The success of this fruit is undisputed, because today there are more than 20,000 varieties of apples of which 7,000 are regularly cultivated across the globe. China, the United States and Poland are the three largest producers of apples. China harvests 44 million tons, the United States 4.6 million tons and Poland 3.6 million tons. The EU is also one of the leading producers, has increased its production by 33% on average for the past three years. France harvests 1.5 million tons."
             },
             {
               index: 1,
-              title: "",
-              url: "https://www.healthline.com/nutrition/10-health-benefits-of-apples",
+              title: "Taktische Züge 1",
+              url: "https://www.spiegel.de/politik/deutschland/news-des-tages-eu-aussenminister-in-kiew-aerztestreik-nobelpreis-fuer-medizin-a-1494d6e8-689c-48df-9d26-be635b06061a",
               content: ""
             },
           ]
@@ -1023,14 +1025,14 @@ export default Vue.extend({
           sites: [
             {
               index: 0,
-              title: "NE W Apple - Fruits",
-              url: "https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm",
+              title: "Medizin-Nobelpreis für Wegbereiter der Covid-19-Impfung",
+              url: "https://www.welt.de/wissenschaft/article247774502/Medizin-Nobelpreis-fuer-Grundlagenforschung-zu-Covid-19-Impfung.html",
               content: "\nAn apple is a sweet, edible fruit produced by an apple tree (Malus domestic). In France, it is the most consumed edible fruit and the third in the planet. The main types of apples come from the domestic apple or common apple. The species of Malus Domestica has about 20,000 varieties and cultivars around the world. The fruit has a characteristic stocky shape and often spherical, it is eaten when ripe, raw, cooked, or dried. Its juice is drunk fresh or pasteurized. When fermented, it becomes cider. Associated with the fruit forbidden in the Book of Genesis, it often symbolizes original sin. The fruit we consume today is descended from the Malus Sieversii species; it has been consumed by humans since the Neolithic age in the Central. Kazakhstan claims its origin, but the apple was already consumed by the Chinese 3,000 years ago. From a botanical point of view, it is a complex fruit, something between the berry and the drupe, often called a false fruit. Because a real fruit is formed from the ovary of a flower. An apple's flesh is not derived from the ovary but instead it is a swollen receptacle (or part of the stem). The actual fruit is in the core, the bit we throw away. The same is true of pears. Its colors at maturity change from green to red, passing through a wide variety of intermediate shades: pale green, yellow, or orange. The success of this fruit is undisputed, because today there are more than 20,000 varieties of apples of which 7,000 are regularly cultivated across the globe. China, the United States and Poland are the three largest producers of apples. China harvests 44 million tons, the United States 4.6 million tons and Poland 3.6 million tons. The EU is also one of the leading producers, has increased its production by 33% on average for the past three years. France harvests 1.5 million tons."
             },
             {
               index: 1,
-              title: "NEW 2",
-              url: "https://www.healthline.com/nutrition/10-health-benefits-of-apples",
+              title: "Taktische Züge 2",
+              url: "https://www.spiegel.de/politik/deutschland/news-des-tages-eu-aussenminister-in-kiew-aerztestreik-nobelpreis-fuer-medizin-a-1494d6e8-689c-48df-9d26-be635b06061a",
               content: ""
             },
           ]
@@ -1346,36 +1348,40 @@ export default Vue.extend({
         console.log(error)
         this.loadingHistoryTable = false
       }
+
+      if (this.not_connected) {
+        this.allHistories = this.testHistoryData;
+      }
+
     },
 
 
 
     formatAuthors(authors: any){
-       // var authorsString = authors.join(", ").replace("'", "").replace("'", "");
        var authorsString = authors
 
-      if (authorsString.endsWith(',')) {
-        authorsString = authorsString.slice(0, -1);
-      }
+      //if (authorsString.endsWith(',')) {
+      //  authorsString = authorsString.slice(0, -1);
+      //}
       return authorsString
     },
 
     formatAuthorsForSideView(authors: any){
-      // var authorsString = authors.join(", ").replace("'", "").replace("'", "");
       var authorsString = authors
 
-      if (authorsString.endsWith(',')) {
-        authorsString = authorsString.slice(0, -1);
-      }
-
+      //if (authorsString.endsWith(',')) {
+       // authorsString = authorsString.slice(0, -1);
+      //}
+/*
       var commaCount = authorsString.split(",").length - 1;
       let firstAuthor;
       if (commaCount > 0){
       firstAuthor = authorsString.split(", ")[0] + " et al.";
       } else {
       firstAuthor = authorsString;
-      }
+      }*/
 
+      var firstAuthor= authorsString
       return firstAuthor
     },
 
@@ -1628,10 +1634,59 @@ export default Vue.extend({
 
 
       } else {
-      this.searchStatus = -1;
+        this.searchStatus = -1;
       }
 
+
+      
+      if (this.not_connected) {
+        this.positive_index = 2,
+        this.results = this.testSearchData
+        this.searchStatus = 1;
+
+
+        this.loadingIndex = this.positive_index
+
+        var mainResults = this.results.slice(0, this.positive_index)
+        this.main_split_index = this.positive_index + mainResults.length
+        var extendedResults = this.results.slice(this.main_split_index, this.results.length)
+
+        this.extendedResults = extendedResults
+        this.sideResults = this.results.slice(this.positive_index, this.positive_index + mainResults.length)
+        this.mainResults = mainResults.concat(extendedResults);
+
+        var topTags = []
+        var tagCounts = {};
+        for (let i = 0; i < this.results.length; i++) {
+          var articleTags = this.results[i]["tags"]
+
+          for (let j = 0; j < articleTags.length; j++) {
+            var tag = articleTags[j];
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+          }
+        }
+
+        // sort tags in popularity order
+        var sortedTags = Object.keys(tagCounts).sort(function(a, b) {
+          return tagCounts[b] - tagCounts[a];
+        });
+
+        var amountOfTopTags = 8
+        for (let i = 0; i < Math.min(sortedTags.length, amountOfTopTags); i++) {
+          topTags.push(sortedTags[i]);
+        }
+
+        this.allTags = sortedTags
+        this.topTags = topTags
+        this.tagCounts = tagCounts
+        this.selectedTags = [...this.allTags];
+
+
+      }
+
+
       console.log("print this when the request is finished!");
+      console.log(this.searchStatus);
 
     },
 
