@@ -175,7 +175,6 @@
 
 
       <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === 0">
-
           <v-col cols="2">
           </v-col>
 
@@ -218,73 +217,93 @@
             <div class="cards">
             </div>
           </v-col>
-        </v-row>
-        
+    </v-row>
 
-        <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === -1">
+
+    <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === -1">
           
           <div class="centered">
             Could not find any related articles ...
           </div>
 
-        </v-row>
+    </v-row>
 
 
         <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === 1">
 
-          <v-col cols="2"></v-col>
+
+
+          <v-col cols="2">
+
+            <div class="cards" v-if="results.length > 0">
+              <v-container style="margin-left: -1%; margin-top: -1%;">
+                <div class="container-fluid">
+                  <h4 style="margin-top: 0%;">All topics </h4>
+
+                  <div style="margin-bottom: 1%;">
+                    <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none; margin-right: 2%" @click="unselectAllTags">Unselect All</b-button>
+                    <v-divider vertical></v-divider>
+                    <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;" @click="selectAllTags">Select All</b-button>
+                  </div>
+
+                  <div v-for="(tag, index) in allTags" class="checkbox_div" :key="tag + index">
+                    <label>
+                      <input type="checkbox" v-model="selectedTags" :value="tag" @change="splitResults()">
+                      <span class="checkbox-material">
+                        <span class="check">
+                        </span>
+                      </span> {{tag}}
+                      <span> ({{ tagCounts[tag] }})</span>
+                    </label>
+                  </div>
+
+                </div>
+              </v-container>
+            </div>
+          </v-col>
 
 
 
           <v-col cols="6">
             <b-card border-variant="light">
 
-
               <div class="container-fluid" style="margin-bottom:-1%;">
 
+                <div class="cards" v-if="results.length > 0">
+                  <ul class="list-group">
+                    <li
+                      class="list-group-item border-0"
+                      v-for="(itemDict, idx) in visibleResults"
+                      :key="idx"
+                    >
 
-            <div class="cards" v-if="results.length > 0">
-              <ul class="list-group result-list">
-                <li
-                  class="list-group-item result-list-item border-0"
-                  v-for="(itemDict, idx) in results"
-                  :key="idx"
-                >
-                  <v-container>
-                  
-                    <b-row no-gutters>
-                      <b-col md="4">
-                      <a :href="itemDict['url']"  target="_blank">
-                        <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0 resultImg"></b-card-img>
-                      </a>
-                      </b-col>
-
-
-                    
-                      <b-col md="8 position-relative"> <!-- https://www.codeply.com/p/TGtv6KDKvD -->
-                      <b-card no-body class="mb-3 position-absolute top-0 bottom-0 start-0 end-0">
-                        <b-card-header>
-
-                            
-                          <div class="tagDiv overflow-auto">
-                              <li v-for='(tag, index) in formatTags(itemDict["tags"])' :key="tag + index" class="tagsList">
-                                {{ tag.replace("'", "").replace("'", "") }}
-                              </li>
-                          </div>
-                        </b-card-header>
+                    <v-container class="bg-surface-variant">
+                      <v-row no-gutters>
                         
-                        
-                        <b-card-body class="h-100 d-flex flex-column">
-                          <div class="titleDiv">
+                        <v-col cols="12">
+                            <div class="authorDiv" style="margin-bottom:-1%;" v-if='getAuthorsLength(itemDict["authors"], idx)'>
+                              <p style="display:inline" class=""> {{ formatAuthors(itemDict["authors"]) }} </p>
 
+                              <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
+                            </div>
+                        </v-col>
+
+                        <v-col cols="12">
+                          <a :href="itemDict['url']"  target="_blank">
+                            <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0 resultImg"></b-card-img>
+                          </a>
+                        </v-col>
+
+                        <v-col cols="12">
+                          <div class="titleDiv" style="margin-top:1%;">
                             <a :href="itemDict['url']"  target="_blank" class="linkAsText">
-                              <b-card-title class="wordBreak" title-tag="h5"> {{itemDict["title"]}} </b-card-title>
+                              <b-card-title class="wordBreak" title-tag="h4"> {{itemDict["title"]}} </b-card-title>
                             </a>
 
                             <span> 
                               <v-btn
                               class="summarizeButton"
-                              disabled
+                              style="margin-top:2%;"
                               @click="openSummaryModal"
                               prepend-icon="mdi-tooltip-text"
                                   >
@@ -294,55 +313,141 @@
 
                                 Summarize
                                 </v-btn>
-
                             </span>
-
                           </div>
+                        </v-col>
 
-                          <b-card-text class="wordBreak overflow-auto">
+                        <v-col cols="12">
+                          <b-card-text class="wordBreak overflow-auto" style="margin-top: 0.1%;">
                             <p class="three-lines"> {{ itemDict["text"] }} </p> <!-- https://codepen.io/raevilman/pen/OJpQXjg/left -->
                           </b-card-text>
-                        </b-card-body>
-
-                        <template #footer>
-                          <small class="text-muted">
-                            <div style="display: flex; justify-content: space-between;">
-
-                              <div class="authorDiv">
-                                <li v-for='(author, index) in formatAuthors(itemDict["authors"])' :key="author + index" class="authorList">
-                                  <span class=""> {{ author.replace("'", "").replace("'", "") }} </span>
-                                </li>
-
-                                <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
-                              </div>
-
-                            </div>
-                          </small>
-                        </template>
+                        </v-col>
                         
-                      </b-card>
-                      </b-col>
+                        <v-col cols="12">
+                          <div>
+                            <ul class="d-flex flex-wrap" style="margin-left: -3.5%; margin-top: -1.5%;">
+                            <li v-for='(tag, index) in itemDict["tags"]' :key="tag + index" class="tag-list-item">
+                              <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;"> {{ tag.replace("'", "").replace("'", "") }} </b-button>
+                            </li>
+                            </ul>
+                          </div>
+                        </v-col>
 
-                    </b-row>
-                  </v-container>
+                      </v-row>
+                    </v-container>
 
-                </li>
-              </ul>
+                    <div style="margin-top: 0%;" v-if="idx+1 === positive_index">
+                      <hr class="dotted">
+                      <hr class="dotted">
+                    </div>
+                    <div v-if="(idx+1 === positive_index || idx+1 === positive_index + loadingSteps) && (loadingIndex + 1 < mainResults.length || loadingIndex - 1 <= idx )" class="centered"> <!-- v-if="loadMoreButton" -->
+                      <b-button @click="loadingIndex += loadingSteps">More ...</b-button>
+                    </div>
+
+                    </li>
 
 
-              <SummaryModal v-show="showSummaryModal" @close="closeSummaryModal"></SummaryModal>
+                  </ul>
 
-              <!-- <Card v-for="result in results" :key="result" :result="result" /> -->
-            </div>
-            
 
-            </div>
+                  <SummaryModal v-show="showSummaryModal" @close="closeSummaryModal"></SummaryModal>
+
+                  <!-- <Card v-for="result in results" :key="result" :result="result" /> -->
+                </div>
+
+
+                </div>
             </b-card>
           </v-col>
 
           
 
-          <v-col cols="4" style="width: 90%;"></v-col>
+          <v-col cols="4" style="width: 90%;">
+            
+            <div class="cards" v-if="results.length > 0">
+              <v-container style="margin-left: -2%;">
+                <div class="container-fluid">
+                  <h4 style="margin-top: 0%; margin-left: 0.1%;">Top topics</h4>
+
+                  <div class="tag-container">
+                  <ul class="d-flex flex-wrap" style="margin-left: -4%;">
+                    <li
+                      class="list-group-item border-0"
+                      v-for="(tag, idx) in topTags"
+                      :key="tag + idx"
+                    >
+                      <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;"> {{ tag.replace("'", "").replace("'", "") }} </b-button>
+                      
+                    </li>
+                  </ul>
+                  </div>
+                </div>
+              </v-container>
+            </div>
+
+            <v-divider class="border-opacity-20" style="margin-top: 1%;"> </v-divider>
+
+            
+            <div class="cards" v-if="results.length > 0">
+              <v-container style="margin-left: -1%; margin-top: -1%;">
+                <div class="container-fluid">
+                  <h6 style="margin-top: 0%;" v-if="sideResults.length > 0">You might also be interested in ...</h6>
+                </div>
+              </v-container>
+            </div>
+
+
+            <div class="cards" v-if="results.length > 0">
+              <ul class="list-group" style="margin-left: -4%; margin-top: -3%;">
+                <li
+                  class="list-group-item border-0"
+                  v-for="(itemDict, idx) in sideResults"
+                  :key="idx"
+                >
+
+                <v-container style="margin-left: -2%;">
+                  <v-row no-gutters>
+                    
+                    <v-col cols="12">
+                        <div class="authorDiv" style="margin-bottom:-1%;" v-if='getAuthorsLength(itemDict["authors"], idx)'>
+                          <p class=""> {{ formatAuthorsForSideView(itemDict["authors"]) }} </p>
+
+                          <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
+                        </div>
+                    </v-col>
+                    
+                    <v-col cols="12">
+                      <a :href="itemDict['url']"  target="_blank">
+                        <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0 resultImg" style="width: 100%;"></b-card-img>
+                      </a>
+                    </v-col>
+
+                    <v-col cols="12">
+                      <div class="titleDiv" style="margin-top:1%;">
+                        <a :href="itemDict['url']"  target="_blank" class="linkAsText">
+                          <b-card-title class="wordBreak" title-tag="h5"> {{itemDict["title"]}} </b-card-title>
+                        </a>
+                      </div>
+                    </v-col>
+
+                    <v-col cols="12">
+                      <b-card-text class="wordBreak overflow-auto" >
+                        <p class="three-lines"> {{ itemDict["text"] }} </p> <!-- https://codepen.io/raevilman/pen/OJpQXjg/left -->
+                      </b-card-text>
+                    </v-col>
+                    
+
+                  </v-row>
+                </v-container>
+
+                </li>
+              </ul>
+            </div>
+
+          </v-col>
+
+
+
 
         </v-row>
       </div>
@@ -705,8 +810,151 @@ export default Vue.extend({
       sideResults: [],
       extendedResults: [],
       
+      loadMoreButton: true,
+      loadingIndex: 0,
+      loadingSteps: 5,
+      
 
-      testSearchData: [],
+      testSearchData: [
+        {
+          id: 0,
+          title: "Going Down the Restaurant Memory Lane of My Childhood",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman', 'Danna Reich Colman', 'Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe', 'Recipe'],
+          text: "Loremipsumdolorsitamet,consetetursadipscingelitr,seddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyamerat,seddiamvoluptua.Atveroetaccusametjustoduodoloresetearebum.Stetclitakasdgubergren,noseatakimatasanctusestLoremipsumdolorsitamet.Loremipsumdolorsitamet,consetetursadipscingelitr,seddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyamerat,seddiamvoluptua.Atveroetaccusametjustoduodoloresetearebum.Stetclitakasdgubergren,noseatakimatasanctusestLoremipsumdolorsitam",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 1,
+          title: "I ordered chole bhature and received customer experience in return",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Business', 'Loyalty Program', 'Restaurant Business', 'Rewards Programs', 'Loyalty'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 2,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+
+
+
+        {
+          id: 3,
+          title: "Going Down the Restaurant Memory Lane of My Childhood",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 4,
+          title: "I ordered chole bhature and received customer experience in return",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Business', 'Loyalty Program', 'Restaurant Business', 'Rewards Programs', 'Loyalty'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 5,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 6,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 7,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 8,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 9,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 10,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+      ],
+
+      
+      authorsLength: {},
 
 
       itemToDelete: null,
@@ -820,6 +1068,8 @@ export default Vue.extend({
         this.results = this.testSearchData
 
 
+        this.loadingIndex = this.positive_index
+
         var mainResults = this.results.slice(0, this.positive_index)
         this.main_split_index = this.positive_index + mainResults.length
         var extendedResults = this.results.slice(this.main_split_index, this.results.length)
@@ -854,6 +1104,7 @@ export default Vue.extend({
         this.tagCounts = tagCounts
         this.selectedTags = [...this.allTags];
 
+
     //////////////////////////////////////////
 
 
@@ -876,6 +1127,10 @@ export default Vue.extend({
 
     tagsLoadingStatus: function () {
       return this.$store.getters.tagsLoadingStatus
+    },
+
+    visibleResults: function (): any[] {
+      return this.mainResults.slice(0, this.loadingIndex)
     },
     
   },
@@ -952,9 +1207,18 @@ export default Vue.extend({
     },
 
     formatTags(tags: any) {
-      let temp = new Array(tags);
-      let tagsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
+      //let temp = new Array(tags);
+      //let tagsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
+
+      var temp = tags.replace(/'/g, '"');
+      const tagsArray = JSON.parse(temp);
       return tagsArray
+    },
+
+    getAuthorsLength(authors: any, idx: any) {
+      this.authorsLength[idx] = Object.keys(authors).length
+
+      return true
     },
 
     backToHome(){
@@ -977,6 +1241,30 @@ export default Vue.extend({
 
     closePrivacyDialog(){
         this.privacyDialog = false
+    },
+
+
+    
+    splitResults() {
+      //const isChecked = this.selectedTags.includes(tag);
+      var selectedResults = this.results.slice();
+
+      selectedResults = selectedResults.filter(itemDict => {
+        const tags = itemDict["tags"];
+        return this.selectedTags.some(tag => tags.includes(tag));
+      });
+      console.log(this.selectedTags)
+      
+
+
+      var mainResults = selectedResults.slice(0, this.positive_index)
+      this.main_split_index = this.positive_index + mainResults.length
+      var extendedResults = selectedResults.slice(this.main_split_index, selectedResults.length)
+
+      this.extendedResults = extendedResults
+      this.sideResults = selectedResults.slice(this.positive_index, this.positive_index + mainResults.length)
+      this.mainResults = mainResults.concat(extendedResults);
+
     },
 
 
@@ -1090,12 +1378,33 @@ export default Vue.extend({
 
 
     formatAuthors(authors: any){
-      //authors = JSON.parse(authors.replace(/,]$/, ']').replace(/'/g, '"'))
-      //authors.replace(/\[|\]/g,'').split(',')
-      let temp = new Array(authors);
-      let authorsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
-      return authorsArray
+      var authorsString = authors.join(", ").replace("'", "").replace("'", "");
+
+      if (authorsString.endsWith(',')) {
+        authorsString = authorsString.slice(0, -1);
+      }
+      return authorsString
     },
+
+    formatAuthorsForSideView(authors: any){
+      var authorsString = authors.join(", ").replace("'", "").replace("'", "");
+
+      if (authorsString.endsWith(',')) {
+        authorsString = authorsString.slice(0, -1);
+      }
+
+      var commaCount = authorsString.split(",").length - 1;
+      let firstAuthor;
+      if (commaCount > 0){
+      firstAuthor = authorsString.split(", ")[0] + " et al.";
+      } else {
+      firstAuthor = authorsString;
+      }
+
+      return firstAuthor
+    },
+
+
 
     openSummaryModal() {
       this.showSummaryModal = true;
@@ -1103,6 +1412,17 @@ export default Vue.extend({
     closeSummaryModal() {
       this.showSummaryModal = false;
     },
+
+
+    selectAllTags() {
+      this.selectedTags = [...this.allTags];
+      this.splitResults();
+    },
+    unselectAllTags() {
+      this.selectedTags = [];
+      this.splitResults();
+    },
+
 
     resetHistory() {
       this.isUploadedHistoryFileValid = false
@@ -1292,8 +1612,48 @@ export default Vue.extend({
     }
 
       
-      if (this.results.length > 0) {
-      this.searchStatus = 1;
+      if (typeof this.results !== 'undefined' && this.results.length > 0) {
+        this.searchStatus = 1;
+
+
+        this.loadingIndex = this.positive_index
+
+        var mainResults = this.results.slice(0, this.positive_index)
+        this.main_split_index = this.positive_index + mainResults.length
+        var extendedResults = this.results.slice(this.main_split_index, this.results.length)
+
+        this.extendedResults = extendedResults
+        this.sideResults = this.results.slice(this.positive_index, this.positive_index + mainResults.length)
+        this.mainResults = mainResults.concat(extendedResults);
+
+        var topTags = []
+        var tagCounts = {};
+        for (let i = 0; i < this.results.length; i++) {
+          var articleTags = this.results[i]["tags"]
+
+          for (let j = 0; j < articleTags.length; j++) {
+            var tag = articleTags[j];
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+          }
+        }
+
+        // sort tags in popularity order
+        var sortedTags = Object.keys(tagCounts).sort(function(a, b) {
+          return tagCounts[b] - tagCounts[a];
+        });
+
+        var amountOfTopTags = 8
+        for (let i = 0; i < Math.min(sortedTags.length, amountOfTopTags); i++) {
+          topTags.push(sortedTags[i]);
+        }
+
+        this.allTags = sortedTags
+        this.topTags = topTags
+        this.tagCounts = tagCounts
+        this.selectedTags = [...this.allTags];
+
+
+
       } else {
       this.searchStatus = -1;
       }
@@ -1570,8 +1930,9 @@ img {
 }
 
 .resultImg {
-  width: 270px;
-  height: 270px;
+  max-width: 100%;
+  width: 100%;
+  height: 60%;
   object-fit: cover;
 }
 
@@ -1607,7 +1968,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: "Segoe UI", Tahoma;
-  background-color: #7ca971;
+  background-color: #ffffff;
 }
 
 .topicDiv{
@@ -1667,6 +2028,13 @@ body {
   border-radius: 10px;
 }
 
+hr.dashed {
+  border-top: 3px dashed #bbb;
+}
+hr.dotted {
+  border-top: 3px dotted #bbb;
+}
+
 .topicLink {
     color: black;
     text-decoration: none;
@@ -1683,13 +2051,23 @@ body {
 
 .search-bar {
 list-style-type: none;
- width: 1000px;
+ width: 100%;
  float: left;
  margin-right: 10px;
  display:inline-block
   }
 
-  
+.list-group-item{
+  margin-right: 1%;
+  margin-top: 1%;
+}
+
+.tag-list-item{
+  padding-top: 1%;
+  display: inline; 
+  padding-right: 1%;
+}
+
 .item {
   margin-right: 10px;
 }
@@ -1767,9 +2145,10 @@ a {
 }
 
 .authorList {
-  list-style-type: none;
-  list-style-position: inside;
-  margin-right: 10px;
+  //list-style-type: none;
+  //list-style-position: inside;
+  //margin-right: 20px;
+  //white-space: nowrap;
 }
 
 .nav-item{
@@ -1780,6 +2159,28 @@ a {
   display: flex;
   justify-content: space-between;
   width: 100%;
+}
+
+.one-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  white-space: normal;
+}
+
+
+.authorUL {
+  display: flex;
+  list-style-type: none;
+  list-style-position: inside;
+  margin-right: 20px;
+  margin-left: -20px;
+}
+
+.side-results{
+  width: 80%;
 }
 
 .titleDiv {
@@ -1806,7 +2207,27 @@ a {
 
 .tagDiv {
   display: flex;
-  width: 100%;
+}
+
+.tag-container{
+  max-height: 17vh;
+  overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tag-container::-webkit-scrollbar {
+  background: rgba(0, 0, 0, 0.1);
+}
+.tag-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.tag-container::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+.tag-container {
+  scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+  -moz-appearance: none; /* Hide the scrollbar track in Firefox */
 }
 
 .no-bullet-points{ 
@@ -1814,17 +2235,10 @@ a {
 }
 
 .tagsList {
+  display: inline;
+
   list-style-type: none;
-  background: rgb(186, 81, 81);
-  padding: 5px;
-  border-radius: 4px;
-  color: white;
-  white-space: nowrap;
-  transition: 0.1s ease background;
-
-  margin-right: 10px;
 }
-
 
 .v-data-table__expanded.v-data-table__expanded__content {
   box-shadow: none !important;
@@ -1844,9 +2258,6 @@ a {
   color: blue; /* Change color on hover, adjust as needed */
 }
 
-.red-text {
-  color: red;
-}
 
 /* Small devices (landscape phones, 544px and up) */
 @media (min-width: 544px) {

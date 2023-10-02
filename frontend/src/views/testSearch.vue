@@ -124,24 +124,14 @@
                     <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;" @click="selectAllTags">Select All</b-button>
                   </div>
 
-                  <div v-for="(tag, index) in allTags" class="checkbox_div" :key="index">
+                  <div v-for="(tag, index) in allTags" class="checkbox_div" :key="tag + index">
                     <label>
-                      <input type="checkbox" v-model="selectedTags" :value="tag">
+                      <input type="checkbox" v-model="selectedTags" :value="tag" @change="splitResults()">
                       <span class="checkbox-material">
                         <span class="check">
                         </span>
                       </span> {{tag}}
                       <span> ({{ tagCounts[tag] }})</span>
-                    </label>
-                  </div>
-
-                  <v-divider></v-divider>
-
-                  <div v-for="(tag, index) in selectedTags" class="checkbox_div" :key="index">
-                    <label>
-                      <span class="checkbox-material">
-                        <span class="check"></span>
-                      </span> {{ tag }}
                     </label>
                   </div>
 
@@ -162,7 +152,7 @@
               <ul class="list-group">
                 <li
                   class="list-group-item border-0"
-                  v-for="(itemDict, idx) in mainResults"
+                  v-for="(itemDict, idx) in visibleResults"
                   :key="idx"
                 >
 
@@ -225,7 +215,17 @@
                   </v-row>
                 </v-container>
 
+                <div style="margin-top: 0%;" v-if="idx+1 === positive_index">
+                  <hr class="dotted">
+                  <hr class="dotted">
+                </div>
+                <div v-if="(idx+1 === positive_index || idx+1 === positive_index + loadingSteps) && loadingIndex < mainResults.length" class="centered"> <!-- v-if="loadMoreButton" -->
+                  <b-button @click="loadingIndex += loadingSteps">More ...</b-button>
+                </div>
+
                 </li>
+
+
               </ul>
 
 
@@ -421,6 +421,11 @@ export default Vue.extend({
       sideResults: [],
       extendedResults: [],
       
+      loadMoreButton: true,
+      loadingIndex: 0,
+      loadingSteps: 5,
+      
+      
 
       testSearchData: [
         {
@@ -498,6 +503,54 @@ export default Vue.extend({
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
         },
+        {
+          id: 6,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 7,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 8,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
+        {
+          id: 9,
+          title: "Is Your Loyalty Program Rewarding the Right Customers?",
+          url: "https://medium.com/p/c00c8cca394a",
+          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+          authors: ['Danna Reich Colman'],
+          timestamp: "2016-06-30 06:54:17.528000+00:00",
+          tags: ['Food', 'Beverly Hills', 'Recipe'],
+          text: "text1",
+
+          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        },
         
       ],
       authorsLength: {},
@@ -562,6 +615,8 @@ export default Vue.extend({
         this.results = this.testSearchData
 
 
+        this.loadingIndex = this.positive_index
+
         var mainResults = this.results.slice(0, this.positive_index)
         this.main_split_index = this.positive_index + mainResults.length
         var extendedResults = this.results.slice(this.main_split_index, this.results.length)
@@ -618,6 +673,10 @@ export default Vue.extend({
     tagsLoaded: function () {
       return this.$store.getters.tagsLoaded
     },
+
+    visibleResults: function (): any[] {
+      return this.mainResults.slice(0, this.loadingIndex)
+    },
   },
 
   mounted() {
@@ -631,6 +690,15 @@ export default Vue.extend({
   },
 
   watch: {
+      extendedResults(newExtendedResults) {
+        if (this.loadingIndex < newExtendedResults.length) {
+          this.loadMoreButton = true;
+        } else {
+          this.loadMoreButton = false;
+        }
+      },
+
+
       privacyDialog (val) {
         val || this.closePrivacyDialog()
       },
@@ -639,7 +707,7 @@ export default Vue.extend({
         if(this.loginStatus){
           this.getAllHistories()
         }
-      }
+      },
     },
 
 
@@ -660,6 +728,7 @@ export default Vue.extend({
       const dateToFormat = dayjs(date);
       return dateToFormat.format('dddd MMMM D, YYYY');
     },
+    
     formatTags(tags: any) {
       //let temp = new Array(tags);
       //let tagsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
@@ -696,6 +765,30 @@ export default Vue.extend({
     closePrivacyDialog(){
         this.privacyDialog = false
     },
+
+
+    splitResults() {
+      //const isChecked = this.selectedTags.includes(tag);
+      var selectedResults = this.results.slice();
+
+      selectedResults = selectedResults.filter(itemDict => {
+        const tags = itemDict["tags"];
+        return this.selectedTags.some(tag => tags.includes(tag));
+      });
+      console.log(this.selectedTags)
+      
+
+
+      var mainResults = selectedResults.slice(0, this.positive_index)
+      this.main_split_index = this.positive_index + mainResults.length
+      var extendedResults = selectedResults.slice(this.main_split_index, selectedResults.length)
+
+      this.extendedResults = extendedResults
+      this.sideResults = selectedResults.slice(this.positive_index, this.positive_index + mainResults.length)
+      this.mainResults = mainResults.concat(extendedResults);
+
+    },
+
 
 
     async getAllHistories() {
@@ -790,9 +883,11 @@ export default Vue.extend({
 
     selectAllTags() {
       this.selectedTags = [...this.allTags];
+      this.splitResults();
     },
     unselectAllTags() {
       this.selectedTags = [];
+      this.splitResults();
     },
 
 
@@ -956,6 +1051,8 @@ export default Vue.extend({
 
 
       if (typeof this.results !== 'undefined' && this.results.length > 0) {
+
+        this.loadingIndex = this.positive_index
 
         var mainResults = this.results.slice(0, this.positive_index)
         this.main_split_index = this.positive_index + mainResults.length
@@ -1248,6 +1345,13 @@ body {
   border-radius: 10px;
 }
 
+hr.dashed {
+  border-top: 3px dashed #bbb;
+}
+hr.dotted {
+  border-top: 3px dotted #bbb;
+}
+
 .topicLink {
     color: black;
     text-decoration: none;
@@ -1416,7 +1520,7 @@ a {
 }
 
 .tag-container{
-  max-height: 15vh;
+  max-height: 17vh;
   overflow: auto;
   display: flex;
   flex-wrap: wrap;
