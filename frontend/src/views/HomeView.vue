@@ -35,19 +35,82 @@
                     Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
                   </b-button>
 
-                  <b-modal id="modal-1" title="Upload your history!" @ok="sendHistory" @close="$store.dispatch('resetHistory')">
-                    <div>
-                      <button @click="showFileSelect = !showFileSelect" v-if="!fileSelected">
-                        Select a file
-                      </button>
+
+
+                  <b-modal ref="historyModal" style="overflow-y: auto;" id="modal-1" title="Upload your browser history!" @ok="sendHistory" :ok-disabled="!((uploadHistoryTab === 1 && isHistoryTextValid) || (uploadHistoryTab === 2 && isUploadedHistoryFileValid))" @close="$store.dispatch('resetHistory')">
+
+                      <template #modal-title>
+                        <div>
+                          <a href="https://chrome.google.com/webstore/category/extensions?utm_source=ext_app_menu" target="_blank">
+                            <b-icon
+                              icon="info-circle"
+                              id="info-icon"
+                              v-b-tooltip.hover.top="tooltipContentPlugin"
+                            ></b-icon>
+                          </a>
+                          Upload your browser history!
+                        </div>
+                      </template>
+
+                    <div v-if=" uploadHistoryTab === 1" style="margin-bottom: 2%; margin-top: -1%;">
+                      Enter relevant website URLs that you have visited or that represent your preferences in the text box below and click OK.
                     </div>
-                    <div v-show="showFileSelect">
-                      <FileUploadField
-                        :maxSize="1000000"
-                        accept="json,csv"
-                      /> 
-                        <!-- json,pdf,csv,txt -->
-                        <!-- @file-upload="(file) => getUploadedFile(file)" -->
+                    <div v-if="uploadHistoryTab === 2" style="margin-bottom: 2%; margin-top: -1%;">
+                      Upload a .json or a .csv file containing relevant URLs of the websites you visited and click OK.
+                    </div>
+
+                    <div style="height: 100%;">
+                      <b-tabs content-class="mt-3" fill>
+                        <b-tab title="Text" active @click="changeUploadTab('Text')" class="text-tab" style="height: 100%;">
+                          <b-form-textarea
+                            id="textarea"
+                            v-model="historyUserInput"
+                            @input="validateUserHistoryInput"
+                            :placeholder="multiLinePlaceholder"
+                            rows="10"
+                            max-rows="10"
+                          ></b-form-textarea>
+                        </b-tab>
+
+                        <b-tab title="File" @click="changeUploadTab('File')" class="file-tab" style="height: 100%;">
+                          <div>
+                            <button v-if="!fileSelected">
+                              Select a file!
+                            </button>
+                          </div>
+                          <div v-show="showFileSelect">
+                            <FileUploadField
+                              :maxSize="1000000"
+                              accept="json, csv"
+                              @isFileValid="checkUploadedFile"
+                            /> 
+                          </div>
+                        </b-tab>
+                      </b-tabs>
+
+                      <div v-if="uploadHistoryTab === 1" style="margin-bottom: 3.3%;">
+                      </div>
+
+                      <div v-if="uploadHistoryTab === 2">
+                        <div class="border-top my-3"></div>
+                        <div v-if="uploadHistoryTab === 2" style="margin-bottom: 2%; margin-top: -1%;">
+                          <p> Please make sure that the file uses this format: </p>
+                          <pre style="white-space: pre-line; text-align: left; font-size: 12px; margin-bottom: -6%;">
+                            [
+                              &nbsp;&nbsp; {
+                                &nbsp;&nbsp;&nbsp;&nbsp; "url": "https://www.google.com",
+                              &nbsp;&nbsp; },
+                              &nbsp;&nbsp; {
+                                &nbsp;&nbsp;&nbsp;&nbsp; "url": "https://www.github.com",
+                              &nbsp;&nbsp; },
+                              &nbsp;&nbsp; {
+                                &nbsp;&nbsp; ...
+                              &nbsp;&nbsp; },
+                            ]
+                          </pre>
+                        </div>
+                      </div>
+
                     </div>
                   </b-modal>
                 </div>
@@ -111,46 +174,24 @@
       >
 
 
-
-
       <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === 0">
 
           <v-col cols="2">
           </v-col>
 
           <v-col cols="6">
-            <b-card border-variant="light">
+            <b-card border-variant="light" >
             <div class="container-fluid" style="margin-bottom:-1%;">
 
               <div class="cards">
               <ul class="list-group">
                 <li
                   class="list-group-item border-0"
-                  v-for="idx in 3" :key="idx"
+                  v-for="idx in 6" :key="idx"
                 >
 
-                <v-container class="bg-surface-variant">
-                  <v-row no-gutters>
-                    
-                    <v-col cols="12">
-                    </v-col>
-
-                    <v-col cols="12">
-                      <div class="centered">
-                        <b-card-img src="../assets/logo.svg" alt="Loading..." class="rounded-0 resultImg" style="max-width: 100%;"></b-card-img>
-                      </div>
-                    </v-col>
-
-                    <v-col cols="12">
-                    </v-col>
-
-                    <v-col cols="12">
-                    </v-col>
-                    
-                    <v-col cols="12">
-                    </v-col>
-
-                  </v-row>
+                <v-container class="bg-surface-variant" style="height: 60vh;" >
+                    <content-placeholder style="width: 100%; height: 100%;"></content-placeholder>
                 </v-container>
 
                 </li>
@@ -164,26 +205,28 @@
           </v-col>
 
           <v-col cols="4" style="width: 90%;">
+
+            <div class="cards">
+              <v-container style="margin-left: -2%; width: 100%; height: 5%;" >
+                <div class="placeholder-div" style="width: 50%; height: 50%;">
+                </div>
+              </v-container>
+            </div>
+
+            <v-divider class="border-opacity-20" style="margin-top: 2%;"> </v-divider>
+
+            <div class="cards">
+            </div>
           </v-col>
         </v-row>
         
 
         <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === -1">
-          <v-col cols="2">
-          </v-col>
+          
+          <div class="centered">
+            Could not find any related articles ...
+          </div>
 
-          <v-col cols="6">
-            <b-card border-variant="light">
-            <div class="container-fluid" style="margin-bottom:-1%;">
-
-              <div class="centered"> Could not find any related articles!</div>
-
-            </div>
-            </b-card>
-          </v-col>
-
-          <v-col cols="4" style="width: 90%;">
-          </v-col>
         </v-row>
 
 
@@ -442,16 +485,6 @@
         <v-dialog
           max-width="500px"
           >
-          <template v-slot:activator="{ props }">
-            <v-btn
-              color="primary"
-              dark
-              class="mb-2"
-              v-bind="props"
-            >
-            Open Dialog
-            </v-btn>
-          </template>
           <template v-slot:default="{ privacyDialog }">
           <v-card>
             <v-card-title>
@@ -597,6 +630,7 @@
 
 <script lang="ts">
 // Imports
+    
 import Vue from "vue";
 import { ref } from "vue";
 import axios from "axios";
@@ -605,6 +639,9 @@ import dayjs from 'dayjs';
 import FileUpload from "primevue/fileupload";
 import FileUploadField from "@/components/FileUploadField.vue";
 import SummaryModal from '@/components/SummaryModal.vue'
+import ContentPlaceholder from '@/components/ContentPlaceholder.vue'
+
+//import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
 //import FileUpload from "primevue/fileupload"
 //import Navigation from "@/components/NavigationBar.vue";
 //import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
@@ -618,6 +655,7 @@ export default Vue.extend({
     FileUpload,
     FileUploadField,
     SummaryModal,
+    ContentPlaceholder,
   },
 
   data() {
@@ -635,11 +673,25 @@ export default Vue.extend({
       showHistories: false,
       showTopics: true,
 
+      isUploadedHistoryFileValid: false,
       fileSelected: false,
       showFileSelect: true,
+      uploadHistoryTab: 1,
+      historyUploadStatus: 0,
+      historyUserInput: "",
+      validUrls: [],
+      multiLinePlaceholder: "URL1\nURL2\nURL3,\nURL4 URL5,\nURL6\n...",
+      displayUploadInformation: false,
+      timeoutId: null,
+      tooltipContentPlugin: `
+        Alternatively, you can download our Chrome extension to automatically upload your browsing history!
+
+        Click on the icon.
+      `,
 
       msg: [],
       showSummaryModal: false,
+      isHistoryTextValid: false,
 
 
       allTags: [],
@@ -838,6 +890,11 @@ export default Vue.extend({
     // this.fetch()
   },
 
+  beforeDestroy() {
+    this.clearTimeout();
+  },
+
+
   watch: {
       privacyDialog (val) {
         val || this.closePrivacyDialog()
@@ -860,6 +917,33 @@ export default Vue.extend({
     async logout() {
       await this.$store.dispatch("logOut");
       // this.$router.push("/");
+    },
+
+
+    startTimeout() {
+      this.displayUploadInformation = true;
+      this.clearTimeout();
+
+      this.timeoutId = setTimeout(() => {
+        this.displayUploadInformation = false;
+        this.clearTimeout();
+      }, 6000);
+    },
+
+    clearTimeout() {
+      if (this.timeoutId) {
+        clearTimeout(this.timeoutId);
+        this.timeoutId = null;
+      }
+    },
+
+
+    changeUploadTab(tab){
+      if(tab === "Text") {
+        this.uploadHistoryTab = 1
+      } else if (tab === "File") {
+        this.uploadHistoryTab = 2
+      }
     },
 
     formatDate(date: any) {
@@ -1032,6 +1116,10 @@ export default Vue.extend({
     },
 
 
+    onCancelLoading() {
+      console.log('User cancelled the loader.')
+    },
+
 
 
     async handleSearch() {
@@ -1197,6 +1285,7 @@ export default Vue.extend({
       } else {
       this.searchStatus = -1;
       }
+
       console.log("print this when the request is finished!");
 
     },
@@ -1259,10 +1348,77 @@ export default Vue.extend({
 
 
 
+    validateUserHistoryInput() {
+      //var urls = this.historyUserInput.split("\n");
+      var urls = []
+      urls = this.historyUserInput.split(/[\n\s]+/)
+      .filter((url) => url.trim() !== "")
+      .map((url) => url.trim());
+
+      if (urls.length <= 1) {
+        urls = [this.historyUserInput.trim()];
+      }
+
+
+      const possible_separators = ["'", '"', ",", " ", "", ";"];
+      urls.forEach((url, index) => {
+        const startsWithSeparator = possible_separators.some((separator) =>
+          url.startsWith(separator)
+        );
+        const endsWithSeparator = possible_separators.some((separator) =>
+          url.endsWith(separator)
+        );
+
+        if (startsWithSeparator) {
+          urls[index] = url.substring(1);
+        }
+        if (endsWithSeparator) {
+          urls[index] = url.substring(0, url.length - 1);
+        }
+      });
+
+
+
+      if (urls.length <= 0) {
+        console.log("The list of URLs is empty.");
+        this.isHistoryTextValid = false
+        return
+      }
+
+      var validUrls = urls.filter((url) => {
+      try {
+        new URL(url);
+        return true;
+
+      } catch (error) {
+        return false;
+      }
+      });
+
+      //validUrls = validUrls.map((url) => `"${url}"`);
+
+      if (validUrls.length > 0) {
+        this.isHistoryTextValid = true
+      } else {
+        this.isHistoryTextValid = false
+      }
+
+      this.validUrls = validUrls
+      console.log(validUrls)
+      console.log(this.isHistoryTextValid)
+    },
+
+
 
 
     async sendHistory() {
+
+      this.historyUploadStatus = 0
       console.log("send history to server ...")
+
+      if (this.validUrls.length > 0 && this.uploadHistoryTab === 1) {
+        this.$store.dispatch("setHistory", this.validUrls);
+      }
 
       const data = {
         username: this.$store.getters.stateUser,
@@ -1274,6 +1430,24 @@ export default Vue.extend({
       await this.$store.dispatch("patchHistory", data);
       console.log("history status code")
       console.log(this.$store.getters.historyStatusCode)
+
+      if (this.$store.getters.historyStatusCode !== "0") {
+        this.historyUploadStatus = 1;
+
+        if (this.$store.getters.historyStatusCode === "200" || this.$store.getters.historyStatusCode === "201") {
+          console.log("success")
+        } 
+
+        if (this.$store.getters.historyStatusCode === "402") {
+          console.log("error while uploading history")
+        } else if (this.$store.getters.historyStatusCode === "404") {
+          console.log("error while uploading history")
+        }
+
+      } else {
+        this.historyUploadStatus = -1;
+      }
+
 
       if(this.$store.getters.historyStatusCode === "402") {
         this.logout
@@ -1335,6 +1509,11 @@ export default Vue.extend({
 
     },
 
+
+
+    checkUploadedFile(isValid) {
+      this.isUploadedHistoryFileValid = isValid;
+    },
 
     onUpload() {
       console.log("uploaded");
@@ -1634,6 +1813,24 @@ a {
 
 .v-data-table__expanded.v-data-table__expanded__content {
   box-shadow: none !important;
+}
+
+
+.text-tab .b-tab-content{
+  overflow-y: auto;
+}
+.file-tab .b-tab-content {
+  overflow-y: auto;
+}
+
+
+#info-icon:hover {
+  cursor: pointer;
+  color: blue; /* Change color on hover, adjust as needed */
+}
+
+.red-text {
+  color: red;
 }
 
 /* Small devices (landscape phones, 544px and up) */

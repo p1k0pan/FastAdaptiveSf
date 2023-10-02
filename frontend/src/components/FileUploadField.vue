@@ -3,15 +3,6 @@
     <div class="file-upload__area">
       <div v-if="!file.isUploaded">
         <input type="file" name="selectFiles" ref="doc" id="selectFiles" @change="importFile($event)" /> <!-- ($event) -->
-        <div v-if="errors.length > 0">
-          <div
-            class="file-upload__error"
-            v-for="(error, index) in errors"
-            :key="index"
-          >
-            <span>{{ error }}</span>
-          </div>
-        </div>
       </div>
       <div v-if="file.isUploaded" class="upload-preview">
         <div v-if="!file.isHistory" class="file-extention">
@@ -24,6 +15,17 @@
         <div class="">
           <button @click="resetFileInput">Change file</button>
         </div>
+
+        <div v-if="errors.length > 0">
+          <div
+            class="file-upload__error"
+            v-for="(error, index) in errors"
+            :key="index"
+          >
+            <span>{{ error }}</span>
+          </div>
+        </div>
+
         <div class="" style="margin-top: 10px">
         </div>
 
@@ -56,7 +58,9 @@
       errors: [],
       content: {},
 
+      showExampleFile: false,
       isLoading: false,
+      isFileValidBol:false,
       uploadReady: true,
       file: {
         name: "",
@@ -95,7 +99,7 @@
       if (this.accept.split(",").includes(fileExtention)) {
         console.log("File type is valid");
       } else {
-        this.errors.push(`File type should be ${this.accept}`);
+        this.errors.push(`File type should be: ${this.accept}`);
       }
     },
     isFileValid(file) {
@@ -111,6 +115,9 @@
 
 
     resetFileInput() {
+      this.showExampleFile = false
+      this.errors = []
+      this.$emit('isFileValid', false);
       this.uploadReady = false;
       this.$nextTick(() => {
         this.uploadReady = true;
@@ -143,17 +150,46 @@
           console.log(this.content);
           
           if (("Browser History" in this.content)) {
+            this.errors = []
+            this.errors.push(`Google takeout currently not supported!`);
+            this.showExampleFile = true;
             console.log("Browser History from Google takeout")
+
+            this.isFileValidBol = false
+            this.$emit('isFileValid', false);
             
           } else if (this.content instanceof Array) {
             console.log("Browser History from Chrome Extension")
             for (let i = 0; i < this.content.length; i++) {
               urls.push(this.content[i]["url"]);
+
+              /*
+                [
+                  {
+                      "id": "105",
+                      "referringVisitId": "0",
+                      "transition": "reload",
+                      "visitId": "32",
+                      "visitTime": 1689193248382.165,
+                      "title": "Apple Fruits, varieties, production, seasonality | Libertyprim",
+                      "lastVisitTime": 1689193248382.165,
+                      "typedCount": 0,
+                      "url": "https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm",
+                      "visitCount": 1
+                  },
+                ]
+              */
             } 
 
           } else {
+            this.errors = []
+            this.errors.push(`File format not compatible!`);
+            this.errors.push(`Please ensure that the file is structured correctly. `);
+            this.showExampleFile = true;
             console.log("Format not found.")
 
+            this.isFileValidBol = false
+            this.$emit('isFileValid', false);
           }
         };
         reader.onerror = (err) => console.log(err);
@@ -172,7 +208,9 @@
 
 
 
-      } else if (file.name.includes(".txt")) {
+      } 
+      /*
+      else if (file.name.includes(".txt")) {
         console.log("txt file is being processed ...")
         reader.onload = (res) => {
           //console.log(res.target.result);
@@ -191,19 +229,22 @@
         reader.onerror = (err) => console.log(err);
         reader.readAsText(file);
 
-
-      } else {
+      } 
+      */
+      else {
         console.log("error: wrong file format");
+        this.errors = []
+        this.errors.push(`File format is not compatible!`);
+        this.showExampleFile = true;
+        this.isFileValidBol = false
+        this.$emit('isFileValid', false);
+
         reader.onload = (res) => {
           //console.log(res.target.result);
         };
 
       }
 
-      //const result = JSON.parse(e.target.result);
-      //const formatted = JSON.stringify(result, null, 2);
-      //document.getElementById('result').innerHTML = formatted;
-      
       return urls
     },
 
@@ -216,6 +257,9 @@
       if (event.target.files && this.$refs.doc.files[0]) {
         // Check if file is valid
         if (this.isFileValid(event.target.files[0])) {
+            this.isFileValidBol = true
+            this.$emit('isFileValid', true);
+
             // history
             var history = this.$refs.doc.files[0];
             var urls = await this.handleFileFormat(history);
@@ -252,13 +296,13 @@
                 isUploaded: true,
           };
         } else {
+          this.isFileValidBol = false
+          this.$emit('isFileValid', false);
+
           console.log("Invalid file");
         }
       }
     },
-
-
-
 
 
     
