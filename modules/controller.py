@@ -210,7 +210,7 @@ def paragraph_text_highlighting(paragraphs,user_name):
 
         # pop up the first 3 paragraph and score need to over threshold
         # average = sum(doc_average_score) / len(score_order_dict)
-        threshold = 0.3
+        threshold = 0.15
         highlighted_paragraph=[]
         for key in sorted_score_order_dict:
             if sorted_score_order_dict[key]>threshold and len(highlighted_paragraph)<4:
@@ -324,7 +324,7 @@ def _rank_hits_history(user_topic_ratio, history_emb, rerank_emb, positive_df) -
     positive_df['topic_score'] = Normalizer(norm="l1").fit_transform(positive_df['topic_score'].values.reshape(1, -1)).tolist()[0]
     
     # final score
-    positive_df['final_score']=positive_df['score'] * 0.2+ positive_df['Cosine Similarity']*0.5+ positive_df['topic_score']*0.3
+    positive_df['final_score']=positive_df['score'] * 0.1+ positive_df['Cosine Similarity']*0.7+ positive_df['topic_score']*0.2
     # positive_df['final_score']=positive_df['score'] * 0.4+ positive_df['Cosine Similarity']*0.4+ positive_df['topic_score']*0.2
 
     # calculate the final score
