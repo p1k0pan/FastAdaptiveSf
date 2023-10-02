@@ -307,8 +307,7 @@
                               v-b-modal.modal-2
                               class="summarizeButton"
                               style="margin-top:2%;"
-                              @click="openSummaryModal"
-                              prepend-icon="mdi-tooltip-text"
+                              @click="summarizeArticle(itemDict)"
                                   >
                                 Summarize
                                 </b-button>
@@ -318,7 +317,11 @@
 
                                       text ...
                                   </div>
-                                  </b-modal>
+                                  <template #modal-footer>
+                                  <b-button @click="closeSummaryModal">Close</b-button>
+                                </template>
+
+                                </b-modal>
 
                             </span>
                           </div>
@@ -1413,11 +1416,9 @@ export default Vue.extend({
 
 
 
-    openSummaryModal() {
-      this.showSummaryModal = true;
-    },
-    closeSummaryModal() {
-      this.showSummaryModal = false;
+    summarizeArticle(article) {
+      console.log("generating summary of the article ...");
+      console.log(article)
     },
 
 
@@ -1893,6 +1894,17 @@ export default Vue.extend({
 
 
 
+    closeSummaryModal() {
+      if (!this.isClosing) {
+        this.isClosing = true; // Set the flag to true
+        this.$refs.summarizeModal.hide();
+        setTimeout(() => {
+          this.isClosing = false; // Reset the flag after a brief delay
+        }, 100); // Adjust the delay if needed
+      }
+    },
+
+
     checkUploadedFile(isValid) {
       this.isUploadedHistoryFileValid = isValid;
     },
@@ -1985,7 +1997,8 @@ body {
 
 
 .summarizeButton {
-  margin-top: -6px
+  margin-top: -6px;
+  background-color: #888;
 }
 
 .top-bar {
