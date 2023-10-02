@@ -483,10 +483,10 @@
         
 
               <div v-if="this.$store.getters.tagsLoadingStatus === 0" class="centered"> loading topics ...</div>
-              <ul class="list-group " v-if="this.$store.getters.stateTags.length > 0 && this.$store.getters.tagsLoadingStatus === 1">
+              <ul class="list-group " v-if="this.$store.getters.stateBothTags.length > 0 && this.$store.getters.tagsLoadingStatus === 1">
                 <li
                   class="list-group-item no-border mb-2"
-                  v-for="(item, index) in this.$store.getters.stateTags"
+                  v-for="(item, index) in this.$store.getters.stateBothTags"
                   :key="index"
                 >
 
@@ -1045,6 +1045,130 @@ export default Vue.extend({
         },
       ],
 
+      
+
+
+      testTagsData: [
+        {
+            tag: "TECH",
+            sites: [
+                {
+                  id: 8,
+                  title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                  url: "https://medium.com/p/c00c8cca394a",
+                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                  authors: `"['Danna Reich Colman']"`,
+                  timestamp: "2016-06-30 06:54:17.528000+00:00",
+                  tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
+                  text: "text1",
+
+                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                },
+                {
+                  id: 9,
+                  title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                  url: "https://medium.com/p/c00c8cca394a",
+                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                  authors: `"['Danna Reich Colman']"`,
+                  timestamp: "2016-06-30 06:54:17.528000+00:00",
+                  tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
+                  text: "text1",
+
+                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                },
+                {
+                  id: 10,
+                  title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                  url: "https://medium.com/p/c00c8cca394a",
+                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                  authors: `"['Danna Reich Colman']"`,
+                  timestamp: "2016-06-30 06:54:17.528000+00:00",
+                  tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
+                  text: "text1",
+
+                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                },
+            ],
+        },
+
+        {
+            tag: "WELLNESS",
+            sites: [
+                {
+                  id: 0,
+                  title: "Going Down the Restaurant Memory Lane of My Childhood",
+                  url: "https://medium.com/p/c00c8cca394a",
+                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                  authors: `"['Danna Reich Colman', 'Danna Reich Colman', 'Danna Reich Colman']"`,
+                  timestamp: "2016-06-30 06:54:17.528000+00:00",
+                  tags: `"['TECH', 'BUSINESS']"`,
+                  text: "Loremipsumdolorsitamet,consetetursadipscingelitr,seddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyamerat,seddiamvoluptua.Atveroetaccusametjustoduodoloresetearebum.Stetclitakasdgubergren,noseatakimatasanctusestLoremipsumdolorsitamet.Loremipsumdolorsitamet,consetetursadipscingelitr,seddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyamerat,seddiamvoluptua.Atveroetaccusametjustoduodoloresetearebum.Stetclitakasdgubergren,noseatakimatasanctusestLoremipsumdolorsitam",
+
+                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                },
+                {
+                  id: 1,
+                  title: "I ordered chole bhature and received customer experience in return",
+                  url: "https://medium.com/p/c00c8cca394a",
+                  thumbnail: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
+                  authors: `"['Danna Reich Colman']"`,
+                  timestamp: "2016-06-30 06:54:17.528000+00:00",
+                  tags: `"['TECH']"`,
+                  text: "text1",
+
+                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                },
+                {
+                  id: 2,
+                  title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                  url: "https://medium.com/p/c00c8cca394a",
+                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                  authors: `"['Danna Reich Colman']"`,
+                  timestamp: "2016-06-30 06:54:17.528000+00:00",
+                  tags: `"['TECH', 'BUSINESS']"`,
+                  text: "text1",
+
+                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                },
+            ],
+        },
+
+        {
+            tag: "USER",
+            sites: [
+                {
+                  id: 1,
+                  title: "Special User menu 2",
+                  url: "https://medium.com/p/c00c8cca394a",
+                  thumbnail: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
+                  authors: `"['Danna Reich Colman']"`,
+                  timestamp: "2016-06-30 06:54:17.528000+00:00",
+                  tags: `"['TECH']"`,
+                  text: "text1",
+
+                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                },
+                {
+                  id: 2,
+                  title: "Just for user",
+                  url: "https://medium.com/p/c00c8cca394a",
+                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                  authors: `"['Danna Reich Colman']"`,
+                  timestamp: "2016-06-30 06:54:17.528000+00:00",
+                  tags: `"['TECH', 'BUSINESS']"`,
+                  text: "text1",
+
+                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                },
+            ],
+        },
+
+      ],
+
+
+
+
+
 
     };
   },
@@ -1066,56 +1190,6 @@ export default Vue.extend({
     const searchQuery = ref("");
     const results = ref([]);
     //await this.handleView();
-
-
-    
-    //////////////////////////////////////////
-        this.allHistories= this.testHistoryData;
-
-        //-----------------------
-        
-        this.positive_index = 2,
-        this.results = this.testSearchData
-
-
-        this.loadingIndex = this.positive_index
-
-        var mainResults = this.results.slice(0, this.positive_index)
-        this.main_split_index = this.positive_index + mainResults.length
-        var extendedResults = this.results.slice(this.main_split_index, this.results.length)
-
-        this.extendedResults = extendedResults
-        this.sideResults = this.results.slice(this.positive_index, this.positive_index + mainResults.length)
-        this.mainResults = mainResults.concat(extendedResults);
-
-        var topTags = []
-        var tagCounts = {};
-        for (let i = 0; i < this.results.length; i++) {
-          var articleTags = this.results[i]["tags"]
-
-          for (let j = 0; j < articleTags.length; j++) {
-            var tag = articleTags[j];
-            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-          }
-        }
-
-        // sort tags in popularity order
-        var sortedTags = Object.keys(tagCounts).sort(function(a, b) {
-          return tagCounts[b] - tagCounts[a];
-        });
-
-        var amountOfTopTags = 8
-        for (let i = 0; i < Math.min(sortedTags.length, amountOfTopTags); i++) {
-          topTags.push(sortedTags[i]);
-        }
-
-        this.allTags = sortedTags
-        this.topTags = topTags
-        this.tagCounts = tagCounts
-        this.selectedTags = [...this.allTags];
-
-
-    //////////////////////////////////////////
 
 
     return {
@@ -1358,30 +1432,64 @@ export default Vue.extend({
 
 
     formatAuthors(authors: any){
-       var authorsString = authors
+      var authorsString = authors
 
-      //if (authorsString.endsWith(',')) {
-      //  authorsString = authorsString.slice(0, -1);
-      //}
-      return authorsString
+      var authorArray = JSON.parse(authorsString );
+      var charArray = [];
+      for (var j = 0; j < authorArray.length; j++) {
+        var author = authorArray[j];
+
+        var authorChars = author.split('');
+        charArray.push(authorChars);
+      }
+
+      var concatenatedString = charArray.join('');
+      var cleanedString = concatenatedString.replace(/[\[\]"]/g, '');
+
+      var finalArray = cleanedString.split(',')
+      var finalArray = finalArray.map(function (element) {
+        return element.trim().replace(/^'(.*)'$/, '$1');
+      });
+
+
+      var concatenatedString = finalArray.join(', ');
+
+      return concatenatedString
     },
 
     formatAuthorsForSideView(authors: any){
       var authorsString = authors
 
-      //if (authorsString.endsWith(',')) {
-       // authorsString = authorsString.slice(0, -1);
-      //}
-/*
-      var commaCount = authorsString.split(",").length - 1;
-      let firstAuthor;
-      if (commaCount > 0){
-      firstAuthor = authorsString.split(", ")[0] + " et al.";
-      } else {
-      firstAuthor = authorsString;
-      }*/
+      var authorArray = JSON.parse(authorsString );
+      var charArray = [];
+      for (var j = 0; j < authorArray.length; j++) {
+        var author = authorArray[j];
 
-      var firstAuthor= authorsString
+        var authorChars = author.split('');
+        charArray.push(authorChars);
+      }
+
+      var concatenatedString = charArray.join('');
+      var cleanedString = concatenatedString.replace(/[\[\]"]/g, '');
+
+      var finalArray = cleanedString.split(',')
+      var finalArray = finalArray.map(function (element) {
+        return element.trim().replace(/^'(.*)'$/, '$1');
+      });
+
+      
+      let firstAuthor;
+      if (finalArray.length > 1) {
+        firstAuthor = String(finalArray[0]) + " et al.";
+
+      } else if (finalArray.length === 1) {
+        firstAuthor = String(finalArray[0])
+
+      } else if (finalArray.length === 1) {
+        firstAuthor = "Anonymous"
+
+      }
+
       return firstAuthor
     },
 
@@ -1608,10 +1716,31 @@ export default Vue.extend({
         var topTags = []
         var tagCounts = {};
         for (let i = 0; i < this.results.length; i++) {
-          var articleTags = this.results[i]["tags"]
+          var articleTagsString = this.results[i]["tags"]
 
-          for (let j = 0; j < articleTags.length; j++) {
-            var tag = articleTags[j];
+          var tagArray = JSON.parse(articleTagsString);
+          var charArray = [];
+          for (var j = 0; j < tagArray.length; j++) {
+            var tag = tagArray[j];
+
+            var tagChars = tag.split('');
+            charArray.push(tagChars);
+          }
+
+          var concatenatedString = charArray.join('');
+          var cleanedString = concatenatedString.replace(/[\[\]"]/g, '');
+
+          var finalArray = cleanedString.split(',')
+          var finalArray = finalArray.map(function (element) {
+            return element.trim().replace(/^'(.*)'$/, '$1');
+          });
+
+          this.results[i]["tags"] = finalArray
+
+
+
+          for (let j = 0; j < this.results[i]["tags"].length; j++) {
+            var tag = this.results[i]["tags"][j];
             tagCounts[tag] = (tagCounts[tag] || 0) + 1;
           }
         }
@@ -1639,6 +1768,8 @@ export default Vue.extend({
 
 
       
+
+
       if (this.not_connected) {
         this.positive_index = 2,
         this.results = this.testSearchData
@@ -1658,10 +1789,31 @@ export default Vue.extend({
         var topTags = []
         var tagCounts = {};
         for (let i = 0; i < this.results.length; i++) {
-          var articleTags = this.results[i]["tags"]
+          var articleTagsString = this.results[i]["tags"]
 
-          for (let j = 0; j < articleTags.length; j++) {
-            var tag = articleTags[j];
+          var tagArray = JSON.parse(articleTagsString);
+          var charArray = [];
+          for (var j = 0; j < tagArray.length; j++) {
+            var tag = tagArray[j];
+
+            var tagChars = tag.split('');
+            charArray.push(tagChars);
+          }
+
+          var concatenatedString = charArray.join('');
+          var cleanedString = concatenatedString.replace(/[\[\]"]/g, '');
+
+          var finalArray = cleanedString.split(',')
+          var finalArray = finalArray.map(function (element) {
+            return element.trim().replace(/^'(.*)'$/, '$1');
+          });
+
+          this.results[i]["tags"] = finalArray
+
+          
+
+          for (let j = 0; j < this.results[i]["tags"].length; j++) {
+            var tag = this.results[i]["tags"][j];
             tagCounts[tag] = (tagCounts[tag] || 0) + 1;
           }
         }
@@ -1680,9 +1832,11 @@ export default Vue.extend({
         this.topTags = topTags
         this.tagCounts = tagCounts
         this.selectedTags = [...this.allTags];
-
-
       }
+
+
+
+
 
 
       console.log("print this when the request is finished!");
@@ -1693,7 +1847,7 @@ export default Vue.extend({
 
     getSearchResults(data) {
       this.results = [];
-      if (data === undefined && data === 'undefined' && data === null) {
+      if (data === undefined || data === 'undefined' || data === null) {
         this.searchStatus = -1;
         return
       }

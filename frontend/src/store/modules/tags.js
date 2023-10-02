@@ -5,12 +5,15 @@ Vue.use(Vuex)
 
 
 const state = {
-    tags: [],
+    random_tags: [],
+    user_tags: [],
     loaded: 0,
 };
 
 const getters = {
-  stateTags: state => state.tags,
+  stateRandomTags: state => state.random_tags,
+  stateUserTags: state => state.user_tags,
+  stateBothTags: state => state.random_tags.concat(state.user_tags),
   tagsLoadingStatus: state => state.loaded,
 };
 
@@ -31,7 +34,7 @@ const actions = {
         var entry = {
             tag: val,
             sites: [],
-        };
+      };
 
         var endpoint = "/"
         endpoint = endpoint + `next_tag_story?tag=${val}`;
@@ -94,16 +97,23 @@ const actions = {
         });
         } 
 
-      console.log("list of loaded tagas")
+      console.log("list of loaded random tagas")
       console.log(results)
       if (results.length > 0) {
-        context.commit('SET_TAGS', results)
+        context.commit('SET_RANDOM_TAGS', results)
         context.commit('SET_LOADED', 1)
       } else {
         context.commit('SET_LOADED', -1)
       }
 
     },
+
+
+
+
+
+
+
 
     async loadUserTags(context, formDict) {
       context.commit('SET_LOADED', 0)
@@ -113,7 +123,10 @@ const actions = {
 
       
         var results = []
-
+        var entry = {
+          tag: "USER",
+          sites: [],
+        }
 
         var endpoint = "/"
         endpoint = endpoint + `next_tag_story?user_name=${username}`;
@@ -146,9 +159,9 @@ const actions = {
                       titles[i] = titles[i]
                       urls[i] = urls[i]
                       thumbnails[i] = (thumbnails[i] != "https://miro.medium.com/v2/1*m-R_BkNf1Qjr1YbyOIJY2w.png") ? thumbnails[i] : "https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png"
-                      authors[i] = JSON.stringify(authors[i])
+                      authors[i] = authors[i] // JSON.stringify(
                       timestamps[i] = timestamps[i]
-                      tags[i] = JSON.stringify(tags[i])
+                      tags[i] = tags[i] // JSON.stringify(
                       texts[i] = texts[i]
               
                       var dict = {
@@ -164,7 +177,7 @@ const actions = {
                         summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
                       };
               
-                      // entry["sites"].push(dict);
+                      entry["sites"].push(dict);
                     }
                     results.push(entry);
                   }
@@ -176,10 +189,10 @@ const actions = {
         });
 
 
-      console.log("list of loaded tagas")
+      console.log("list of loaded user tagas")
       console.log(results)
       if (results.length > 0) {
-        context.commit('SET_TAGS', results)
+        context.commit('SET_USER_TAGS', results)
         context.commit('SET_LOADED', 1)
       } else {
         context.commit('SET_LOADED', -1)
@@ -189,9 +202,14 @@ const actions = {
 };
 
 const mutations = {
-    SET_TAGS(state, tags) {
-        state.tags = tags
+    SET_RANDOM_TAGS(state, tags) {
+        state.random_tags = tags
     },
+
+    SET_USER_TAGS(state, tags) {
+        state.user_tags = tags
+    },
+    
     
     SET_LOADED(state, loaded) {
         state.loaded = loaded;
