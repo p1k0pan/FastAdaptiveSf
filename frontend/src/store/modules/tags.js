@@ -6,18 +6,18 @@ Vue.use(Vuex)
 
 const state = {
     tags: [],
-    loaded: false,
+    loaded: 0,
 };
 
 const getters = {
   stateTags: state => state.tags,
-  tagsLoaded: state => state.loaded,
+  tagsLoadingStatus: state => state.loaded,
 };
 
 const actions = {
 
     async loadTags(context) {
-      context.commit('SET_LOADED', false)
+      context.commit('SET_LOADED', 0)
 
       var res = "0"
       console.log("loading home page tags ...");
@@ -46,9 +46,11 @@ const actions = {
             console.log(message)
 
             if(response.data["code"] === "200" || response.data["code"] === "201") {
-                    var data = response.data["result"]
-                    this.results = [];
-                    console.log(data)
+                  var data = response.data["result"]
+                  this.results = [];
+                  console.log(data)
+
+                  if(data !== undefined && data !== 'undefined' && data !== null) {
               
                     var titles = data["title"];
                     var urls = data["urls"];
@@ -83,6 +85,7 @@ const actions = {
                       entry["sites"].push(dict);
                     }
                     results.push(entry);
+                  }
                 }
          })
         .catch(error => {
@@ -93,8 +96,12 @@ const actions = {
 
       console.log("list of loaded tagas")
       console.log(results)
-      context.commit('SET_TAGS', results)
-      context.commit('SET_LOADED', true)
+      if (results.length > 0) {
+        context.commit('SET_TAGS', results)
+        context.commit('SET_LOADED', 1)
+      } else {
+        context.commit('SET_LOADED', -1)
+      }
 
     },
 

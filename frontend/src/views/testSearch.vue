@@ -113,7 +113,7 @@
         <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden">
           <v-col cols="2">
 
-            <div class="cards" v-if="testSearchData.length > 0">
+            <div class="cards" v-if="results.length > 0">
               <v-container style="margin-left: -1%; margin-top: -1%;">
                 <div class="container-fluid">
                   <h4 style="margin-top: 0%;">All topics </h4>
@@ -158,7 +158,7 @@
 
             <div class="container-fluid" style="margin-bottom:-1%;">
 
-            <div class="cards" v-if="testSearchData.length > 0">
+            <div class="cards" v-if="results.length > 0">
               <ul class="list-group">
                 <li
                   class="list-group-item border-0"
@@ -243,7 +243,7 @@
           
           <v-col cols="4" style="width: 90%;">
             
-            <div class="cards" v-if="testSearchData.length > 0">
+            <div class="cards" v-if="results.length > 0">
               <v-container style="margin-left: -2%;">
                 <div class="container-fluid">
                   <h4 style="margin-top: 0%; margin-left: 0.1%;">Top topics</h4>
@@ -267,7 +267,7 @@
             <v-divider class="border-opacity-20" style="margin-top: 2%;"> </v-divider>
 
             
-            <div class="cards" v-if="testSearchData.length > 0">
+            <div class="cards" v-if="results.length > 0">
               <v-container style="margin-left: -1%; margin-top: -1%;">
                 <div class="container-fluid">
                   <h6 style="margin-top: 0%;">You might also be interested in ...</h6>
@@ -276,7 +276,7 @@
             </div>
 
 
-            <div class="cards" v-if="testSearchData.length > 0">
+            <div class="cards" v-if="results.length > 0">
               <ul class="list-group" style="margin-left: -4%; margin-top: -3%;">
                 <li
                   class="list-group-item border-0"

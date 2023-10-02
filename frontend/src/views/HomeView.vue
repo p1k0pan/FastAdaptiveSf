@@ -30,7 +30,7 @@
 
           <li class="nav-item">
 
-                <div v-if="isLoggedIn">
+                <div v-if="!isLoggedIn">
                   <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')" variant="outline-primary" class="mb-2">
                     Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
                   </b-button>
@@ -109,23 +109,95 @@
       <div v-if="showSearchResult"
         style="bottom: 0;"
       >
-        <b-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden">
-          <b-col></b-col>
-
-          <b-col cols="6">
-            <b-card>
 
 
-              <div class="container-fluid">
 
 
-        <!--<div class="row display-flex no-gutters">
-          <div class="col-xs-6 col-md-2">
-            <div class="container"></div>
-          </div>
+      <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === 0">
 
-          <div class="col-xs-6 col-md-7 ms-auto"> -->
+          <v-col cols="2">
+          </v-col>
 
+          <v-col cols="6">
+            <b-card border-variant="light">
+            <div class="container-fluid" style="margin-bottom:-1%;">
+
+              <div class="cards">
+              <ul class="list-group">
+                <li
+                  class="list-group-item border-0"
+                  v-for="idx in 3" :key="idx"
+                >
+
+                <v-container class="bg-surface-variant">
+                  <v-row no-gutters>
+                    
+                    <v-col cols="12">
+                    </v-col>
+
+                    <v-col cols="12">
+                      <div class="centered">
+                        <b-card-img src="../assets/logo.svg" alt="Loading..." class="rounded-0 resultImg" style="max-width: 100%;"></b-card-img>
+                      </div>
+                    </v-col>
+
+                    <v-col cols="12">
+                    </v-col>
+
+                    <v-col cols="12">
+                    </v-col>
+                    
+                    <v-col cols="12">
+                    </v-col>
+
+                  </v-row>
+                </v-container>
+
+                </li>
+              </ul>
+
+
+            </div>
+
+            </div>
+            </b-card>
+          </v-col>
+
+          <v-col cols="4" style="width: 90%;">
+          </v-col>
+        </v-row>
+        
+
+        <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === -1">
+          <v-col cols="2">
+          </v-col>
+
+          <v-col cols="6">
+            <b-card border-variant="light">
+            <div class="container-fluid" style="margin-bottom:-1%;">
+
+              <div class="centered"> Could not find any related articles!</div>
+
+            </div>
+            </b-card>
+          </v-col>
+
+          <v-col cols="4" style="width: 90%;">
+          </v-col>
+        </v-row>
+
+
+        <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === 1">
+
+          <v-col cols="2"></v-col>
+
+
+
+          <v-col cols="6">
+            <b-card border-variant="light">
+
+
+              <div class="container-fluid" style="margin-bottom:-1%;">
 
 
             <div class="cards" v-if="results.length > 0">
@@ -223,10 +295,13 @@
 
             </div>
             </b-card>
-          </b-col>
+          </v-col>
 
-          <b-col></b-col>
-        </b-row>
+          
+
+          <v-col cols="4" style="width: 90%;"></v-col>
+
+        </v-row>
       </div>
 
 
@@ -252,8 +327,8 @@
             <div class="container-fluid">
         
 
-              <div v-if="!this.$store.getters.tagsLoaded"> loading topics ...</div>
-              <ul class="list-group " v-if="this.$store.getters.stateTags">
+              <div v-if="this.$store.getters.tagsLoadingStatus === 0" class="centered"> loading topics ...</div>
+              <ul class="list-group " v-if="this.$store.getters.stateTags.length > 0 && this.$store.getters.tagsLoadingStatus === 1">
                 <li
                   class="list-group-item no-border mb-2"
                   v-for="(item, index) in this.$store.getters.stateTags"
@@ -315,6 +390,10 @@
 
                 </li>
               </ul>
+              <div v-if="this.$store.getters.tagsLoadingStatus === -1" class="centered">
+                Could not load a selection of related topics!
+              </div>
+    
         <!--
               <ul class="horizontalList" style="position:relative; overflow-x:auto">
                 <li
@@ -380,7 +459,7 @@
             </v-card-title>
 
             <v-card-text>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </v-card-text>
 
             <v-card-actions>
@@ -405,7 +484,7 @@
          class="overflow-y-auto">
       <v-data-table
         :headers="historyTableHeaders"
-        :items="testHistoryData"
+        :items="allHistories"
         :expanded.sync="expandedHistory"
         :loading="loadingHistoryTable"
         show-expand
@@ -414,6 +493,7 @@
         :hide-default-footer="true"
         :search="searchHistory">
 
+        
         <template v-slot:top>
 
         <v-dialog v-model="deleteHistoryDialog" max-width="600px">
@@ -424,13 +504,13 @@
               <v-btn
                 color="green-darken-1"
                 variant="text"
-                @click="deleteHistoryDialog = false"
+                @click="abortDeletion"
               >
                 No
               </v-btn>
               <v-btn
                 color="green-darken-1"
-                @click="deleteHistoryDialog = false"
+                @click="deleteHistoryUpload"
               >
                 Yes, remove this history upload!
               </v-btn>
@@ -440,19 +520,19 @@
         </template>
         <template v-slot:item.actions="{ item }">
         <v-icon
-        v-if='item.upload_number !== "..."'
+        v-if='item.upload_number !== "..." && rowIsExpanded(item)'
         small
         color="red"
-        @click.stop="deleteHistoryUpload(item)"
+        @click.stop="prepareToDelete(item)"
         >
         mdi-delete
         </v-icon>
         </template>
         
     
-        <template v-slot:expanded-item="{ headers, item}">
+        <template v-slot:expanded-item="{ headers, item: upload}">
 
-            <td :colspan="headers.length" v-if='item.upload_number !== "..."'>
+            <td :colspan="headers.length" v-if='upload.upload_number !== "..."'>
                 <div class="row sp-details" style="margin-top: 0.2%; margin-bottom: -2%;">
                   <v-card
                     class="mx-auto"
@@ -462,40 +542,19 @@
 
                   <v-data-table
                     :headers="URLTableHeaders"
-                    :items="item.sites"
+                    :items="upload.sites"
                     :sort-by="[{ key: 'index', order: 'asc' }]"
                     class="">
 
                     <template v-slot:top>
 
-                        <v-dialog v-model="deleteUrlDialog" max-width="600px">
-                          <v-card>
-                            <v-card-title class="text-h5">Are you sure you want to remove this URL?</v-card-title>
-                            <v-card-actions>
-                              <v-spacer></v-spacer>
-                              <v-btn
-                                color="green-darken-1"
-                                variant="text"
-                                @click="deleteUrlDialog = false"
-                              >
-                                No
-                              </v-btn>
-                              <v-btn
-                                color="green-darken-1"
-                                @click="deleteUrlDialog = false"
-                              >
-                                Yes, remove the URL!
-                              </v-btn>
-                            </v-card-actions>
-                          </v-card>
-                        </v-dialog>
                     </template>
-                    <template v-slot:item.actions="{ item }">
+                    <template v-slot:item.actions="{ item: item }">
                       <v-icon
                         v-if='item.upload_number !== "..."'
                         small
                         color="red"
-                        @click.stop="deleteHistoryURL(item)"
+                        @click.stop="deleteHistoryURL(upload, item)"
                       >
                         mdi-delete
                       </v-icon>
@@ -564,6 +623,7 @@ export default Vue.extend({
   data() {
     return {
       loginStatus: this.$store.getters.isAuthenticated,
+      searchStatus: 0,
       
       results: [],
       searchQuery: "",
@@ -581,6 +641,23 @@ export default Vue.extend({
       msg: [],
       showSummaryModal: false,
 
+
+      allTags: [],
+      topTags: [],
+      tagCounts: {},
+      selectedTags: [],
+
+      positive_index: 0, // side displays 2, 3, 4
+      main_split_index: 0, 
+      mainResults: [],
+      sideResults: [],
+      extendedResults: [],
+      
+
+      testSearchData: [],
+
+
+      itemToDelete: null,
       privacyDialog: false,
       searchHistory: '',
       loadingHistoryTable: false,
@@ -680,6 +757,54 @@ export default Vue.extend({
     const results = ref([]);
     //await this.handleView();
 
+
+    
+    //////////////////////////////////////////
+        this.allHistories= this.testHistoryData;
+
+        //-----------------------
+        
+        this.positive_index = 2,
+        this.results = this.testSearchData
+
+
+        var mainResults = this.results.slice(0, this.positive_index)
+        this.main_split_index = this.positive_index + mainResults.length
+        var extendedResults = this.results.slice(this.main_split_index, this.results.length)
+
+        this.extendedResults = extendedResults
+        this.sideResults = this.results.slice(this.positive_index, this.positive_index + mainResults.length)
+        this.mainResults = mainResults.concat(extendedResults);
+
+        var topTags = []
+        var tagCounts = {};
+        for (let i = 0; i < this.results.length; i++) {
+          var articleTags = this.results[i]["tags"]
+
+          for (let j = 0; j < articleTags.length; j++) {
+            var tag = articleTags[j];
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+          }
+        }
+
+        // sort tags in popularity order
+        var sortedTags = Object.keys(tagCounts).sort(function(a, b) {
+          return tagCounts[b] - tagCounts[a];
+        });
+
+        var amountOfTopTags = 8
+        for (let i = 0; i < Math.min(sortedTags.length, amountOfTopTags); i++) {
+          topTags.push(sortedTags[i]);
+        }
+
+        this.allTags = sortedTags
+        this.topTags = topTags
+        this.tagCounts = tagCounts
+        this.selectedTags = [...this.allTags];
+
+    //////////////////////////////////////////
+
+
     return {
       searchQuery,
       results,
@@ -697,8 +822,8 @@ export default Vue.extend({
       return this.$store.getters.isAuthenticated;
     },
 
-    tagsLoaded: function () {
-      return this.$store.getters.tagsLoaded
+    tagsLoadingStatus: function () {
+      return this.$store.getters.tagsLoadingStatus
     },
     
   },
@@ -770,18 +895,52 @@ export default Vue.extend({
         this.privacyDialog = false
     },
 
-    deleteHistoryURL (item) {
-      //this.editedIndex = this.desserts.indexOf(item)
-      //this.editedItem = Object.assign({}, item)
-      this.deleteUrlDialog = true
-    },
 
-    deleteHistoryUpload (item) {
-      //this.editedIndex = this.desserts.indexOf(item)
-      //this.editedItem = Object.assign({}, item)
+    
+    prepareToDelete(item) {
+      this.itemToDelete = item;
       this.deleteHistoryDialog = true
     },
 
+    abortDeletion() {
+      this.itemToDelete = null;
+      this.deleteHistoryDialog = false
+    },
+
+
+    deleteHistoryUpload () {
+      this.allHistories = this.allHistories.filter(item =>
+        JSON.stringify(item) !== JSON.stringify(this.itemToDelete)
+      );
+      
+      this.deleteHistoryDialog = false
+    },
+
+    deleteHistoryURL (upload, itemToDelete) {
+      const index = this.allHistories.findIndex(item =>
+        JSON.stringify(item) === JSON.stringify(upload)
+      );
+
+      if (index !== -1) {
+        this.allHistories[index].sites = this.allHistories[index].sites.filter(item =>
+          JSON.stringify(item) !== JSON.stringify(itemToDelete)
+        );
+      }
+
+      this.deleteUrlDialog = false
+    },
+
+    rowIsExpanded(item){
+      if (this.expandedHistory.length > 0) {
+        if (item["upload_number"] === this.expandedHistory[0]["upload_number"]) {
+          return true
+        }
+
+        return false
+      } else {
+        return true
+      }
+    },
 
     async getAllHistories() {
       console.log("GET ALL HISTORIES")
@@ -877,6 +1036,8 @@ export default Vue.extend({
 
     async handleSearch() {
       var res = "0"
+      this.showSearchResult = true;
+      this.searchStatus = 0;
 
       // async
       console.log("generating results ...");
@@ -908,7 +1069,7 @@ export default Vue.extend({
               this.getSearchResults(response.data["result"]);
             }
             this.firstSearch = false;
-            this.showSearchResult = true;
+            //this.showSearchResult = true;
               
             }
             // reject errors & warnings
@@ -942,7 +1103,7 @@ export default Vue.extend({
               this.getSearchResults(response.data["result"]);
             }
             this.firstSearch = false;
-            this.showSearchResult = true;
+            //this.showSearchResult = true;
               
             }
             // reject errors & warnings
@@ -973,7 +1134,7 @@ export default Vue.extend({
               this.getSearchResults(response.data["result"]);
             }
             this.firstSearch = false;
-            this.showSearchResult = true;
+            //this.showSearchResult = true;
               
             }
             // reject errors & warnings
@@ -1029,12 +1190,25 @@ export default Vue.extend({
         });
       }
     }
+
+      
+      if (this.results.length > 0) {
+      this.searchStatus = 1;
+      } else {
+      this.searchStatus = -1;
+      }
       console.log("print this when the request is finished!");
+
     },
 
 
     getSearchResults(data) {
       this.results = [];
+      if (data !== undefined && data !== 'undefined' && data !== null) {
+        this.searchStatus = -1;
+        return
+      }
+
       console.log("search results:")
       console.log(data)
 
@@ -1077,6 +1251,9 @@ export default Vue.extend({
 
         this.results.push(dict);
       }
+
+
+
     },
 
 
@@ -1260,6 +1437,13 @@ body {
   i {
     font-size: 2rem;
   }
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .no-border{
