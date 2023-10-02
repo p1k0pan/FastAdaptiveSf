@@ -31,13 +31,13 @@
           <li class="nav-item">
 
                 <div v-if="!isLoggedIn">
-                  <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')" variant="outline-primary" class="mb-2">
+                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" class="mb-2">
                     Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
                   </b-button>
 
 
 
-                  <b-modal ref="historyModal" style="overflow-y: auto;" id="modal-1" title="Upload your browser history!" @ok="sendHistory" :ok-disabled="!((uploadHistoryTab === 1 && isHistoryTextValid) || (uploadHistoryTab === 2 && isUploadedHistoryFileValid))" @close="$store.dispatch('resetHistory')">
+                  <b-modal ref="historyModal" style="overflow-y: auto;" id="modal-1" title="Upload your browser history!" @ok="sendHistory" :ok-disabled="!((uploadHistoryTab === 1 && isHistoryTextValid) || (uploadHistoryTab === 2 && isUploadedHistoryFileValid))" @close="resetHistory">
 
                       <template #modal-title>
                         <div>
@@ -1104,6 +1104,18 @@ export default Vue.extend({
       this.showSummaryModal = false;
     },
 
+    resetHistory() {
+      this.isUploadedHistoryFileValid = false
+      this.fileSelected = false
+      this.showFileSelect = true
+      this.uploadHistoryTab = 1
+      this.historyUploadStatus = 0
+      this.displayUploadInformation = false
+      this.timeoutId = null
+
+      this.$store.dispatch('resetHistory')
+    },
+
     getMessage() {
       axios
         .get("/")
@@ -1418,6 +1430,9 @@ export default Vue.extend({
 
       if (this.validUrls.length > 0 && this.uploadHistoryTab === 1) {
         this.$store.dispatch("setHistory", this.validUrls);
+
+        this.historyUserInput = ""
+        this.validUrls = []
       }
 
       const data = {
