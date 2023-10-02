@@ -299,20 +299,27 @@
                             <a :href="itemDict['url']"  target="_blank" class="linkAsText">
                               <b-card-title class="wordBreak" title-tag="h4"> {{itemDict["title"]}} </b-card-title>
                             </a>
+                            
 
+                
                             <span> 
-                              <v-btn
+                              <b-button
+                              v-b-modal.modal-2
                               class="summarizeButton"
                               style="margin-top:2%;"
                               @click="openSummaryModal"
                               prepend-icon="mdi-tooltip-text"
                                   >
-                            <template v-slot:prepend>
-                                  <v-icon color="success"></v-icon>
-                                        </template>
-
                                 Summarize
-                                </v-btn>
+                                </b-button>
+
+                                <b-modal ref="summarizeModal" style="overflow-y: auto;" id="modal-2" title="Summarization!">
+                                  <div style="height: 100%;">
+
+                                      text ...
+                                  </div>
+                                  </b-modal>
+
                             </span>
                           </div>
                         </v-col>
