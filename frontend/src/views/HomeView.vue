@@ -1,41 +1,42 @@
 <template>
-  <div id="home" class="divide-y divide-gray-200">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand ml-4 mb-2">Adaptive Storyfinder</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
+  <div>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
+    <!--<nav class="navbar navbar-expand-lg navbar-light bg-light" style="display:block;">-->
+      <div class="container-fluid" style="text-align: center; max-height: 10vh; background-color: rgba(49, 46, 46, 0);;">
+        <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center" style="padding-top: 1vh;">
+          <v-col cols="2" >
+            <a class="navbar-brand" style="font-weight: bold; color: black; font-size: 20px;">Adaptive Storyfinder</a>
+            <button
+              class="navbar-toggler"
+              type="button"
+              data-toggle="collapse"
+              data-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          </v-col>
 
-          
-          <v-spacer></v-spacer>
+          <v-col cols="1">
+            <div class="nav-item active">
+              <router-link class="nav-link" to="/" @click.native="backToHome">Home</router-link>
+            </div>
+          </v-col>
 
-          <li class="nav-item active">
-            <router-link class="nav-link" to="/" @click.native="backToHome">Home</router-link>
-          </li>
+          <v-col cols="1">
+            <div class="nav-item active">
+              <router-link class="nav-link" to="/" @click.native="openHistoryTab">Histories</router-link>
+            </div>
+          </v-col>
 
-          <li class="nav-item active">
-            <router-link class="nav-link" to="/" @click.native="openHistoryTab">Histories</router-link>
-          </li>
-
-          <li class="nav-item">
-
-                <div v-if="!isLoggedIn">
-                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" class="mb-2">
+          <v-col cols="1">
+            <div class="nav-item active">
+              <div v-if="!isLoggedIn">
+                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" class="" style="padding: 1%;">
                     Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
                   </b-button>
-
-
 
                   <b-modal ref="historyModal" style="overflow-y: auto;" id="modal-1" title="Upload your browser history!" @ok="sendHistory" :ok-disabled="!((uploadHistoryTab === 1 && isHistoryTextValid) || (uploadHistoryTab === 2 && isUploadedHistoryFileValid))" @close="resetHistory">
 
@@ -114,51 +115,58 @@
                     </div>
                   </b-modal>
                 </div>
+            </div>
+          </v-col>
 
 
-                <div class="p-4" v-if="!isLoggedIn">
+
+          <v-col cols="5" style="width: 100%;">
+            <div class="nav-item active" style="width: 100%;">
+              <form class="search-bar form-inline mx-auto ml-4" style="min-width: 100%; max-width: 100%;" @submit.prevent="handleSearch">
+                <input
+                  class="form-control mr-sm-2 rounded"
+                  type="search"
+                  placeholder="Search"
+                  aria-label="Search"
+                  v-model.trim="searchQuery"
+                />
+              </form>
+            </div>
+          </v-col>
+
+          <v-col cols="1">
+            <div class="nav-item active">
+              <button
+                class="btn btn-outline-success my-2 my-sm-0 ml-2"
+                color="indigo-darken-3"
+                type="submit"
+                @click="handleSearch"
+              >
+                Search
+              </button>
+            </div>
+          </v-col>
+
+          <v-col cols="1">
+            <div class="nav-item active">
+              
+              <v-container v-if="isLoggedIn">
+                <span> {{ this.$store.getters.stateUser }} </span>
+              </v-container>
+
+              <div v-if="!isLoggedIn">
+                <a class="nav-link" @click="login">Log In/ Sign Up</a>
                 </div>
-          </li>
+              <div v-if="isLoggedIn">
+                <a class="nav-link" @click="logout">Log Out</a>
+              </div>
+            </div>
+          </v-col>
 
-         <li class="nav-item active no-bullet-points" v-if="!isLoggedIn">
-          <a class="nav-link" @click="login">Log In/ Sign Up</a>
-        </li>
-
-        <li class="nav-item active no-bullet-points" v-if="isLoggedIn">
-          <a class="nav-link" @click="logout">Log Out</a>
-        </li>
-
-          <li class="nav-item active">
-            <form class="search-bar form-inline mx-auto ml-4" @submit.prevent="handleSearch">
-              <input
-                class="form-control mr-sm-2 rounded"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-                v-model.trim="searchQuery"
-              />
-            </form>
-            
-          </li>
-
-
-        </ul>
-
-        <li class="nav-item no-bullet-points">
-          <v-container v-if="isLoggedIn">
-            <span> {{ this.$store.getters.stateUser }} </span>
-          </v-container>
-        </li>
-
-        <li class="nav-item active no-bullet-points" v-if="!isLoggedIn">
-          <a class="nav-link" @click="login">Log In/ Sign Up</a>
-        </li>
-
-        <li class="nav-item active no-bullet-points" v-if="isLoggedIn">
-          <a class="nav-link" @click="logout">Log Out</a>
-        </li>
+        </v-row>
       </div>
-    </nav>
+    <!--</nav>-->
+
 
 
 
@@ -753,6 +761,20 @@ import FileUploadField from "@/components/FileUploadField.vue";
 import SummaryModal from '@/components/SummaryModal.vue'
 import ContentPlaceholder from '@/components/ContentPlaceholder.vue'
 
+import {
+    MDBBtn,
+    MDBNavbar,
+    MDBNavbarToggler,
+    MDBNavbarBrand,
+    MDBNavbarNav,
+    MDBNavbarItem,
+    MDBCollapse,
+    MDBDropdown,
+    MDBDropdownToggle,
+    MDBDropdownMenu,
+    MDBDropdownItem
+  } from 'mdb-vue-ui-kit';
+
 //import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
 //import FileUpload from "primevue/fileupload"
 //import Navigation from "@/components/NavigationBar.vue";
@@ -1043,126 +1065,6 @@ export default Vue.extend({
           sites: [
           ]
         },
-      ],
-
-      
-
-
-      testTagsData: [
-        {
-            tag: "TECH",
-            sites: [
-                {
-                  id: 8,
-                  title: "Is Your Loyalty Program Rewarding the Right Customers?",
-                  url: "https://medium.com/p/c00c8cca394a",
-                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-                  authors: `"['Danna Reich Colman']"`,
-                  timestamp: "2016-06-30 06:54:17.528000+00:00",
-                  tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
-                  text: "text1",
-
-                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                },
-                {
-                  id: 9,
-                  title: "Is Your Loyalty Program Rewarding the Right Customers?",
-                  url: "https://medium.com/p/c00c8cca394a",
-                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-                  authors: `"['Danna Reich Colman']"`,
-                  timestamp: "2016-06-30 06:54:17.528000+00:00",
-                  tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
-                  text: "text1",
-
-                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                },
-                {
-                  id: 10,
-                  title: "Is Your Loyalty Program Rewarding the Right Customers?",
-                  url: "https://medium.com/p/c00c8cca394a",
-                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-                  authors: `"['Danna Reich Colman']"`,
-                  timestamp: "2016-06-30 06:54:17.528000+00:00",
-                  tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
-                  text: "text1",
-
-                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                },
-            ],
-        },
-
-        {
-            tag: "WELLNESS",
-            sites: [
-                {
-                  id: 0,
-                  title: "Going Down the Restaurant Memory Lane of My Childhood",
-                  url: "https://medium.com/p/c00c8cca394a",
-                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-                  authors: `"['Danna Reich Colman', 'Danna Reich Colman', 'Danna Reich Colman']"`,
-                  timestamp: "2016-06-30 06:54:17.528000+00:00",
-                  tags: `"['TECH', 'BUSINESS']"`,
-                  text: "Loremipsumdolorsitamet,consetetursadipscingelitr,seddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyamerat,seddiamvoluptua.Atveroetaccusametjustoduodoloresetearebum.Stetclitakasdgubergren,noseatakimatasanctusestLoremipsumdolorsitamet.Loremipsumdolorsitamet,consetetursadipscingelitr,seddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyamerat,seddiamvoluptua.Atveroetaccusametjustoduodoloresetearebum.Stetclitakasdgubergren,noseatakimatasanctusestLoremipsumdolorsitam",
-
-                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                },
-                {
-                  id: 1,
-                  title: "I ordered chole bhature and received customer experience in return",
-                  url: "https://medium.com/p/c00c8cca394a",
-                  thumbnail: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
-                  authors: `"['Danna Reich Colman']"`,
-                  timestamp: "2016-06-30 06:54:17.528000+00:00",
-                  tags: `"['TECH']"`,
-                  text: "text1",
-
-                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                },
-                {
-                  id: 2,
-                  title: "Is Your Loyalty Program Rewarding the Right Customers?",
-                  url: "https://medium.com/p/c00c8cca394a",
-                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-                  authors: `"['Danna Reich Colman']"`,
-                  timestamp: "2016-06-30 06:54:17.528000+00:00",
-                  tags: `"['TECH', 'BUSINESS']"`,
-                  text: "text1",
-
-                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                },
-            ],
-        },
-
-        {
-            tag: "USER",
-            sites: [
-                {
-                  id: 1,
-                  title: "Special User menu 2",
-                  url: "https://medium.com/p/c00c8cca394a",
-                  thumbnail: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
-                  authors: `"['Danna Reich Colman']"`,
-                  timestamp: "2016-06-30 06:54:17.528000+00:00",
-                  tags: `"['TECH']"`,
-                  text: "text1",
-
-                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                },
-                {
-                  id: 2,
-                  title: "Just for user",
-                  url: "https://medium.com/p/c00c8cca394a",
-                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-                  authors: `"['Danna Reich Colman']"`,
-                  timestamp: "2016-06-30 06:54:17.528000+00:00",
-                  tags: `"['TECH', 'BUSINESS']"`,
-                  text: "text1",
-
-                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                },
-            ],
-        },
-
       ],
 
 
@@ -2481,9 +2383,24 @@ a {
   } /*1rem = 16px*/
 }
 
+#nav a {
+  font-weight: bold;
+  color: #000000;
+}
+
+#nav a.router-link-exact-active {
+  color: #ffffff;
+}
+
+#home {
+    margin: 0;
+    padding: 0;
+  }
+
+    
 header {
-  padding-top: 50px;
-  padding-bottom: 50px;
+  padding-top: 20px;
+  padding-bottom: 20px;
   h1 {
     color: #888;
     font-size: 1.2rem;
@@ -2530,4 +2447,6 @@ header {
     }
   }
 }
+
+
 </style>

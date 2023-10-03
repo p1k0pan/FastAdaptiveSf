@@ -97,6 +97,101 @@ const actions = {
         });
         } 
 
+      var mock = true
+      if(mock) {
+
+        var testTagsData = [
+                {
+                  tag: "TECH",
+                  sites: [
+                      {
+                        id: 8,
+                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        url: "https://medium.com/p/c00c8cca394a",
+                        thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                        authors: `"['Danna Reich Colman']"`,
+                        timestamp: "2016-06-30 06:54:17.528000+00:00",
+                        tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
+                        text: "text1",
+
+                        summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                      },
+                      {
+                        id: 9,
+                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        url: "https://medium.com/p/c00c8cca394a",
+                        thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                        authors: `"['Danna Reich Colman']"`,
+                        timestamp: "2016-06-30 06:54:17.528000+00:00",
+                        tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
+                        text: "text1",
+
+                        summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                      },
+                      {
+                        id: 10,
+                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        url: "https://medium.com/p/c00c8cca394a",
+                        thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                        authors: `"['Danna Reich Colman']"`,
+                        timestamp: "2016-06-30 06:54:17.528000+00:00",
+                        tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
+                        text: "text1",
+
+                        summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                      },
+                  ],
+              },
+
+              {
+                  tag: "WELLNESS",
+                  sites: [
+                      {
+                        id: 0,
+                        title: "Going Down the Restaurant Memory Lane of My Childhood",
+                        url: "https://medium.com/p/c00c8cca394a",
+                        thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                        authors: `"['Danna Reich Colman', 'Danna Reich Colman', 'Danna Reich Colman']"`,
+                        timestamp: "2016-06-30 06:54:17.528000+00:00",
+                        tags: `"['TECH', 'BUSINESS']"`,
+                        text: "Loremipsumdolorsitamet,consetetursadipscingelitr,seddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyamerat,seddiamvoluptua.Atveroetaccusametjustoduodoloresetearebum.Stetclitakasdgubergren,noseatakimatasanctusestLoremipsumdolorsitamet.Loremipsumdolorsitamet,consetetursadipscingelitr,seddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyamerat,seddiamvoluptua.Atveroetaccusametjustoduodoloresetearebum.Stetclitakasdgubergren,noseatakimatasanctusestLoremipsumdolorsitam",
+
+                        summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                      },
+                      {
+                        id: 1,
+                        title: "I ordered chole bhature and received customer experience in return",
+                        url: "https://medium.com/p/c00c8cca394a",
+                        thumbnail: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
+                        authors: `"['Danna Reich Colman']"`,
+                        timestamp: "2016-06-30 06:54:17.528000+00:00",
+                        tags: `"['TECH']"`,
+                        text: "text1",
+
+                        summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                      },
+                      {
+                        id: 2,
+                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        url: "https://medium.com/p/c00c8cca394a",
+                        thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                        authors: `"['Danna Reich Colman']"`,
+                        timestamp: "2016-06-30 06:54:17.528000+00:00",
+                        tags: `"['TECH', 'BUSINESS']"`,
+                        text: "text1",
+
+                        summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                      },
+                  ],
+              },
+        ]
+        
+        results = testTagsData
+      }
+
+
+
+
       console.log("list of loaded random tagas")
       console.log(results)
       if (results.length > 0) {
@@ -124,7 +219,7 @@ const actions = {
       
         var results = []
         var entry = {
-          tag: "USER",
+          tag: "USER-PREF",
           sites: [],
         }
 
@@ -189,6 +284,47 @@ const actions = {
         });
 
 
+
+        var mock = true
+        if(mock) {
+  
+          var testTagsData = [
+                  {
+                    tag: "USER-PREF",
+                    sites: [
+                        {
+                          id: 1,
+                          title: "Special User menu 2",
+                          url: "https://medium.com/p/c00c8cca394a",
+                          thumbnail: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
+                          authors: `"['Danna Reich Colman']"`,
+                          timestamp: "2016-06-30 06:54:17.528000+00:00",
+                          tags: `"['TECH']"`,
+                          text: "text1",
+        
+                          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                        },
+                        {
+                          id: 2,
+                          title: "Just for user",
+                          url: "https://medium.com/p/c00c8cca394a",
+                          thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                          authors: `"['Danna Reich Colman']"`,
+                          timestamp: "2016-06-30 06:54:17.528000+00:00",
+                          tags: `"['TECH', 'BUSINESS']"`,
+                          text: "text1",
+        
+                          summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                        },
+                    ],
+                  },
+          ]
+
+          results = testTagsData
+        }
+
+
+      
       console.log("list of loaded user tagas")
       console.log(results)
       if (results.length > 0) {
