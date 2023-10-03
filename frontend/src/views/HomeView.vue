@@ -2,10 +2,10 @@
   <div>
 
     <!--<nav class="navbar navbar-expand-lg navbar-light bg-light" style="display:block;">-->
-      <div class="container-fluid" style="text-align: center; max-height: 10vh; background-color: rgba(49, 46, 46, 0);;">
-        <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center" style="padding-top: 1vh;">
+      <div class="container-fluid" id="top-div" style="text-align: center;">
+        <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center" style="padding-top: 0vh;">
           <v-col cols="3" >
-            <a class="navbar-brand" @click="backToHome" style="font-weight: bold; color: black; font-size: 20px;">Adaptive Storyfinder</a>
+            <a class="navbar-brand" @click="backToHome" style="font-weight: bold; color: black; font-size: 22px;">Adaptive Storyfinder</a>
             <button
               class="navbar-toggler"
               type="button"
@@ -18,21 +18,29 @@
               <span class="navbar-toggler-icon"></span>
             </button>
           </v-col>
-
+          
           <v-col cols="1">
-            <div class="nav-item active">
-              <router-link class="nav-link" to="/" @click.native="openHistoryTab">Histories</router-link>
+            <div class="nav-item active" style="margin-left: -10%">
+                <b-button variant="outline-primary" @click="openHistoryTab" :disabled="isLoggedIn" class="" style="padding: 1%;" >
+                  <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
+                    <b-icon  icon="file-earmark-ruled" aria-hidden="true"></b-icon>
+                    <span style="font-size: 16px;">My histories</span>
+                  </div>
+                </b-button>
             </div>
           </v-col>
 
           <v-col cols="1">
             <div class="nav-item active">
               <div >
-                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" :disabled="!isLoggedIn" class="" style="padding: 1%;">
-                    Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
+                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" :disabled="isLoggedIn" class="" style="padding: 1%;">
+                    <div style="text-align: center;">    
+                    Upload History 
+                      <b-icon style="display: block; margin: 0 auto;" icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
+                    </div>
                   </b-button>
 
-                  <b-modal ref="historyModal" style="overflow-y: auto;" id="modal-1" title="Upload your browser history!" @ok="sendHistory" :ok-disabled="!((uploadHistoryTab === 1 && isHistoryTextValid) || (uploadHistoryTab === 2 && isUploadedHistoryFileValid))" @close="resetHistory">
+                  <b-modal ref="historyModal" style="overflow-y: auto;" id="modal-1" title="Upload your browser history!" @ok="sendHistory" ok-title="Confirm" :ok-disabled="!((uploadHistoryTab === 1 && isHistoryTextValid) || (uploadHistoryTab === 2 && isUploadedHistoryFileValid))" @close="resetHistory">
 
                       <template #modal-title>
                         <div>
@@ -124,15 +132,16 @@
           </v-col>
 
           <v-col cols="1">
-            <div class="nav-item active">
-              <button
+            <div class="nav-item active" style="margin-left: -10%;">
+              <b-button
+                variant="outline-primary"
                 class="btn btn-outline-success my-2 my-sm-0 ml-2"
                 color="indigo-darken-3"
                 type="submit"
                 @click="handleSearch"
               >
                 Search
-              </button>
+              </b-button>
             </div>
           </v-col>
 
@@ -144,10 +153,21 @@
               </div>
 
               <div v-if="!isLoggedIn">
-                <v-button class="nav-link" @click="login">Log In</v-button>
+                <b-button variant="outline-primary" @click="login" class="" style="padding: 1%;" >
+                  <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
+                    <b-icon  icon="box-arrow-in-right" aria-hidden="true" style="padding-right: 4%; padding-top: 2%; padding-left: 1%;"></b-icon>
+                    <span style="font-size: 16px;">Log In</span>
+                  </div>
+                </b-button>
                 </div>
+
               <div v-if="isLoggedIn">
-                <v-button class="nav-link" @click="logout">Log Out</v-button>
+                <b-button variant="outline-primary" @click="logout" class="" style="padding: 1%;" >
+                  <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
+                    <b-icon  icon="box-arrow-in-left" aria-hidden="true" style="padding-right: 1%; padding-top: 2%; padding-left: 4%;"></b-icon>
+                    <span style="font-size: 16px;">Log Out</span>
+                  </div>
+                </b-button>
               </div>
             </div>
           </v-col>
@@ -161,7 +181,7 @@
 
 
 
-    <main>
+    <main style="margin-top: 1vh;">
 
       <div v-if="showSearchResult"
         style="bottom: 0;"
@@ -232,24 +252,26 @@
             <div class="cards" v-if="results.length > 0">
               <v-container style="margin-left: -1%; margin-top: -1%;">
                 <div class="container-fluid">
-                  <h4 style="margin-top: 0%;">All topics </h4>
+                  <h4 style="margin-top: 0%;" class="text-shadowed">All topics </h4>
 
                   <div style="margin-bottom: 1%;">
-                    <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none; margin-right: 2%" @click="unselectAllTags">Unselect All</b-button>
+                    <b-button style="border-radius: 4px; background-color: rgb(184, 199, 235); border: none; margin-right: 2%" @click="unselectAllTags">Unselect All</b-button>
                     <v-divider vertical></v-divider>
-                    <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;" @click="selectAllTags">Select All</b-button>
+                    <b-button style="border-radius: 4px; background-color: rgb(184, 199, 235); border: none;" @click="selectAllTags">Select All</b-button>
                   </div>
 
                   <div v-for="(tag, index) in allTags" class="checkbox_div" :key="tag + index">
                     <label>
-                      <input type="checkbox" v-model="selectedTags" :value="tag" @change="splitResults()">
+                      <input type="checkbox" v-model="selectedTags" :value="tag" @change="splitResults()" class="custom-checkbox">
                       <span class="checkbox-material">
                         <span class="check">
                         </span>
-                      </span> {{tag}}
+                      </span> {{ displayTag(tag) }}
                       <span> ({{ tagCounts[tag] }})</span>
                     </label>
                   </div>
+
+                  
 
                 </div>
               </v-container>
@@ -315,7 +337,7 @@
                           <div>
                             <ul class="d-flex flex-wrap" style="margin-left: -3.5%; margin-top: -1.5%;">
                             <li v-for='(tag, index) in itemDict["tags"]' :key="tag + index" class="tag-list-item">
-                              <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;"> {{ tag.replace("'", "").replace("'", "") }} </b-button>
+                              <b-button class="btn-primary" style="border-radius: 8px; background-color: #F2F2F2; border: none;"> {{ displayTag(tag) }} </b-button>
                             </li>
                             </ul>
                           </div>
@@ -328,8 +350,8 @@
                       <hr class="dotted">
                       <hr class="dotted">
                     </div>
-                    <div v-if="(idx+1 === positive_index || idx+1 === positive_index + loadingSteps) && (loadingIndex + 1 < mainResults.length || loadingIndex - 1 <= idx )" class="centered"> <!-- v-if="loadMoreButton" -->
-                      <b-button @click="loadingIndex += loadingSteps">More ...</b-button>
+                    <div v-if="(idx+1 === positive_index) && (!showExtendedResults)" class="centered"> <!-- v-if="loadMoreButton" -->
+                      <b-button @click="handleLoadMoreButton" style="background-color: rgb(184, 199, 235); border-radius: 4px;">Load more of the less relevant results</b-button>
                     </div>
 
                     </li>
@@ -354,7 +376,7 @@
             <div class="cards" v-if="results.length > 0">
               <v-container style="margin-left: -2%;">
                 <div class="container-fluid">
-                  <h4 style="margin-top: 0%; margin-left: 0.1%;">Top topics</h4>
+                  <h4 style="margin-top: 0%; margin-left: 0.1%;" class="text-shadowed">Top topics</h4>
 
                   <div class="tag-container">
                   <ul class="d-flex flex-wrap" style="margin-left: -4%;">
@@ -363,7 +385,7 @@
                       v-for="(tag, idx) in topTags"
                       :key="tag + idx"
                     >
-                      <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;"> {{ tag.replace("'", "").replace("'", "") }} </b-button>
+                      <b-button class="btn-primary" style="border-radius: 8px; background-color: #F2F2F2; border: none;"> {{ displayTag(tag) }} </b-button>
                       
                     </li>
                   </ul>
@@ -462,12 +484,16 @@
             <div class="container-fluid">
         
 
-              <div v-if="this.$store.getters.tagsLoadingStatus === 0" class="centered"> 
-                <div>
-                Loading topics ...
+              <div v-if="this.$store.getters.tagsLoadingStatus === 0" class="centered">
+                <div class="loading-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                  <div style="margin-bottom: 1%;">
+                    Loading topics
+                  </div>
+                  <div class="loader" style="display: block; text-align: center;"></div>
                 </div>
-                <span class="loader" style="display: block; display: block; text-align: center; margin-bottom: 10px;"></span>
               </div>
+
+
               <ul class="list-group " v-if="this.$store.getters.stateBothTags.length > 0 && this.$store.getters.tagsLoadingStatus === 1">
                 <li
                   class="list-group-item no-border mb-2"
@@ -475,7 +501,7 @@
                   :key="index"
                 >
 
-                   <h3> {{ item["tag"] }} </h3>
+                   <h3 class="text-shadowed"> {{ displayTag(item["tag"]) }} </h3>
                   <b-row class="mb-4"></b-row>
 
 
@@ -755,7 +781,7 @@ export default Vue.extend({
 
   data() {
     return {
-      not_connected: false,
+      not_connected: true,
 
       loginStatus: this.$store.getters.isAuthenticated,
       searchStatus: 0,
@@ -805,6 +831,7 @@ export default Vue.extend({
       loadMoreButton: true,
       loadingIndex: 0,
       loadingSteps: 5,
+      showExtendedResults: false,
       
 
       testSearchData: [
@@ -1123,6 +1150,7 @@ export default Vue.extend({
 
     async logout() {
       await this.$store.dispatch("logOut");
+      this.$store.dispatch("removeUserTags");
       // this.$router.push("/");
     },
 
@@ -1385,6 +1413,7 @@ export default Vue.extend({
 
     resetHistory() {
       this.isUploadedHistoryFileValid = false
+      this.isHistoryTextValid = false
       this.fileSelected = false
       this.showFileSelect = true
       this.uploadHistoryTab = 1
@@ -1406,6 +1435,11 @@ export default Vue.extend({
         });
     },
 
+    handleLoadMoreButton() {
+      this.showExtendedResults = !this.showExtendedResults
+      this.loadingIndex += this.loadingSteps
+    },
+
 
     onCancelLoading() {
       console.log('User cancelled the loader.')
@@ -1416,6 +1450,7 @@ export default Vue.extend({
     async handleSearch() {
       var res = "0"
       this.showSearchResult = true;
+      this.showExtendedResults = false;
       this.searchStatus = 0;
 
       // async
@@ -1527,7 +1562,7 @@ export default Vue.extend({
     if(this.isLoggedIn) {
       if(res === "402") {
         console.log("forcefully logging out")
-        this.logout
+        this.logout()
 
       } else {
         var res = "0"
@@ -1846,7 +1881,8 @@ export default Vue.extend({
 
 
 
-    async sendHistory() {
+    async sendHistory(evt) {
+      evt.preventDefault()
 
       this.historyUploadStatus = 0
       console.log("send history to server ...")
@@ -1865,11 +1901,13 @@ export default Vue.extend({
       }
 
       if (!this.$store.getters.stateHistory) return;
+      
+
       await this.$store.dispatch("patchHistory", data);
       console.log("history status code")
       console.log(this.$store.getters.historyStatusCode)
-
-      if (this.$store.getters.historyStatusCode !== "0") {
+      
+      if (this.$store.getters.historyStatusCode !== "0" && this.$store.getters.historyStatusCode !== "402") {
         this.historyUploadStatus = 1;
 
         if (this.$store.getters.historyStatusCode === "200" || this.$store.getters.historyStatusCode === "201") {
@@ -1888,7 +1926,7 @@ export default Vue.extend({
 
 
       if(this.$store.getters.historyStatusCode === "402") {
-        this.logout
+        this.logout()
 
       } else {
         // Update history management list
@@ -1933,11 +1971,15 @@ export default Vue.extend({
         });
       }
 
+      if(this.not_connected) {
+          this.historyUploadStatus = 1
+      } 
 
+      if(this.historyUploadStatus === 1) {
+        this.backToHome();
+        this.resetHistory();
 
-      if(this.$store.getters.isHistoryValid) {
-        //this.fileSelected = true;
-        //this.showFileSelect = false;
+        this.$bvModal.hide('modal-1')
       }
       
       //this.$emit("file-upload", this.file);
@@ -1947,6 +1989,13 @@ export default Vue.extend({
 
     },
 
+
+    displayTag(tag) {
+      if( String(tag) === "USER-PREF") {
+        tag = "This might be interesting for you"
+      }
+      return tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
+    },
 
 
     closeSummaryModal() {
@@ -2135,6 +2184,11 @@ hr.dotted {
     text-decoration: none;
 }
 
+.custom-checkbox {
+  transform: scale(1.2);
+  margin-right: 4px;
+}
+
 .resultRow {
   display: flex;
   flex-wrap: wrap;
@@ -2163,6 +2217,11 @@ list-style-type: none;
   padding-right: 1%;
 }
 
+#modal-1 .modal-footer .btn-secondary {
+    background-color: rgb(215, 157, 157); /* Change the background color to red */
+    color: white; /* Change the text color to white */
+  }
+
 .item {
   margin-right: 10px;
 }
@@ -2179,6 +2238,12 @@ a {
 .result-list-item {
 }
 
+
+.custom-cancel-color {
+  background-color: rgba(255, 0, 0, 0.5); /* Change the color and opacity as desired */
+  border-color: rgba(255, 0, 0, 0.5); /* Match the border color to the background color */
+  color: #de4a4a; /* Text color for the cancel button */
+}
 
 .rightSpan {
   text-align: right;
@@ -2353,6 +2418,11 @@ a {
   color: blue; /* Change color on hover, adjust as needed */
 }
 
+.text-shadowed {
+  text-shadow: 0px 0.2px 1px grey, 0px 0px 1px grey;
+}
+
+
 
 /* Small devices (landscape phones, 544px and up) */
 @media (min-width: 544px) {
@@ -2396,7 +2466,8 @@ a {
     padding: 0;
   }
 
-    
+
+
 header {
   padding-top: 20px;
   padding-bottom: 20px;
@@ -2446,5 +2517,22 @@ header {
     }
   }
 }
+
+
+
+
+.btn-primary:hover{
+    background-color: rgb(122, 122, 122) !important;
+}
+
+#top-div {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: linear-gradient(to left, rgb(184, 199, 235), rgb(145, 162, 202));
+  text-align: center;
+  max-height: 10vh;
+}
+
 
 </style>
