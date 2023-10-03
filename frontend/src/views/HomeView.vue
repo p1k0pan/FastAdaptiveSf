@@ -123,13 +123,8 @@
           <v-col cols="5" style="width: 100%;">
             <div class="nav-item active" style="width: 100%;">
               <form class="search-bar form-inline mx-auto ml-4" style="min-width: 100%; max-width: 100%;" @submit.prevent="handleSearch">
-                <input
-                  class="form-control mr-sm-2 rounded"
-                  type="search"
-                  placeholder="Search"
-                  aria-label="Search"
-                  v-model.trim="searchQuery"
-                />
+                <b-form-input class="form-control mr-sm-2 rounded" v-model="searchQuery" placeholder="Search ..." aria-label="Search"></b-form-input>
+                
               </form>
             </div>
           </v-col>
@@ -490,7 +485,12 @@
             <div class="container-fluid">
         
 
-              <div v-if="this.$store.getters.tagsLoadingStatus === 0" class="centered"> loading topics ...</div>
+              <div v-if="this.$store.getters.tagsLoadingStatus === 0" class="centered"> 
+                <div>
+                Loading topics ...
+                </div>
+                <span class="loader" style="display: block; display: block; text-align: center; margin-bottom: 10px;"></span>
+              </div>
               <ul class="list-group " v-if="this.$store.getters.stateBothTags.length > 0 && this.$store.getters.tagsLoadingStatus === 1">
                 <li
                   class="list-group-item no-border mb-2"
@@ -760,20 +760,6 @@ import FileUpload from "primevue/fileupload";
 import FileUploadField from "@/components/FileUploadField.vue";
 import SummaryModal from '@/components/SummaryModal.vue'
 import ContentPlaceholder from '@/components/ContentPlaceholder.vue'
-
-import {
-    MDBBtn,
-    MDBNavbar,
-    MDBNavbarToggler,
-    MDBNavbarBrand,
-    MDBNavbarNav,
-    MDBNavbarItem,
-    MDBCollapse,
-    MDBDropdown,
-    MDBDropdownToggle,
-    MDBDropdownMenu,
-    MDBDropdownItem
-  } from 'mdb-vue-ui-kit';
 
 //import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
 //import FileUpload from "primevue/fileupload"
@@ -1153,6 +1139,11 @@ export default Vue.extend({
   methods: {
     async login() {
       this.$router.push("/login");
+      this.$bvToast.toast('Toast body content', {
+          title: `Variant ${'success' || 'default'}`,
+          variant: 'success',
+          solid: true
+        })
     },
 
     async logout() {
@@ -2007,6 +1998,26 @@ export default Vue.extend({
 * {
   font-size: 1rem;
 }
+
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #000000;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+} 
 
 img {
     width: 90%;
