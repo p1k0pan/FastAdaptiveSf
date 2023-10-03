@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="padding-top: 2%;">
     <div
       class="main"
       style="bottom: 0;"
@@ -158,7 +158,7 @@ export default defineComponent({
         if(this.$store.getters.isAuthenticated) {
           this.$router.push('/');
     
-          this.$store.dispatch("loadUserTags",formDict);
+          this.$store.dispatch("loadUserTags", formDict);
           console.log("login status is true")
 
         } else {

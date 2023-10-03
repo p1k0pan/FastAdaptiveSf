@@ -6,6 +6,8 @@ import axios from 'axios';
 
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
+//import 'mdb-vue-ui-kit/css/mdb.min.css';
+
 // Import Bootstrap and BootstrapVue CSS files (order is important)
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.css'
