@@ -5,7 +5,7 @@
       <div class="container-fluid" style="text-align: center; max-height: 10vh; background-color: rgba(49, 46, 46, 0);;">
         <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center" style="padding-top: 1vh;">
           <v-col cols="2" >
-            <a class="navbar-brand" style="font-weight: bold; color: black; font-size: 20px;">Adaptive Storyfinder</a>
+            <a class="navbar-brand" @click="backToHome" style="font-weight: bold; color: black; font-size: 20px;">Adaptive Storyfinder</a>
             <button
               class="navbar-toggler"
               type="button"
@@ -17,12 +17,6 @@
             >
               <span class="navbar-toggler-icon"></span>
             </button>
-          </v-col>
-
-          <v-col cols="1">
-            <div class="nav-item active">
-              <router-link class="nav-link" to="/" @click.native="backToHome">Home</router-link>
-            </div>
           </v-col>
 
           <v-col cols="1">
@@ -120,7 +114,7 @@
 
 
 
-          <v-col cols="5" style="width: 100%;">
+          <v-col cols="6" style="width: 100%;">
             <div class="nav-item active" style="width: 100%;">
               <form class="search-bar form-inline mx-auto ml-4" style="min-width: 100%; max-width: 100%;" @submit.prevent="handleSearch">
                 <b-form-input class="form-control mr-sm-2 rounded" v-model="searchQuery" placeholder="Search ..." aria-label="Search"></b-form-input>
@@ -1205,6 +1199,10 @@ export default Vue.extend({
 
       this.showTopics = true
       this.showHistories = false
+      
+      if (this.$route.path !== '/') {
+        this.$router.push('/');
+      }
     },
 
     openHistoryTab(){
