@@ -464,6 +464,7 @@ document.addEventListener('DOMContentLoaded', async function(e) {
           var data =upload_res[2]
           if (res==="201" || res==="200"){
             alert("successful uploaded")
+            window.location.href = 'home_highlighting.html';
           }else{
             alert("failed to upload")
           }

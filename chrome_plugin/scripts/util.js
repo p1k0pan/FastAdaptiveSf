@@ -148,7 +148,7 @@ function detectHistory(redirect) {
 
     } else {
         console.log("No history present")
-        // window.location.href = 'home_uploadHistory.html';
+        window.location.href = 'home_uploadHistory.html';
     }
     };
 }

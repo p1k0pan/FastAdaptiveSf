@@ -1,34 +1,34 @@
 <template>
-  <div id="home" class="divide-y divide-gray-200">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <router-link class="navbar-brand ml-4 mb-2 nav-link" to="/" @click.native="backToHome">Adaptive Storyfinder</router-link>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
+  <div>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-
-          
-          <v-spacer></v-spacer>
-
-
-          <li class="nav-item active">
-            <router-link class="nav-link" to="/" @click.native="openHistoryTab">Histories</router-link>
-          </li>
+    <!--<nav class="navbar navbar-expand-lg navbar-light bg-light" style="display:block;">-->
+      <div class="container-fluid" style="text-align: center; max-height: 10vh; background-color: rgba(49, 46, 46, 0);;">
+        <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center" style="padding-top: 1vh;">
+          <v-col cols="3" >
+            <a class="navbar-brand" @click="backToHome" style="font-weight: bold; color: black; font-size: 20px;">Adaptive Storyfinder</a>
+            <button
+              class="navbar-toggler"
+              type="button"
+              data-toggle="collapse"
+              data-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          </v-col>
 
           <v-col cols="1">
             <div class="nav-item active">
-              <div v-if="!isLoggedIn">
-                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" class="" style="padding: 1%;">
+              <router-link class="nav-link" to="/" @click.native="openHistoryTab">Histories</router-link>
+            </div>
+          </v-col>
+
+          <v-col cols="1">
+            <div class="nav-item active">
+              <div >
+                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" :disabled="!isLoggedIn" class="" style="padding: 1%;">
                     Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
                   </b-button>
 
@@ -113,42 +113,44 @@
           </v-col>
 
 
-          <li class="nav-item active">
-            <form class="search-bar form-inline mx-auto ml-4" @submit.prevent="handleSearch">
-              <input
-                class="form-control mr-sm-2 rounded"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-                v-model.trim="searchQuery"
-              />
-            </form>
-            
-          </li>
-        <li class="nav-item no-bullet-points">
-          <v-container v-if="isLoggedIn">
-            <span> {{ this.$store.getters.stateUser }}</span>
-          </v-container>
-        </li>
-        <li class="nav-item active">
-            <button
-              class="btn btn-outline-success my-2 my-sm-0 ml-2"
-              color="indigo-darken-3"
-              type="submit"
-              @click="handleSearch">
-              Search
-            </button>
-          </li>
 
-        <li class="nav-item active no-bullet-points" v-if="!isLoggedIn">
-          <a class="nav-link" @click="login">Log In/ Sign Up</a>
-        </li>
+          <v-col cols="4" style="width: 100%;">
+            <div class="nav-item active" style="width: 100%;">
+              <form class="search-bar form-inline mx-auto ml-4" style="min-width: 100%; max-width: 100%;" @submit.prevent="handleSearch">
+                <b-form-input class="form-control mr-sm-2 rounded" v-model="searchQuery" placeholder="Search ..." aria-label="Search"></b-form-input>
+                
+              </form>
+            </div>
+          </v-col>
 
-        <li class="nav-item active no-bullet-points" v-if="isLoggedIn">
-          <a class="nav-link" @click="logout">Log Out</a>
-        </li>
-      </div>
-    </nav>
+          <v-col cols="1">
+            <div class="nav-item active">
+              <button
+                class="btn btn-outline-success my-2 my-sm-0 ml-2"
+                color="indigo-darken-3"
+                type="submit"
+                @click="handleSearch"
+              >
+                Search
+              </button>
+            </div>
+          </v-col>
+
+          <v-col cols="1">
+            <div class="nav-item active">
+              
+              <div v-if="isLoggedIn">
+                {{ this.$store.getters.stateUser }}
+              </div>
+
+              <div v-if="!isLoggedIn">
+                <v-button class="nav-link" @click="login">Log In</v-button>
+                </div>
+              <div v-if="isLoggedIn">
+                <v-button class="nav-link" @click="logout">Log Out</v-button>
+              </div>
+            </div>
+          </v-col>
 
         </v-row>
       </div>
@@ -295,25 +297,9 @@
 
                 
                             <span> 
-                              <b-button
-                              v-b-modal.modal-2
-                              class="summarizeButton"
-                              style="margin-top:2%;"
-                              @click="summarizeArticle(itemDict)"
-                                  >
-                                Summarize
-                                </b-button>
+                              
 
-                                <b-modal ref="summarizeModal" style="overflow-y: auto;" id="modal-2" title="Summarization!">
-                                  <div style="height: 100%;">
-
-                                      text ...
-                                  </div>
-                                  <template #modal-footer>
-                                  <b-button @click="closeSummaryModal">Close</b-button>
-                                </template>
-
-                                </b-modal>
+                                
 
                             </span>
                           </div>
@@ -352,7 +338,6 @@
                   </ul>
 
 
-                  <SummaryModal v-show="showSummaryModal" @close="closeSummaryModal"></SummaryModal>
 
                   <!-- <Card v-for="result in results" :key="result" :result="result" /> -->
                 </div>
@@ -750,7 +735,6 @@ import dayjs from 'dayjs';
 
 import FileUpload from "primevue/fileupload";
 import FileUploadField from "@/components/FileUploadField.vue";
-import SummaryModal from '@/components/SummaryModal.vue'
 import ContentPlaceholder from '@/components/ContentPlaceholder.vue'
 
 //import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
@@ -766,13 +750,12 @@ export default Vue.extend({
   components: {
     FileUpload,
     FileUploadField,
-    SummaryModal,
     ContentPlaceholder,
   },
 
   data() {
     return {
-      not_connected: true,
+      not_connected: false,
 
       loginStatus: this.$store.getters.isAuthenticated,
       searchStatus: 0,
@@ -1594,6 +1577,9 @@ export default Vue.extend({
 
         this.loadingIndex = this.positive_index
 
+
+
+
         var mainResults = this.results.slice(0, this.positive_index)
         this.main_split_index = this.positive_index + mainResults.length
         var extendedResults = this.results.slice(this.main_split_index, this.results.length)
@@ -1601,6 +1587,11 @@ export default Vue.extend({
         this.extendedResults = extendedResults
         this.sideResults = this.results.slice(this.positive_index, this.positive_index + mainResults.length)
         this.mainResults = mainResults.concat(extendedResults);
+        console.log("side results: ", this.sideResults, this.sideResults.length)
+        console.log("main results: ", this.mainResults, this.mainResults.length)
+
+
+
 
         var topTags = []
         var tagCounts = {};
@@ -1754,6 +1745,7 @@ export default Vue.extend({
 
       var indices = data["index"];
       var positive_index = data["positive_index"];
+      this.positive_index=positive_index
 
       //var img = new Image();
       var resizedImageURL = 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png';
