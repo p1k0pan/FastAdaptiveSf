@@ -295,8 +295,6 @@ localizeHtmlPage(document.body);
 // Switch between uploadHistory home page and highlighting home page
 document.addEventListener('DOMContentLoaded', async function(e) {
     // get the important buttons to add click events
-    const uploadHistoryButton = document.getElementById('historyUpload-button');
-    const uploadHistoryMenuButton = document.getElementById('historyUploadInMenu-button');
 
     const activateHighlightingButton = document.getElementById('highlight-button');
     const highlightImg = document.getElementById('enable-img');
@@ -423,59 +421,99 @@ document.addEventListener('DOMContentLoaded', async function(e) {
 
 
 
-    if (uploadHistoryMenuButton) {
-      uploadHistoryMenuButton.addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        // upload history
-        history = []
-        await patchHistory(e, history);
-      });
-    }
+    const uploadHistoryButton = document.getElementById('historyUpload-button');
+    const historyFormSection = document.getElementById('history-form');
+    const historyOptionsForm = document.getElementById('historyOptionsForm');
+    var isDisplayForm=false
 
+  if (uploadHistoryButton) {
+    uploadHistoryButton.addEventListener('click', async function(e) {
+      console.log("upload history page")
+      e.preventDefault();
+      if (!isDisplayForm){
+        isDisplayForm=true
+        historyFormSection.style.display = 'block';
+      }else{
+        isDisplayForm=false
+        historyFormSection.style.display = 'none';
+      }
+    });
+  }
 
-    // see which button is currently being shown/relevant
-    if (uploadHistoryButton) {
-      uploadHistoryButton.addEventListener('click', async function(e) {
-        console.log("upload history page")
-        e.preventDefault();
+  // Handle form submission
+  historyOptionsForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const timeRange = historyOptionsForm.timeRange.value;
+    try {
+        const historyUrls = await retrieveHistory(timeRange);
+    
+        if (historyUrls.length === 0) {
+          console.log("No history found for the selected time range.");
+        } else {
 
-        chrome.runtime.onInstalled.addListener(function() {
-          // Example: Print the user's browsing history URLs to the console
-          chrome.history.search({ text: "", startTime: 0 }, function(data) {
-            data.forEach(function(page) {
-              console.log("home.js");
-              console.log(page.url);
-            });
-          });
-        });
-        
-
-        let resultUrls = []
-        document.addEventListener('DOMContentLoaded', function () {
-          resultUrls = fetchHistory('typedUrl_div');
-        });
-
-        // send resultUrls to server TODO
-
-        chrome.runtime.sendMessage( '', {
-          type: 'notification',
-          message: "Search history has been sent to our server to provide you with specific interests!"
-        });
-
-        // upload history
-        chrome.storage.sync.get(["visitedWebsites"]).then((result) => {
-            console.log("Value currently is " + result.key);
-        
-            // Send result.key to server TODO
-          });
-        
-        history = []
-        await patchHistory(e, history);
-      });
-    }
+          // SUCCESS: Patch History
+          const username = localStorage.getItem('username');
+          const upload_data = {
+            "user_name": username,
+            "upload_urls": historyUrls
+          };
+          console.log("Browser History Request (Time Range: " + timeRange + "):", upload_data);
+          upload_res= await uploadHistories(e, JSON.stringify(upload_data))
+          var res = upload_res[0]
+          var msg = upload_res[1]
+          var data =upload_res[2]
+          if (res==="201" || res==="200"){
+            alert("successful uploaded")
+          }else{
+            alert("failed to upload")
+          }
+        }
+      } catch (error) {
+        console.error("Error retrieving history:", error);
+      }
+    
+    historyFormSection.style.display = 'none';
+  });
   });
 
+  async function retrieveHistory(timeRange) {
+    return new Promise((resolve, reject) => {
+      let startTime;
+      switch (timeRange) {
+        case 'hour':
+          startTime = Date.now() - 3600000; // 1 hour in milliseconds
+          break;
+        case 'day':
+          startTime = Date.now() - 86400000; // 24 hours in milliseconds
+          break;
+        case 'week':
+          startTime = Date.now() - 604800000; // 7 days in milliseconds
+          break;
+        case '4weeks':
+          startTime = Date.now() - 2419200000; // 4 weeks in milliseconds
+          break;
+        case 'alltime':
+          startTime = 0;
+          break;
+        default:
+          startTime = 0;
+      }
+  
+      chrome.history.search({ text: "", startTime }, function (data) {
+        if (chrome.runtime.lastError) {
+          console.error("Error retrieving history:", chrome.runtime.lastError);
+          reject(chrome.runtime.lastError);
+        } else {
+          const historyUrls = data.map(page => page.url);
+          if (historyUrls.length === 0) {
+            console.log("No history found for the selected time range.");
+          } else {
+            resolve(historyUrls);
+          }
+        }
+      });
+    });
+  }
 
 // upload a new history
 function patchHistory(e, history) {
@@ -730,6 +768,83 @@ function highlightUrlContent(e, currentUrl) {
             console.log("continue work on inject highlight")
             // after inject
             msg = "Highlight succesfully!"
+          }
+          else{
+            console.log("error in else")
+          }
+        }
+        resolve([res,msg]);
+      };
+  
+      req.onerror = function () {
+        console.error("** An error occurred during the XMLHttpRequest for the creation of a new user");
+        resolve("0");
+  
+        reject({
+          status: this.status,
+          statusText: req.statusText,
+        });
+      };
+    });
+  }
+
+  function uploadHistories(e, data) {
+    e.preventDefault();
+    var res = "0";
+  
+    const username = localStorage.getItem('username');
+    const access_token = localStorage.getItem('access_token');
+    const refresh_token = localStorage.getItem('refresh_token');
+  
+    const endpoint = "http://127.0.0.1:8000" + "/" + `user`;
+    const method = "PATCH";
+    console.log("patching urls to users ...")
+  
+    return new Promise(function (resolve, reject) {
+      let req = new XMLHttpRequest();
+      req.open(method, endpoint, true);
+      req.setRequestHeader("Authorization", access_token);
+      req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      req.send(data);
+  
+      req.onload = function () {
+        var data = JSON.parse(req.responseText);
+        console.log("result is",data)
+        var msg = "default"
+  
+        if(data) {
+          res = data.code;
+          message = data.message;
+          if (typeof res === 'undefined') {
+            res = "0";
+          }
+  
+          if (res === "200" || res === "201" ) {
+            console.log("upload success");
+            var result = data.result;
+            console.log(result)
+            // after inject
+            msg = "upload succesfully!"
+            // msgUser.style="opacity:1; color: green;"
+            // msgUser.textContent="Highlight succesfully!"
+            // inject code
+          } else if (res === "400") {
+              console.log("no new data");
+              msg = "no new data"
+              // msgUser.style="opacity:1; color: red;"
+              // msgUser.textContent="user history is empty"
+          }else if (res === "500") {
+              console.log("extract function error");
+              msg = "extract function error"
+              // msgUser.style="opacity:1; color: red;"
+              // msgUser.textContent="extract function error"
+          }else if (res === "401"){
+            token_verify("True", access_token,refresh_token,username, false)
+            // if token refresh is failed, it would redirect, following code would not be executed
+            console.log("continue work on uploading")
+            // after inject
+            uploadHistories(e,data)
+            msg = "upload succesfully!"
           }
           else{
             console.log("error in else")
