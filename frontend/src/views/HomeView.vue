@@ -1,29 +1,29 @@
 <template>
-  <div>
+  <div id="home" class="divide-y divide-gray-200">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <router-link class="navbar-brand ml-4 mb-2 nav-link" to="/" @click.native="backToHome">Adaptive Storyfinder</router-link>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-    <!--<nav class="navbar navbar-expand-lg navbar-light bg-light" style="display:block;">-->
-      <div class="container-fluid" style="text-align: center; max-height: 10vh; background-color: rgba(49, 46, 46, 0);;">
-        <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center" style="padding-top: 1vh;">
-          <v-col cols="2" >
-            <a class="navbar-brand" @click="backToHome" style="font-weight: bold; color: black; font-size: 20px;">Adaptive Storyfinder</a>
-            <button
-              class="navbar-toggler"
-              type="button"
-              data-toggle="collapse"
-              data-target="#navbarSupportedContent"
-              aria-controls="navbarSupportedContent"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span class="navbar-toggler-icon"></span>
-            </button>
-          </v-col>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
 
-          <v-col cols="1">
-            <div class="nav-item active">
-              <router-link class="nav-link" to="/" @click.native="openHistoryTab">Histories</router-link>
-            </div>
-          </v-col>
+          
+          <v-spacer></v-spacer>
+
+
+          <li class="nav-item active">
+            <router-link class="nav-link" to="/" @click.native="openHistoryTab">Histories</router-link>
+          </li>
 
           <v-col cols="1">
             <div class="nav-item active">
@@ -113,44 +113,42 @@
           </v-col>
 
 
+          <li class="nav-item active">
+            <form class="search-bar form-inline mx-auto ml-4" @submit.prevent="handleSearch">
+              <input
+                class="form-control mr-sm-2 rounded"
+                type="search"
+                placeholder="Search"
+                aria-label="Search"
+                v-model.trim="searchQuery"
+              />
+            </form>
+            
+          </li>
+        <li class="nav-item no-bullet-points">
+          <v-container v-if="isLoggedIn">
+            <span> {{ this.$store.getters.stateUser }}</span>
+          </v-container>
+        </li>
+        <li class="nav-item active">
+            <button
+              class="btn btn-outline-success my-2 my-sm-0 ml-2"
+              color="indigo-darken-3"
+              type="submit"
+              @click="handleSearch">
+              Search
+            </button>
+          </li>
 
-          <v-col cols="6" style="width: 100%;">
-            <div class="nav-item active" style="width: 100%;">
-              <form class="search-bar form-inline mx-auto ml-4" style="min-width: 100%; max-width: 100%;" @submit.prevent="handleSearch">
-                <b-form-input class="form-control mr-sm-2 rounded" v-model="searchQuery" placeholder="Search ..." aria-label="Search"></b-form-input>
-                
-              </form>
-            </div>
-          </v-col>
+        <li class="nav-item active no-bullet-points" v-if="!isLoggedIn">
+          <a class="nav-link" @click="login">Log In/ Sign Up</a>
+        </li>
 
-          <v-col cols="1">
-            <div class="nav-item active">
-              <button
-                class="btn btn-outline-success my-2 my-sm-0 ml-2"
-                color="indigo-darken-3"
-                type="submit"
-                @click="handleSearch"
-              >
-                Search
-              </button>
-            </div>
-          </v-col>
-
-          <v-col cols="1">
-            <div class="nav-item active">
-              
-              <v-container v-if="isLoggedIn">
-                <span> {{ this.$store.getters.stateUser }} </span>
-              </v-container>
-
-              <div v-if="!isLoggedIn">
-                <a class="nav-link" @click="login">Log In/ Sign Up</a>
-                </div>
-              <div v-if="isLoggedIn">
-                <a class="nav-link" @click="logout">Log Out</a>
-              </div>
-            </div>
-          </v-col>
+        <li class="nav-item active no-bullet-points" v-if="isLoggedIn">
+          <a class="nav-link" @click="logout">Log Out</a>
+        </li>
+      </div>
+    </nav>
 
         </v-row>
       </div>
