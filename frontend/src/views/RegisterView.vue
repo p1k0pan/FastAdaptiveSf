@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="padding-top: 2%;">
     <div
       class="main"
       style="bottom: 0;"

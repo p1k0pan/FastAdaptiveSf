@@ -29,6 +29,7 @@ const actions = {
     },
 
     async patchHistory(context, data) {
+        var historyUploaded = false
         context.commit('SET_STATUS_CODE', "0")
         var res = "0"
 
@@ -107,8 +108,9 @@ const actions = {
             });
         
       }
-
+      
         if (res == "404") {
+            res = "0"
             console.log("error 404 while trying to upload the history ...")
         }
 
@@ -116,8 +118,12 @@ const actions = {
             res = "0"
         }
         
+        if (res !== "0" && res !== "402") {
+            historyUploaded = true;
+        }
+
         context.commit('SET_STATUS_CODE', res) // res might be 402 now
-        context.commit('SET_HISTORY', state.history)
+        context.commit('SET_HISTORY', state.history, historyUploaded)
     },
     
     async resetHistory(context) {
@@ -265,8 +271,8 @@ const mutations = {
     },
 
 
-    SET_HISTORY(state, history) {
-        state.isHistoryValid = true;
+    SET_HISTORY(state, history, isHistoryValid) {
+        state.isHistoryValid = isHistoryValid;
         state.history = history;
     },
 

@@ -2,10 +2,10 @@
   <div>
 
     <!--<nav class="navbar navbar-expand-lg navbar-light bg-light" style="display:block;">-->
-      <div class="container-fluid" style="text-align: center; max-height: 10vh; background-color: rgba(49, 46, 46, 0);;">
-        <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center" style="padding-top: 1vh;">
+      <div class="container-fluid" id="top-div" style="text-align: center;">
+        <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center" style="padding-top: 0vh;">
           <v-col cols="3" >
-            <a class="navbar-brand" @click="backToHome" style="font-weight: bold; color: black; font-size: 20px;">Adaptive Storyfinder</a>
+            <a class="navbar-brand" @click="backToHome" style="font-weight: bold; color: black; font-size: 22px;">Adaptive Storyfinder</a>
             <button
               class="navbar-toggler"
               type="button"
@@ -18,21 +18,29 @@
               <span class="navbar-toggler-icon"></span>
             </button>
           </v-col>
-
+          
           <v-col cols="1">
-            <div class="nav-item active">
-              <router-link class="nav-link" to="/" @click.native="openHistoryTab">Histories</router-link>
+            <div class="nav-item active" style="margin-left: -10%">
+                <b-button variant="outline-primary" @click="openHistoryTab" :disabled="isLoggedIn" class="" style="padding: 1%;" >
+                  <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
+                    <b-icon  icon="file-earmark-ruled" aria-hidden="true"></b-icon>
+                    <span style="font-size: 16px;">My histories</span>
+                  </div>
+                </b-button>
             </div>
           </v-col>
 
           <v-col cols="1">
             <div class="nav-item active">
               <div >
-                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" :disabled="!isLoggedIn" class="" style="padding: 1%;">
-                    Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
+                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" :disabled="isLoggedIn" class="" style="padding: 1%;">
+                    <div style="text-align: center;">    
+                    Upload History 
+                      <b-icon style="display: block; margin: 0 auto;" icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
+                    </div>
                   </b-button>
 
-                  <b-modal ref="historyModal" style="overflow-y: auto;" id="modal-1" title="Upload your browser history!" @ok="sendHistory" :ok-disabled="!((uploadHistoryTab === 1 && isHistoryTextValid) || (uploadHistoryTab === 2 && isUploadedHistoryFileValid))" @close="resetHistory">
+                  <b-modal ref="historyModal" style="overflow-y: auto;" id="modal-1" title="Upload your browser history!" @ok="sendHistory" ok-title="Confirm" :ok-disabled="!((uploadHistoryTab === 1 && isHistoryTextValid) || (uploadHistoryTab === 2 && isUploadedHistoryFileValid))" @close="resetHistory">
 
                       <template #modal-title>
                         <div>
@@ -48,13 +56,14 @@
                       </template>
 
                     <div v-if=" uploadHistoryTab === 1" style="margin-bottom: 2%; margin-top: -1%;">
-                      Enter relevant website URLs that you have visited or that represent your preferences in the text box below and click OK.
+                      Enter relevant website URLs that you have visited or that represent your preferences in the text box below and click on Confirm.
                     </div>
                     <div v-if="uploadHistoryTab === 2" style="margin-bottom: 2%; margin-top: -1%;">
-                      Upload a .json or a .csv file containing relevant URLs of the websites you visited and click OK.
+                      Upload a .json or a .csv file containing relevant URLs of the websites you visited and click on Confirm.
                     </div>
 
-                    <div style="height: 100%;">
+
+                    <div style="height: 100%;" v-if="!uploadModalLoading">
                       <b-tabs content-class="mt-3" fill>
                         <b-tab title="Text" active @click="changeUploadTab('Text')" class="text-tab" style="height: 100%;">
                           <b-form-textarea
@@ -83,7 +92,7 @@
                         </b-tab>
                       </b-tabs>
 
-                      <div v-if="uploadHistoryTab === 1" style="margin-bottom: 3.3%;">
+                      <div v-if="uploadHistoryTab === 1" style="margin-bottom: 9.8%;">
                       </div>
 
                       <div v-if="uploadHistoryTab === 2">
@@ -104,9 +113,25 @@
                             ]
                           </pre>
                         </div>
-                      </div>
+                    </div>
+
+                    
+                    <div style="height: 100%; margin-top: 1%; color: red;" class="centered" v-if="!uploadModalLoading && historyUploadStatus === -1">
+                      <v-divider></v-divider>
+                      Could not upload the history!
+                    </div>
 
                     </div>
+
+                    <div style="height: 100%;" v-if="uploadModalLoading">
+                      <div class="loading-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div style="margin-bottom: 1%;">
+                          Uploading history
+                        </div>
+                        <div class="loader" style="display: block; text-align: center;"></div>
+                      </div>
+                    </div>
+
                   </b-modal>
                 </div>
             </div>
@@ -124,15 +149,16 @@
           </v-col>
 
           <v-col cols="1">
-            <div class="nav-item active">
-              <button
+            <div class="nav-item active" style="margin-left: -10%;">
+              <b-button
+                variant="outline-primary"
                 class="btn btn-outline-success my-2 my-sm-0 ml-2"
                 color="indigo-darken-3"
                 type="submit"
                 @click="handleSearch"
               >
                 Search
-              </button>
+              </b-button>
             </div>
           </v-col>
 
@@ -144,10 +170,21 @@
               </div>
 
               <div v-if="!isLoggedIn">
-                <v-button class="nav-link" @click="login">Log In</v-button>
+                <b-button variant="outline-primary" @click="login" class="" style="padding: 1%;" >
+                  <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
+                    <b-icon  icon="box-arrow-in-right" aria-hidden="true" style="padding-right: 4%; padding-top: 2%; padding-left: 1%;"></b-icon>
+                    <span style="font-size: 16px;">Log In</span>
+                  </div>
+                </b-button>
                 </div>
+
               <div v-if="isLoggedIn">
-                <v-button class="nav-link" @click="logout">Log Out</v-button>
+                <b-button variant="outline-primary" @click="logout" class="" style="padding: 1%;" >
+                  <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
+                    <b-icon  icon="box-arrow-in-left" aria-hidden="true" style="padding-right: 1%; padding-top: 2%; padding-left: 4%;"></b-icon>
+                    <span style="font-size: 16px;">Log Out</span>
+                  </div>
+                </b-button>
               </div>
             </div>
           </v-col>
@@ -161,7 +198,7 @@
 
 
 
-    <main>
+    <main style="margin-top: 1vh;">
 
       <div v-if="showSearchResult"
         style="bottom: 0;"
@@ -214,7 +251,7 @@
     </v-row>
 
 
-    <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === -1">
+    <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === -1" style="margin-top: 3%;">
           
           <div class="centered">
             Could not find any related articles ...
@@ -232,24 +269,26 @@
             <div class="cards" v-if="results.length > 0">
               <v-container style="margin-left: -1%; margin-top: -1%;">
                 <div class="container-fluid">
-                  <h4 style="margin-top: 0%;">All topics </h4>
+                  <h4 style="margin-top: 0%;" class="text-shadowed">All topics </h4>
 
                   <div style="margin-bottom: 1%;">
-                    <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none; margin-right: 2%" @click="unselectAllTags">Unselect All</b-button>
+                    <b-button style="border-radius: 4px; background-color: rgb(184, 199, 235); border: none; margin-right: 2%" @click="unselectAllTags">Unselect All</b-button>
                     <v-divider vertical></v-divider>
-                    <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;" @click="selectAllTags">Select All</b-button>
+                    <b-button style="border-radius: 4px; background-color: rgb(184, 199, 235); border: none;" @click="selectAllTags">Select All</b-button>
                   </div>
 
                   <div v-for="(tag, index) in allTags" class="checkbox_div" :key="tag + index">
                     <label>
-                      <input type="checkbox" v-model="selectedTags" :value="tag" @change="splitResults()">
+                      <input type="checkbox" v-model="selectedTags" :value="tag" @change="splitResults()" class="custom-checkbox">
                       <span class="checkbox-material">
                         <span class="check">
                         </span>
-                      </span> {{tag}}
+                      </span> {{ displayTag(tag) }}
                       <span> ({{ tagCounts[tag] }})</span>
                     </label>
                   </div>
+
+                  
 
                 </div>
               </v-container>
@@ -276,9 +315,9 @@
                         
                         <v-col cols="12">
                             <div class="authorDiv" style="margin-bottom:-1%;" v-if='getAuthorsLength(itemDict["authors"], idx)'>
-                              <p style="display:inline" class=""> {{ formatAuthors(itemDict["authors"]) }} </p>
+                              <p style="display:inline" class=""> <i class="fas fa-user"></i> {{ formatAuthors(itemDict["authors"]) }} </p>
 
-                              <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
+                              <span class="rightSpan"> <i class="far fa-clock"></i> {{ formatDate(itemDict["timestamp"]) }} </span>
                             </div>
                         </v-col>
 
@@ -315,7 +354,7 @@
                           <div>
                             <ul class="d-flex flex-wrap" style="margin-left: -3.5%; margin-top: -1.5%;">
                             <li v-for='(tag, index) in itemDict["tags"]' :key="tag + index" class="tag-list-item">
-                              <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;"> {{ tag.replace("'", "").replace("'", "") }} </b-button>
+                              <b-button class="btn-primary" style="border-radius: 8px; background-color: #F2F2F2; border: none;"> {{ displayTag(tag) }} </b-button>
                             </li>
                             </ul>
                           </div>
@@ -328,8 +367,8 @@
                       <hr class="dotted">
                       <hr class="dotted">
                     </div>
-                    <div v-if="(idx+1 === positive_index || idx+1 === positive_index + loadingSteps) && (loadingIndex + 1 < mainResults.length || loadingIndex - 1 <= idx )" class="centered"> <!-- v-if="loadMoreButton" -->
-                      <b-button @click="loadingIndex += loadingSteps">More ...</b-button>
+                    <div v-if="(idx+1 === positive_index) && (!showExtendedResults)" class="centered"> <!-- v-if="loadMoreButton" -->
+                      <b-button @click="handleLoadMoreButton" style="background-color: rgb(184, 199, 235); border-radius: 4px;">Load more of the less relevant results</b-button>
                     </div>
 
                     </li>
@@ -354,7 +393,7 @@
             <div class="cards" v-if="results.length > 0">
               <v-container style="margin-left: -2%;">
                 <div class="container-fluid">
-                  <h4 style="margin-top: 0%; margin-left: 0.1%;">Top topics</h4>
+                  <h4 style="margin-top: 0%; margin-left: 0.1%;" class="text-shadowed">Top topics</h4>
 
                   <div class="tag-container">
                   <ul class="d-flex flex-wrap" style="margin-left: -4%;">
@@ -363,7 +402,7 @@
                       v-for="(tag, idx) in topTags"
                       :key="tag + idx"
                     >
-                      <b-button style="border-radius: 8px; background-color: #d9dbd5; border: none;"> {{ tag.replace("'", "").replace("'", "") }} </b-button>
+                      <b-button class="btn-primary" style="border-radius: 8px; background-color: #F2F2F2; border: none;"> {{ displayTag(tag) }} </b-button>
                       
                     </li>
                   </ul>
@@ -397,9 +436,9 @@
                     
                     <v-col cols="12">
                         <div class="authorDiv" style="margin-bottom:-1%;" v-if='getAuthorsLength(itemDict["authors"], idx)'>
-                          <p class=""> {{ formatAuthorsForSideView(itemDict["authors"]) }} </p>
+                          <p class="" style="font-family: Arial, Helvetica, sans-serif;"> <i class="far fa-clock"></i> {{ formatAuthorsForSideView(itemDict["authors"]) }} </p>
 
-                          <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
+                          <span class="rightSpan"> <i class="far fa-clock"></i> {{ formatDate(itemDict["timestamp"]) }} </span>
                         </div>
                     </v-col>
                     
@@ -456,32 +495,92 @@
       <b-row align-v="center" align-h="center" class="justify-content-md-center">
           <b-col></b-col>
 
-          <b-col cols="8">
+          <b-col cols="9">
             <b-row class="mb-4 mt-4"></b-row>
 
             <div class="container-fluid">
         
 
-              <div v-if="this.$store.getters.tagsLoadingStatus === 0" class="centered"> 
-                <div>
-                Loading topics ...
+              <div v-if="this.$store.getters.tagsLoadingStatus === 0" class="centered">
+                <div class="loading-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                  <div style="margin-bottom: 2%;">
+                    Loading topics
+                  </div>
+                  <div class="loader" style="display: block; text-align: center;"></div>
                 </div>
-                <span class="loader" style="display: block; display: block; text-align: center; margin-bottom: 10px;"></span>
               </div>
-              <ul class="list-group " v-if="this.$store.getters.stateBothTags.length > 0 && this.$store.getters.tagsLoadingStatus === 1">
-                <li
-                  class="list-group-item no-border mb-2"
+
+
+              <ul class="list-group" v-if="this.$store.getters.stateBothTags.length > 0 && this.$store.getters.tagsLoadingStatus === 1">
+                <li 
+                  class="list-group-item no-border mb-1"
                   v-for="(item, index) in this.$store.getters.stateBothTags"
                   :key="index"
                 >
 
-                   <h3> {{ item["tag"] }} </h3>
+                   <h3 class="text-shadowed"> {{ displayTag(item["tag"]) }} </h3>
                   <b-row class="mb-4"></b-row>
 
 
                   <v-container style="position:relative">
-                    <v-slide-group show-arrows="always" id="article-slider">
+
+                    <v-slide-group show-arrows="never" id="article-slider" v-if="item['sites'].length < 3" style="margin-left: 4%;">
                       <v-slide-item 
+                        v-for="(sites, index) in item['sites']"
+                        :key="index"
+                        >
+                      
+
+                      <b-card class="mr-6">
+                        <div class="thumbnail">
+                          <a :href="sites['url']" target="_blank" class="linkAsText">
+                            <img :src="sites['thumbnail']" alt="..." style="width:100%">
+                            <div class="wordBreak overflowY">
+                              <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ sites["title"] }} </h5>
+
+
+                            </div>
+                          </a>
+                        </div>
+                      </b-card>
+                      </v-slide-item>
+                    </v-slide-group>
+
+                    <!--https://codepen.io/kasia123/pen/xxEmgmG-->
+                    <v-carousel v-if="item['sites'].length > 2" height="300" hide-delimiters progress="primary" show-arrows="hover"> 
+                      <template v-for="(sites, index) in item['sites']"> 
+                        <v-carousel-item v-if="(index + 1) % columns_per_slide === 1 || columns_per_slide === 1" 
+                              :key="index" style=""
+                                > 
+                                  <v-row class="flex-nowrap" style="height: 100%; margin-left: 3.2%; width: 90%;"> 
+                                    <template v-for="(n,i) in columns_per_slide"> 
+                                      <template v-if="(+index + i) < item['sites'].length"> 
+
+                                        <v-col :key="i">
+                                          <b-card class="" v-if="(+index + i) < item['sites'].length" style="height: 100%;">
+                                            <div class="thumbnail">
+                                              <a :href="sites['url']" target="_blank" class="linkAsText">
+                                                <img :src="sites['thumbnail']" alt="..." style="width:100%">
+                                                <div class="wordBreak overflowY">
+                                                  <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ sites["title"] }} </h5>
+
+
+                                                </div>
+                                              </a>
+                                            </div>
+                                          </b-card>
+                                        </v-col> 
+
+                                      </template> 
+                                    </template> 
+                                  </v-row> 
+                          </v-carousel-item>
+                        </template> 
+                      </v-carousel>  
+
+
+                    <!--<v-carousel>
+                      <v-carousel-item
                         v-for="(sites, index) in item['sites']"
                         :key="index">
                       
@@ -500,31 +599,8 @@
                           </a>
                         </div>
                       </b-card>
-     <!--
-                  <v-container style="position:relative">
-                    <label for="article-slider"> {{ item["tag"] }} </label>
-
-                    <v-slide-group multiple show-arrows="always" id="article-slider">
-                      <v-slide-item 
-                        v-for="(sites, index) in item['sites']"
-                        :key="index">
-
-                      
-                      <b-card no-body class="overflow-hidden mb-3 mx-3 topic div"
-                      >
-                        <b-card-header>
-                          <b-card-img :src="sites['thumbnail']" alt="Image" fluid-grow bottom></b-card-img>
-                        </b-card-header>
-                        <b-card-body class="h-100 d-flex flex-column">
-                            <b-card-text>
-                            <p> {{ sites["title"] }} </p>
-                            </b-card-text>
-                        </b-card-body>
-                      </b-card>-->
-
-                  
-                      </v-slide-item>
-                    </v-slide-group>
+                      ></v-carousel-item>
+                    </v-carousel> -->
                   </v-container>
 
 
@@ -755,8 +831,24 @@ export default Vue.extend({
 
   data() {
     return {
+      slider: [
+        "red", 
+        "green", 
+        "orange", 
+        "blue", 
+        "pink", 
+        "purple", 
+        "indigo", 
+        "cyan", 
+        "deep-purple", 
+        "light-green", 
+        "deep-orange", 
+        "blue-grey"
+      ],
+
       not_connected: false,
 
+      uploadModalLoading: false,
       loginStatus: this.$store.getters.isAuthenticated,
       searchStatus: 0,
       
@@ -769,12 +861,13 @@ export default Vue.extend({
       showSearchResult: false,
       showHistories: false,
       showTopics: true,
+      currentTagSlide: 0,
 
       isUploadedHistoryFileValid: false,
       fileSelected: false,
       showFileSelect: true,
       uploadHistoryTab: 1,
-      historyUploadStatus: 0,
+      historyUploadStatus: 1,
       historyUserInput: "",
       validUrls: [],
       multiLinePlaceholder: "URL1\nURL2\nURL3,\nURL4 URL5,\nURL6\n...",
@@ -805,6 +898,7 @@ export default Vue.extend({
       loadMoreButton: true,
       loadingIndex: 0,
       loadingSteps: 5,
+      showExtendedResults: false,
       
 
       testSearchData: [
@@ -852,7 +946,7 @@ export default Vue.extend({
           title: "Going Down the Restaurant Memory Lane of My Childhood",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: `"['Danna Reich Colman']"`,
+          authors: `"['Danna Reich Colman', 'Danna Reich Colman', 'Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
           tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
           text: "text1",
@@ -864,7 +958,7 @@ export default Vue.extend({
           title: "I ordered chole bhature and received customer experience in return",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: `"['Danna Reich Colman']"`,
+          authors: `"['Danna Reich Colman', 'Danna Reich Colman', 'Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
           tags: `"['Business', 'Loyalty Program', 'Restaurant Business', 'Rewards Programs', 'Loyalty']"`,
           text: "text1",
@@ -1072,6 +1166,22 @@ export default Vue.extend({
       return this.$store.getters.isAuthenticated;
     },
 
+    columns_per_slide() {
+      if (this.$vuetify.breakpoint.xl) {
+        return 4;
+      }
+
+      if (this.$vuetify.breakpoint.lg) {
+        return 3;
+      }
+
+      if (this.$vuetify.breakpoint.md) {
+        return 2;
+      }
+
+      return 1;
+    },
+
     tagsLoadingStatus: function () {
       return this.$store.getters.tagsLoadingStatus
     },
@@ -1123,9 +1233,15 @@ export default Vue.extend({
 
     async logout() {
       await this.$store.dispatch("logOut");
+      this.$store.dispatch("removeUserTags");
       // this.$router.push("/");
     },
 
+
+    handleSlideChange(newValue) {
+      this.currentTagSlide = newValue;
+      console.log('Current slide index:', newValue);
+    },
 
     startTimeout() {
       this.displayUploadInformation = true;
@@ -1385,10 +1501,11 @@ export default Vue.extend({
 
     resetHistory() {
       this.isUploadedHistoryFileValid = false
+      this.isHistoryTextValid = false
       this.fileSelected = false
       this.showFileSelect = true
       this.uploadHistoryTab = 1
-      this.historyUploadStatus = 0
+      this.historyUploadStatus = 1
       this.displayUploadInformation = false
       this.timeoutId = null
 
@@ -1406,6 +1523,11 @@ export default Vue.extend({
         });
     },
 
+    handleLoadMoreButton() {
+      this.showExtendedResults = !this.showExtendedResults
+      this.loadingIndex += this.loadingSteps
+    },
+
 
     onCancelLoading() {
       console.log('User cancelled the loader.')
@@ -1416,6 +1538,7 @@ export default Vue.extend({
     async handleSearch() {
       var res = "0"
       this.showSearchResult = true;
+      this.showExtendedResults = false;
       this.searchStatus = 0;
 
       // async
@@ -1527,7 +1650,7 @@ export default Vue.extend({
     if(this.isLoggedIn) {
       if(res === "402") {
         console.log("forcefully logging out")
-        this.logout
+        this.logout()
 
       } else {
         var res = "0"
@@ -1846,7 +1969,9 @@ export default Vue.extend({
 
 
 
-    async sendHistory() {
+    async sendHistory(evt) {
+      this.uploadModalLoading = true
+      evt.preventDefault()
 
       this.historyUploadStatus = 0
       console.log("send history to server ...")
@@ -1865,11 +1990,14 @@ export default Vue.extend({
       }
 
       if (!this.$store.getters.stateHistory) return;
+      
+
       await this.$store.dispatch("patchHistory", data);
       console.log("history status code")
       console.log(this.$store.getters.historyStatusCode)
-
-      if (this.$store.getters.historyStatusCode !== "0") {
+      
+      if (this.$store.getters.historyStatusCode !== "0" && this.$store.getters.historyStatusCode !== "402") {
+        console.log("upload his done")
         this.historyUploadStatus = 1;
 
         if (this.$store.getters.historyStatusCode === "200" || this.$store.getters.historyStatusCode === "201") {
@@ -1883,12 +2011,12 @@ export default Vue.extend({
         }
 
       } else {
-        this.historyUploadStatus = -1;
+        this.historyUploadStatus = -1; // this.historyUploadStatus = -1;
       }
 
 
       if(this.$store.getters.historyStatusCode === "402") {
-        this.logout
+        this.logout()
 
       } else {
         // Update history management list
@@ -1933,11 +2061,16 @@ export default Vue.extend({
         });
       }
 
+      if(this.not_connected) {
+          this.historyUploadStatus = 1
+      } 
 
+      if(this.historyUploadStatus === 1) {
+        this.backToHome();
+        this.resetHistory();
 
-      if(this.$store.getters.isHistoryValid) {
-        //this.fileSelected = true;
-        //this.showFileSelect = false;
+        this.uploadModalLoading = false
+        this.$bvModal.hide('modal-1')
       }
       
       //this.$emit("file-upload", this.file);
@@ -1947,6 +2080,13 @@ export default Vue.extend({
 
     },
 
+
+    displayTag(tag) {
+      if( String(tag) === "USER-PREF") {
+        tag = "These articles might be interesting for you"
+      }
+      return tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
+    },
 
 
     closeSummaryModal() {
@@ -2135,6 +2275,11 @@ hr.dotted {
     text-decoration: none;
 }
 
+.custom-checkbox {
+  transform: scale(1.2);
+  margin-right: 4px;
+}
+
 .resultRow {
   display: flex;
   flex-wrap: wrap;
@@ -2163,6 +2308,11 @@ list-style-type: none;
   padding-right: 1%;
 }
 
+#modal-1 .modal-footer .btn-secondary {
+    background-color: rgb(215, 157, 157); /* Change the background color to red */
+    color: white; /* Change the text color to white */
+  }
+
 .item {
   margin-right: 10px;
 }
@@ -2179,6 +2329,12 @@ a {
 .result-list-item {
 }
 
+
+.custom-cancel-color {
+  background-color: rgba(255, 0, 0, 0.5); /* Change the color and opacity as desired */
+  border-color: rgba(255, 0, 0, 0.5); /* Match the border color to the background color */
+  color: #de4a4a; /* Text color for the cancel button */
+}
 
 .rightSpan {
   text-align: right;
@@ -2353,6 +2509,11 @@ a {
   color: blue; /* Change color on hover, adjust as needed */
 }
 
+.text-shadowed {
+  text-shadow: 0px 0.2px 1px grey, 0px 0px 1px grey;
+}
+
+
 
 /* Small devices (landscape phones, 544px and up) */
 @media (min-width: 544px) {
@@ -2396,7 +2557,8 @@ a {
     padding: 0;
   }
 
-    
+
+
 header {
   padding-top: 20px;
   padding-bottom: 20px;
@@ -2446,5 +2608,22 @@ header {
     }
   }
 }
+
+
+
+
+.btn-primary:hover{
+    background-color: rgb(122, 122, 122) !important;
+}
+
+#top-div {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: linear-gradient(to left, rgb(184, 199, 235), rgb(145, 162, 202));
+  text-align: center;
+  max-height: 10vh;
+}
+
 
 </style>

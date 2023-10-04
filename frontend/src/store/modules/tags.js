@@ -13,13 +13,14 @@ const state = {
 const getters = {
   stateRandomTags: state => state.random_tags,
   stateUserTags: state => state.user_tags,
-  stateBothTags: state => state.random_tags.concat(state.user_tags),
+  stateBothTags: state => state.user_tags.concat(state.random_tags),
   tagsLoadingStatus: state => state.loaded,
 };
 
 const actions = {
 
     async loadTags(context) {
+      context.commit('SET_RANDOM_TAGS', [])
       context.commit('SET_LOADED', 0)
 
       var res = "0"
@@ -140,6 +141,42 @@ const actions = {
 
                         summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
                       },
+                      {
+                        id: 8,
+                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        url: "https://medium.com/p/c00c8cca394a",
+                        thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                        authors: `"['Danna Reich Colman']"`,
+                        timestamp: "2016-06-30 06:54:17.528000+00:00",
+                        tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
+                        text: "text1",
+
+                        summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                      },
+                      {
+                        id: 9,
+                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        url: "https://medium.com/p/c00c8cca394a",
+                        thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                        authors: `"['Danna Reich Colman']"`,
+                        timestamp: "2016-06-30 06:54:17.528000+00:00",
+                        tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
+                        text: "text1",
+
+                        summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                      },
+                      {
+                        id: 10,
+                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        url: "https://medium.com/p/c00c8cca394a",
+                        thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                        authors: `"['Danna Reich Colman']"`,
+                        timestamp: "2016-06-30 06:54:17.528000+00:00",
+                        tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
+                        text: "text1",
+
+                        summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                      },
                   ],
               },
 
@@ -185,7 +222,41 @@ const actions = {
                   ],
               },
         ]
+
+        var testTagsData2 = [
+          {
+            tag: "USER-PREF",
+            sites: [
+                {
+                  id: 1,
+                  title: "Special User menu 2",
+                  url: "https://medium.com/p/c00c8cca394a",
+                  thumbnail: 'https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg',
+                  authors: `"['Danna Reich Colman']"`,
+                  timestamp: "2016-06-30 06:54:17.528000+00:00",
+                  tags: `"['TECH']"`,
+                  text: "text1",
+
+                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                },
+                {
+                  id: 2,
+                  title: "Just for user",
+                  url: "https://medium.com/p/c00c8cca394a",
+                  thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
+                  authors: `"['Danna Reich Colman']"`,
+                  timestamp: "2016-06-30 06:54:17.528000+00:00",
+                  tags: `"['TECH', 'BUSINESS']"`,
+                  text: "text1",
+
+                  summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                },
+            ],
+          },
+  ]
         
+
+        context.commit('SET_USER_TAGS', testTagsData2)
         results = testTagsData
       }
 
@@ -211,6 +282,7 @@ const actions = {
 
 
     async loadUserTags(context, formDict) {
+      context.commit('SET_USER_TAGS', [])
       context.commit('SET_LOADED', 0)
       const username = formDict["username"]
       var res = "0"
