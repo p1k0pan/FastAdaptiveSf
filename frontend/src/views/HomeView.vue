@@ -21,7 +21,7 @@
           
           <v-col cols="1">
             <div class="nav-item active" style="margin-left: -10%">
-                <b-button variant="outline-primary" @click="openHistoryTab" :disabled="isLoggedIn" class="" style="padding: 1%;" >
+                <b-button variant="outline-primary" @click="openHistoryTab" :disabled="!isLoggedIn" class="" style="padding: 1%;" >
                   <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
                     <b-icon  icon="file-earmark-ruled" aria-hidden="true"></b-icon>
                     <span style="font-size: 16px;">My histories</span>
@@ -33,7 +33,7 @@
           <v-col cols="1">
             <div class="nav-item active">
               <div >
-                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" :disabled="isLoggedIn" class="" style="padding: 1%;">
+                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" :disabled="!isLoggedIn" class="" style="padding: 1%;">
                     <div style="text-align: center;">    
                     Upload History 
                       <b-icon style="display: block; margin: 0 auto;" icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
@@ -2622,7 +2622,7 @@ header {
   z-index: 999;
   background: linear-gradient(to left, rgb(184, 199, 235), rgb(145, 162, 202));
   text-align: center;
-  max-height: 12vh;
+  max-height: 15vh;
 }
 
 
