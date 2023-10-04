@@ -106,20 +106,8 @@ const actions = {
                   tag: "TECH",
                   sites: [
                       {
-                        id: 8,
-                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
-                        url: "https://medium.com/p/c00c8cca394a",
-                        thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-                        authors: `"['Danna Reich Colman']"`,
-                        timestamp: "2016-06-30 06:54:17.528000+00:00",
-                        tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
-                        text: "text1",
-
-                        summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                      },
-                      {
                         id: 9,
-                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        title: "2 Is Your Loyalty Program Rewarding the Right Customers?",
                         url: "https://medium.com/p/c00c8cca394a",
                         thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
                         authors: `"['Danna Reich Colman']"`,
@@ -131,7 +119,7 @@ const actions = {
                       },
                       {
                         id: 10,
-                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        title: "3 Is Your Loyalty Program Rewarding the Right Customers?",
                         url: "https://medium.com/p/c00c8cca394a",
                         thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
                         authors: `"['Danna Reich Colman']"`,
@@ -143,7 +131,7 @@ const actions = {
                       },
                       {
                         id: 8,
-                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        title: "4 Is Your Loyalty Program Rewarding the Right Customers?",
                         url: "https://medium.com/p/c00c8cca394a",
                         thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
                         authors: `"['Danna Reich Colman']"`,
@@ -155,7 +143,7 @@ const actions = {
                       },
                       {
                         id: 9,
-                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        title: "5 Is Your Loyalty Program Rewarding the Right Customers?",
                         url: "https://medium.com/p/c00c8cca394a",
                         thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
                         authors: `"['Danna Reich Colman']"`,
@@ -167,7 +155,7 @@ const actions = {
                       },
                       {
                         id: 10,
-                        title: "Is Your Loyalty Program Rewarding the Right Customers?",
+                        title: "6 Is Your Loyalty Program Rewarding the Right Customers?",
                         url: "https://medium.com/p/c00c8cca394a",
                         thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
                         authors: `"['Danna Reich Colman']"`,

@@ -554,15 +554,15 @@
                                 > 
                                   <v-row class="flex-nowrap" style="height: 100%; margin-left: 3.2%; width: 90%;"> 
                                     <template v-for="(n,i) in columns_per_slide"> 
-                                      <template v-if="(+index + i) < item['sites'].length"> 
-
+                                      <template > 
+                                        
                                         <v-col :key="i">
                                           <b-card class="" v-if="(+index + i) < item['sites'].length" style="height: 100%;">
                                             <div class="thumbnail">
-                                              <a :href="sites['url']" target="_blank" class="linkAsText">
-                                                <img :src="sites['thumbnail']" alt="..." style="width:100%">
+                                              <a :href="item['sites'][+index + i]['url']" target="_blank" class="linkAsText">
+                                                <img :src="item['sites'][+index + i]['thumbnail']" alt="..." style="width:100%">
                                                 <div class="wordBreak overflowY">
-                                                  <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ sites["title"] }} </h5>
+                                                  <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ item['sites'][+index + i]["title"] }} </h5>
 
 
                                                 </div>
@@ -578,6 +578,7 @@
                         </template> 
                       </v-carousel>  
 
+              
 
                     <!--<v-carousel>
                       <v-carousel-item
