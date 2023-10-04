@@ -44,11 +44,11 @@ def update_histories(user_name: str, upload_urls:List, device:str):
 
     new_history =[]
     content_to_emb =[]
-    topics={}
     try:
         df = pd.read_json(directory_name+user_file+".json")
         i= int(df['index'].iloc[-1])
         print("last index: ", i)
+        print("date", df["date"])
         i+=1
         flag=True
     except FileNotFoundError:
@@ -91,6 +91,7 @@ def update_histories(user_name: str, upload_urls:List, device:str):
     df.to_json(directory_name+user_file+".json", orient='records', indent=4)
     
     # get occurence of topic
+    topics={}
     for i in new_history:
         for t in i["topic"]:
             if t in topics:
@@ -99,6 +100,7 @@ def update_histories(user_name: str, upload_urls:List, device:str):
                 topics[t]=1
     sorted_occurrence = dict(sorted(topics.items(), key=lambda x: x[1], reverse=True))
     keys = list(sorted_occurrence.keys())
+    print(keys)
     first_key = keys[0] if len(keys) > 0 else None
     second_key = keys[1] if len(keys) > 1 else None
     with open(directory_name+user_file+".txt", 'w') as file:
