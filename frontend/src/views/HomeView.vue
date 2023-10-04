@@ -576,7 +576,7 @@
                                   </v-row> 
                           </v-carousel-item>
                         </template> 
-                      </v-carousel>  
+                      </v-carousel> 
 
               
 
