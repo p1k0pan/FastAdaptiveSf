@@ -48,6 +48,7 @@ def update_histories(user_name: str, upload_urls:List, device:str):
         df = pd.read_json(directory_name+user_file+".json")
         i= int(df['index'].iloc[-1])
         print("last index: ", i)
+        df["date"]=df["date"].astype('str')
         print("date", df["date"])
         i+=1
         flag=True
@@ -92,8 +93,8 @@ def update_histories(user_name: str, upload_urls:List, device:str):
     
     # get occurence of topic
     topics={}
-    for i in new_history:
-        for t in i["topic"]:
+    for item in df['topic']:
+        for t in item:
             if t in topics:
                 topics[t]+=1
             else:
@@ -143,7 +144,7 @@ def extract_url(url, i, d):
         else:
             content_to_emb.append("")
             
-        item={ 'index': i,'title': title, 'url': str(url), 'content': content, "date": d, "topic": topic}
+        item={ 'index': i,'title': title, 'url': str(url), 'content': content, "date": str(d), "topic": topic}
 
         new_history.append(item)
     except Exception as e:
