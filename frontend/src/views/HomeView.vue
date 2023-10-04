@@ -56,13 +56,14 @@
                       </template>
 
                     <div v-if=" uploadHistoryTab === 1" style="margin-bottom: 2%; margin-top: -1%;">
-                      Enter relevant website URLs that you have visited or that represent your preferences in the text box below and click OK.
+                      Enter relevant website URLs that you have visited or that represent your preferences in the text box below and click on Confirm.
                     </div>
                     <div v-if="uploadHistoryTab === 2" style="margin-bottom: 2%; margin-top: -1%;">
-                      Upload a .json or a .csv file containing relevant URLs of the websites you visited and click OK.
+                      Upload a .json or a .csv file containing relevant URLs of the websites you visited and click on Confirm.
                     </div>
 
-                    <div style="height: 100%;">
+
+                    <div style="height: 100%;" v-if="!uploadModalLoading">
                       <b-tabs content-class="mt-3" fill>
                         <b-tab title="Text" active @click="changeUploadTab('Text')" class="text-tab" style="height: 100%;">
                           <b-form-textarea
@@ -91,7 +92,7 @@
                         </b-tab>
                       </b-tabs>
 
-                      <div v-if="uploadHistoryTab === 1" style="margin-bottom: 3.3%;">
+                      <div v-if="uploadHistoryTab === 1" style="margin-bottom: 9.8%;">
                       </div>
 
                       <div v-if="uploadHistoryTab === 2">
@@ -112,9 +113,25 @@
                             ]
                           </pre>
                         </div>
-                      </div>
+                    </div>
+
+                    
+                    <div style="height: 100%; margin-top: 1%; color: red;" class="centered" v-if="!uploadModalLoading && historyUploadStatus === -1">
+                      <v-divider></v-divider>
+                      Could not upload the history!
+                    </div>
 
                     </div>
+
+                    <div style="height: 100%;" v-if="uploadModalLoading">
+                      <div class="loading-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div style="margin-bottom: 1%;">
+                          Uploading history
+                        </div>
+                        <div class="loader" style="display: block; text-align: center;"></div>
+                      </div>
+                    </div>
+
                   </b-modal>
                 </div>
             </div>
@@ -419,7 +436,7 @@
                     
                     <v-col cols="12">
                         <div class="authorDiv" style="margin-bottom:-1%;" v-if='getAuthorsLength(itemDict["authors"], idx)'>
-                          <p class=""> {{ formatAuthorsForSideView(itemDict["authors"]) }} </p>
+                          <p class="" style="font-family: Arial, Helvetica, sans-serif;"> {{ formatAuthorsForSideView(itemDict["authors"]) }} </p>
 
                           <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
                         </div>
@@ -478,7 +495,7 @@
       <b-row align-v="center" align-h="center" class="justify-content-md-center">
           <b-col></b-col>
 
-          <b-col cols="8">
+          <b-col cols="9">
             <b-row class="mb-4 mt-4"></b-row>
 
             <div class="container-fluid">
@@ -494,9 +511,9 @@
               </div>
 
 
-              <ul class="list-group " v-if="this.$store.getters.stateBothTags.length > 0 && this.$store.getters.tagsLoadingStatus === 1">
-                <li
-                  class="list-group-item no-border mb-2"
+              <ul class="list-group" v-if="this.$store.getters.stateBothTags.length > 0 && this.$store.getters.tagsLoadingStatus === 1">
+                <li 
+                  class="list-group-item no-border mb-1"
                   v-for="(item, index) in this.$store.getters.stateBothTags"
                   :key="index"
                 >
@@ -506,8 +523,63 @@
 
 
                   <v-container style="position:relative">
-                    <v-slide-group show-arrows="always" id="article-slider">
+
+                    <v-slide-group show-arrows="always" id="article-slider" v-if="item['sites'].length < 3">
                       <v-slide-item 
+                        v-for="(sites, index) in item['sites']"
+                        :key="index">
+                      
+
+                      <b-card class="mr-2">
+                        <div class="thumbnail">
+                          <a :href="sites['url']" target="_blank" class="linkAsText">
+                            <img :src="sites['thumbnail']" alt="..." style="width:100%">
+                            <div class="wordBreak overflowY">
+                              <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ sites["title"] }} </h5>
+
+
+                            </div>
+                          </a>
+                        </div>
+                      </b-card>
+                      </v-slide-item>
+                    </v-slide-group>
+
+                    <!--https://codepen.io/kasia123/pen/xxEmgmG-->
+                    <v-carousel v-if="item['sites'].length > 2" height="300" hide-delimiters progress="primary" show-arrows="hover"> 
+                      <template v-for="(sites, index) in item['sites']"> 
+                        <v-carousel-item v-if="(index + 1) % columns_per_slide === 1 || columns_per_slide === 1" 
+                              :key="index" style=""
+                                > 
+                                  <v-row class="flex-nowrap" style="height: 100%; margin-left: 4%; width: 90%;"> 
+                                    <template v-for="(n,i) in columns_per_slide"> 
+                                      <template v-if="(+index + i) < item['sites'].length"> 
+
+                                        <v-col :key="i">
+                                          <b-card class="" v-if="(+index + i) < item['sites'].length" style="height: 100%;">
+                                            <div class="thumbnail">
+                                              <a :href="sites['url']" target="_blank" class="linkAsText">
+                                                <img :src="sites['thumbnail']" alt="..." style="width:100%">
+                                                <div class="wordBreak overflowY">
+                                                  <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ sites["title"] }} </h5>
+
+
+                                                </div>
+                                              </a>
+                                            </div>
+                                          </b-card>
+                                        </v-col> 
+
+                                      </template> 
+                                    </template> 
+                                  </v-row> 
+                          </v-carousel-item>
+                        </template> 
+                      </v-carousel>  
+
+
+                    <!--<v-carousel>
+                      <v-carousel-item
                         v-for="(sites, index) in item['sites']"
                         :key="index">
                       
@@ -526,31 +598,8 @@
                           </a>
                         </div>
                       </b-card>
-     <!--
-                  <v-container style="position:relative">
-                    <label for="article-slider"> {{ item["tag"] }} </label>
-
-                    <v-slide-group multiple show-arrows="always" id="article-slider">
-                      <v-slide-item 
-                        v-for="(sites, index) in item['sites']"
-                        :key="index">
-
-                      
-                      <b-card no-body class="overflow-hidden mb-3 mx-3 topic div"
-                      >
-                        <b-card-header>
-                          <b-card-img :src="sites['thumbnail']" alt="Image" fluid-grow bottom></b-card-img>
-                        </b-card-header>
-                        <b-card-body class="h-100 d-flex flex-column">
-                            <b-card-text>
-                            <p> {{ sites["title"] }} </p>
-                            </b-card-text>
-                        </b-card-body>
-                      </b-card>-->
-
-                  
-                      </v-slide-item>
-                    </v-slide-group>
+                      ></v-carousel-item>
+                    </v-carousel> -->
                   </v-container>
 
 
@@ -781,8 +830,24 @@ export default Vue.extend({
 
   data() {
     return {
+      slider: [
+        "red", 
+        "green", 
+        "orange", 
+        "blue", 
+        "pink", 
+        "purple", 
+        "indigo", 
+        "cyan", 
+        "deep-purple", 
+        "light-green", 
+        "deep-orange", 
+        "blue-grey"
+      ],
+
       not_connected: true,
 
+      uploadModalLoading: false,
       loginStatus: this.$store.getters.isAuthenticated,
       searchStatus: 0,
       
@@ -795,12 +860,13 @@ export default Vue.extend({
       showSearchResult: false,
       showHistories: false,
       showTopics: true,
+      currentTagSlide: 0,
 
       isUploadedHistoryFileValid: false,
       fileSelected: false,
       showFileSelect: true,
       uploadHistoryTab: 1,
-      historyUploadStatus: 0,
+      historyUploadStatus: 1,
       historyUserInput: "",
       validUrls: [],
       multiLinePlaceholder: "URL1\nURL2\nURL3,\nURL4 URL5,\nURL6\n...",
@@ -1099,6 +1165,22 @@ export default Vue.extend({
       return this.$store.getters.isAuthenticated;
     },
 
+    columns_per_slide() {
+      if (this.$vuetify.breakpoint.xl) {
+        return 4;
+      }
+
+      if (this.$vuetify.breakpoint.lg) {
+        return 3;
+      }
+
+      if (this.$vuetify.breakpoint.md) {
+        return 2;
+      }
+
+      return 1;
+    },
+
     tagsLoadingStatus: function () {
       return this.$store.getters.tagsLoadingStatus
     },
@@ -1154,6 +1236,11 @@ export default Vue.extend({
       // this.$router.push("/");
     },
 
+
+    handleSlideChange(newValue) {
+      this.currentTagSlide = newValue;
+      console.log('Current slide index:', newValue);
+    },
 
     startTimeout() {
       this.displayUploadInformation = true;
@@ -1417,7 +1504,7 @@ export default Vue.extend({
       this.fileSelected = false
       this.showFileSelect = true
       this.uploadHistoryTab = 1
-      this.historyUploadStatus = 0
+      this.historyUploadStatus = 1
       this.displayUploadInformation = false
       this.timeoutId = null
 
@@ -1882,6 +1969,7 @@ export default Vue.extend({
 
 
     async sendHistory(evt) {
+      this.uploadModalLoading = true
       evt.preventDefault()
 
       this.historyUploadStatus = 0
@@ -1908,6 +1996,7 @@ export default Vue.extend({
       console.log(this.$store.getters.historyStatusCode)
       
       if (this.$store.getters.historyStatusCode !== "0" && this.$store.getters.historyStatusCode !== "402") {
+        console.log("upload his done")
         this.historyUploadStatus = 1;
 
         if (this.$store.getters.historyStatusCode === "200" || this.$store.getters.historyStatusCode === "201") {
@@ -1921,7 +2010,7 @@ export default Vue.extend({
         }
 
       } else {
-        this.historyUploadStatus = -1;
+        this.historyUploadStatus = -1; // this.historyUploadStatus = -1;
       }
 
 
@@ -1979,6 +2068,7 @@ export default Vue.extend({
         this.backToHome();
         this.resetHistory();
 
+        this.uploadModalLoading = false
         this.$bvModal.hide('modal-1')
       }
       
@@ -1992,7 +2082,7 @@ export default Vue.extend({
 
     displayTag(tag) {
       if( String(tag) === "USER-PREF") {
-        tag = "This might be interesting for you"
+        tag = "These articles might be interesting for you"
       }
       return tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
     },
