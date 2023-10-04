@@ -1442,6 +1442,9 @@ export default Vue.extend({
 
       var concatenatedString = finalArray.join(', ');
 
+      if (concatenatedString.length === 0) {
+        return "/";
+      } 
       return concatenatedString
     },
 
@@ -1478,6 +1481,9 @@ export default Vue.extend({
 
       }
 
+      if (concatenatedString.length === 0) {
+        return "/";
+      } 
       return firstAuthor
     },
 
