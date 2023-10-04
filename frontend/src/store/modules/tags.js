@@ -98,7 +98,7 @@ const actions = {
         });
         } 
 
-      var mock = true
+      var mock = false
       if(mock) {
 
         var testTagsData = [

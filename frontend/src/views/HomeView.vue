@@ -251,7 +251,7 @@
     </v-row>
 
 
-    <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === -1">
+    <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === -1" style="margin-top: 3%;">
           
           <div class="centered">
             Could not find any related articles ...
@@ -315,9 +315,9 @@
                         
                         <v-col cols="12">
                             <div class="authorDiv" style="margin-bottom:-1%;" v-if='getAuthorsLength(itemDict["authors"], idx)'>
-                              <p style="display:inline" class=""> {{ formatAuthors(itemDict["authors"]) }} </p>
+                              <p style="display:inline" class=""> <i class="fas fa-user"></i> {{ formatAuthors(itemDict["authors"]) }} </p>
 
-                              <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
+                              <span class="rightSpan"> <i class="far fa-clock"></i> {{ formatDate(itemDict["timestamp"]) }} </span>
                             </div>
                         </v-col>
 
@@ -436,9 +436,9 @@
                     
                     <v-col cols="12">
                         <div class="authorDiv" style="margin-bottom:-1%;" v-if='getAuthorsLength(itemDict["authors"], idx)'>
-                          <p class="" style="font-family: Arial, Helvetica, sans-serif;"> {{ formatAuthorsForSideView(itemDict["authors"]) }} </p>
+                          <p class="" style="font-family: Arial, Helvetica, sans-serif;"> <i class="far fa-clock"></i> {{ formatAuthorsForSideView(itemDict["authors"]) }} </p>
 
-                          <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
+                          <span class="rightSpan"> <i class="far fa-clock"></i> {{ formatDate(itemDict["timestamp"]) }} </span>
                         </div>
                     </v-col>
                     
@@ -503,7 +503,7 @@
 
               <div v-if="this.$store.getters.tagsLoadingStatus === 0" class="centered">
                 <div class="loading-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                  <div style="margin-bottom: 1%;">
+                  <div style="margin-bottom: 2%;">
                     Loading topics
                   </div>
                   <div class="loader" style="display: block; text-align: center;"></div>
@@ -524,13 +524,14 @@
 
                   <v-container style="position:relative">
 
-                    <v-slide-group show-arrows="always" id="article-slider" v-if="item['sites'].length < 3">
+                    <v-slide-group show-arrows="never" id="article-slider" v-if="item['sites'].length < 3" style="margin-left: 4%;">
                       <v-slide-item 
                         v-for="(sites, index) in item['sites']"
-                        :key="index">
+                        :key="index"
+                        >
                       
 
-                      <b-card class="mr-2">
+                      <b-card class="mr-6">
                         <div class="thumbnail">
                           <a :href="sites['url']" target="_blank" class="linkAsText">
                             <img :src="sites['thumbnail']" alt="..." style="width:100%">
@@ -551,7 +552,7 @@
                         <v-carousel-item v-if="(index + 1) % columns_per_slide === 1 || columns_per_slide === 1" 
                               :key="index" style=""
                                 > 
-                                  <v-row class="flex-nowrap" style="height: 100%; margin-left: 4%; width: 90%;"> 
+                                  <v-row class="flex-nowrap" style="height: 100%; margin-left: 3.2%; width: 90%;"> 
                                     <template v-for="(n,i) in columns_per_slide"> 
                                       <template v-if="(+index + i) < item['sites'].length"> 
 
@@ -845,7 +846,7 @@ export default Vue.extend({
         "blue-grey"
       ],
 
-      not_connected: true,
+      not_connected: false,
 
       uploadModalLoading: false,
       loginStatus: this.$store.getters.isAuthenticated,
@@ -945,7 +946,7 @@ export default Vue.extend({
           title: "Going Down the Restaurant Memory Lane of My Childhood",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: `"['Danna Reich Colman']"`,
+          authors: `"['Danna Reich Colman', 'Danna Reich Colman', 'Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
           tags: `"['Food', 'Beverly Hills', 'Recipe']"`,
           text: "text1",
@@ -957,7 +958,7 @@ export default Vue.extend({
           title: "I ordered chole bhature and received customer experience in return",
           url: "https://medium.com/p/c00c8cca394a",
           thumbnail: 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png',
-          authors: `"['Danna Reich Colman']"`,
+          authors: `"['Danna Reich Colman', 'Danna Reich Colman', 'Danna Reich Colman']"`,
           timestamp: "2016-06-30 06:54:17.528000+00:00",
           tags: `"['Business', 'Loyalty Program', 'Restaurant Business', 'Rewards Programs', 'Loyalty']"`,
           text: "text1",
