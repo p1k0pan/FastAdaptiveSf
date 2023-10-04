@@ -1401,7 +1401,8 @@ export default Vue.extend({
       try {
         await this.$store.dispatch("allHistories", data);
 
-        this.allHistories = this.$store.getters.getAllHistories
+ //       this.allHistories = this.$store.getters.getAllHistories
+         this.$store.getters.getAllHistories = this.allHistories 
         console.log("all histories", this.allHistories)
 
 
@@ -2627,7 +2628,8 @@ header {
   position: sticky;
   top: 0;
   z-index: 999;
-  background: linear-gradient(to left, rgb(184, 199, 235), rgb(145, 162, 202));
+ // background: linear-gradient(to left, rgb(184, 199, 235), rgb(145, 162, 202));
+ background: white;
   text-align: center;
   max-height: 15vh;
 }
