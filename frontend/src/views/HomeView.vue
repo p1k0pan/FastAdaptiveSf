@@ -3,7 +3,7 @@
 
     <!--<nav class="navbar navbar-expand-lg navbar-light bg-light" style="display:block;">-->
       <div class="container-fluid" id="top-div" style="text-align: center;">
-        <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center" style="padding-top: 0vh;">
+        <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center" style="padding-top: 0.2vh; padding-bottom: 0.2vh;">
           <v-col cols="3" >
             <a class="navbar-brand" @click="backToHome" style="font-weight: bold; color: black; font-size: 22px;">Adaptive Storyfinder</a>
             <button
@@ -2622,7 +2622,7 @@ header {
   z-index: 999;
   background: linear-gradient(to left, rgb(184, 199, 235), rgb(145, 162, 202));
   text-align: center;
-  max-height: 10vh;
+  max-height: 12vh;
 }
 
 
