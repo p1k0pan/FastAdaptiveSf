@@ -109,6 +109,10 @@
   </div>
 </template>
 
+
+
+
+
 <script>
 import { defineComponent } from 'vue';
 
@@ -175,7 +179,11 @@ export default defineComponent({
 </script>
 
 
+
+
+
 <style scoped>
+
 .main {
   justify-content: center;
   vertical-align: middle;
@@ -183,52 +191,55 @@ export default defineComponent({
 }
 
 .display-eye {
-cursor:pointer;
-margin-top: 6px;
-margin-right: 1px;
-margin-left: 10px;
+  cursor:pointer;
+  margin-top: 6px;
+  margin-right: 1px;
+  margin-left: 10px;
 }
 
 .rightSpan {
-float: right;
+  float: right;
 }
 
 .checkboxSpan {
-margin-top: 10px;
-}
-
-hr {
-margin-top: 1rem;
-margin-bottom: 1rem;
-border: 0;
-border-top: 1px solid rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
 }
 
 .separator {
-display: flex;
-align-items: center;
-text-align: center;
+  display: flex;
+  align-items: center;
+  text-align: center;
 }
 
 .separator::before,
+
 .separator::after {
-content: '';
-flex: 1;
-border-bottom: 1px solid #000;
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #000;
 }
 
 .separator:not(:empty)::before {
-margin-right: .25em;
+  margin-right: .25em;
 }
 
 .separator:not(:empty)::after {
-margin-left: .25em;
+  margin-left: .25em;
 }
 
 .custom-card .card-title {
-text-shadow:
-  0px 1px 1px grey,
-  0px 0px 0px grey;
+  text-shadow:
+    0px 1px 1px grey,
+    0px 0px 0px grey;
+}
+
+
+
+hr {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 </style>

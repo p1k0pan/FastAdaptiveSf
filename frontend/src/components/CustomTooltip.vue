@@ -27,8 +27,6 @@
         this.showTooltip = false;
       },
       calculateTooltipPosition() {
-        // Calculate the position based on the provided 'position' prop
-        // You can customize this logic as needed
         if (this.position === 'top') {
           this.tooltipStyle = { top: '-100%' };
         } else if (this.position === 'bottom') {
@@ -39,7 +37,10 @@
   };
   </script>
   
+
+
   <style scoped>
+
   .custom-tooltip {
     position: relative;
     display: inline-block;
@@ -55,4 +56,5 @@
     border-radius: 4px;
     white-space: nowrap;
   }
+  
   </style>

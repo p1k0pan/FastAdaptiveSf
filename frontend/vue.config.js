@@ -4,6 +4,7 @@ module.exports = defineConfig({
   transpileDependencies: [
     'vuetify'
   ],
+  
   /*devServer: {
     proxy: {
       '/api': {
@@ -13,5 +14,4 @@ module.exports = defineConfig({
       },
     },
   },*/
-  
 })

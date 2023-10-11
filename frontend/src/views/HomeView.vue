@@ -577,31 +577,6 @@
                           </v-carousel-item>
                         </template> 
                       </v-carousel> 
-
-              
-
-                    <!--<v-carousel>
-                      <v-carousel-item
-                        v-for="(sites, index) in item['sites']"
-                        :key="index">
-                      
-
-
-
-                      <b-card class="mr-2">
-                        <div class="thumbnail">
-                          <a :href="sites['url']" target="_blank" class="linkAsText">
-                            <img :src="sites['thumbnail']" alt="..." style="width:100%">
-                            <div class="wordBreak overflowY">
-                              <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ sites["title"] }} </h5>
-
-
-                            </div>
-                          </a>
-                        </div>
-                      </b-card>
-                      ></v-carousel-item>
-                    </v-carousel> -->
                   </v-container>
 
 
@@ -611,25 +586,6 @@
                 Could not load a selection of related topics!
               </div>
     
-        <!--
-              <ul class="horizontalList" style="position:relative; overflow-x:auto">
-                <li
-                  class="horizontalList"
-                  v-for="(itemDict, index) in tags"
-                  :key="index"
-                >
-                  <b-card no-body class="overflow-hidden mb-3">
-                    Card
-                    <b-card-body class="h-100 d-flex flex-column">
-                          <b-card-text>
-                          <p>{{ itemDict["text"] }}</p>
-                          </b-card-text>
-                        </b-card-body>
-                  </b-card>
-
-                </li>
-              </ul>
--->
 
             </div>
           </b-col>
@@ -800,11 +756,8 @@
 
 
 
-
-
 <script lang="ts">
 // Imports
-    
 import Vue from "vue";
 import { ref } from "vue";
 import axios from "axios";
@@ -813,11 +766,6 @@ import dayjs from 'dayjs';
 import FileUpload from "primevue/fileupload";
 import FileUploadField from "@/components/FileUploadField.vue";
 import ContentPlaceholder from '@/components/ContentPlaceholder.vue'
-
-//import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
-//import FileUpload from "primevue/fileupload"
-//import Navigation from "@/components/NavigationBar.vue";
-//import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
 
 const dropzoneOpen = ref(false);
 
@@ -881,7 +829,6 @@ export default Vue.extend({
       `,
 
       msg: [],
-      showSummaryModal: false,
       isHistoryTextValid: false,
 
 
@@ -2097,17 +2044,6 @@ export default Vue.extend({
     },
 
 
-    closeSummaryModal() {
-      if (!this.isClosing) {
-        this.isClosing = true; // Set the flag to true
-        // this.$refs.summarizeModal.hide();
-        setTimeout(() => {
-          this.isClosing = false; // Reset the flag after a brief delay
-        }, 100); // Adjust the delay if needed
-      }
-    },
-
-
     checkUploadedFile(isValid) {
       this.isUploadedHistoryFileValid = isValid;
     },
@@ -2129,11 +2065,11 @@ export default Vue.extend({
 });
 </script>
 
+
+
+
+
 <style lang="scss">
-@import url("https://use.fontawesome.com/releases/v5.9.0/css/all.css");
-* {
-  font-size: 1rem;
-}
 
 .loader {
     width: 48px;
@@ -2155,20 +2091,10 @@ export default Vue.extend({
     }
 } 
 
-img {
-    width: 90%;
-    height: 60%;
-    object-fit: cover;
-}
-
 .thumbnail {
-    width: 300px;
-    height: 200px;
+  width: 300px;
+  height: 200px;
 
-}
-
-.titleOverflow {
-  overflow-y: auto;
 }
 
 .resultImg {
@@ -2177,23 +2103,6 @@ img {
   height: 60%;
   object-fit: cover;
 }
-
-h3 {
-  display: block
-}
-
-.newline {
-  clear: both;
-}
-.horizontalList {
-    display:inline
-}
-
-a.linkAsText {
-    text-decoration: none;
-    color: black !important; /* Change the color here */
-  }
-
 
 .three-lines {
   overflow: hidden;
@@ -2204,39 +2113,6 @@ a.linkAsText {
   white-space: normal;
 }
 
-body {
-  width: 100%;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-  font-family: "Segoe UI", Tahoma;
-  background-color: #ffffff;
-}
-
-.topicDiv{
-  width: 200px;  
-  height: 150px;  
-}
-
-
-.summarizeButton {
-  margin-top: -6px;
-  background-color: #888;
-}
-
-.top-bar {
-  display: flex;
-  width: 100%;
-}
-#navigation-icon {
-  padding: 10px 10px 20px;
-  margin-right: 10px;
-  cursor: pointer;
-  i {
-    font-size: 2rem;
-  }
-}
-
 .centered {
   display: flex;
   justify-content: center;
@@ -2244,43 +2120,8 @@ body {
   text-align: center;
 }
 
-.no-border{
+.no-border {
   border: none;
-}
-
-.open {
-  transform: translateX(300px);
-}
-.root {
-  position: relative;
-}
-.modal {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.15);
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.modal > div {
-  background-color: #fff;
-  padding: 50px;
-  border-radius: 10px;
-}
-
-hr.dashed {
-  border-top: 3px dashed #bbb;
-}
-hr.dotted {
-  border-top: 3px dotted #bbb;
-}
-
-.topicLink {
-    color: black;
-    text-decoration: none;
 }
 
 .custom-checkbox {
@@ -2288,158 +2129,45 @@ hr.dotted {
   margin-right: 4px;
 }
 
-.resultRow {
-  display: flex;
-  flex-wrap: wrap;
-}
-
 .container {
   display: flex;
 }
 
 .search-bar {
-list-style-type: none;
- width: 100%;
- float: left;
- margin-right: 10px;
- display:inline-block
-  }
+  list-style-type: none;
+  width: 100%;
+  float: left;
+  margin-right: 10px;
+  display:inline-block
+}
 
-.list-group-item{
+.list-group-item {
   margin-right: 1%;
   margin-top: 1%;
 }
-
-.tag-list-item{
-  padding-top: 1%;
-  display: inline; 
-  padding-right: 1%;
-}
-
-#modal-1 .modal-footer .btn-secondary {
-    background-color: rgb(215, 157, 157); /* Change the background color to red */
-    color: white; /* Change the text color to white */
-  }
 
 .item {
   margin-right: 10px;
 }
 
-a {
-  cursor: pointer;
-  margin-right: 60px;
-}
-
-
-.result-list {
-}
-
-.result-list-item {
-}
-
-
 .custom-cancel-color {
-  background-color: rgba(255, 0, 0, 0.5); /* Change the color and opacity as desired */
-  border-color: rgba(255, 0, 0, 0.5); /* Match the border color to the background color */
-  color: #de4a4a; /* Text color for the cancel button */
+  background-color: rgba(255, 0, 0, 0.5);
+  border-color: rgba(255, 0, 0, 0.5);
+  color: #de4a4a;
 }
 
 .rightSpan {
   text-align: right;
 }
 
-.file-drop-area {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 450px;
-  max-width: 100%;
-  padding: 25px;
-  border: 1px dashed rgba(255, 255, 255, 0.4);
-  border-radius: 3px;
-  transition: 0.2s;
-}
-
-.choose-file-button {
-  flex-shrink: 0;
-  background-color: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  padding: 8px 15px;
-  margin-right: 10px;
-  font-size: 12px;
-  text-transform: uppercase;
-}
-
-.file-message {
-  font-size: small;
-  font-weight: 300;
-  line-height: 1.4;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.file-input {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  cursor: pointer;
-  opacity: 0;
-}
-
-.vertical-center {
-  margin: 0;
-  position: absolute;
-  top: 11%;
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
-  margin-right: 0 !important;
-}
-
 .v-slide-group__content {
   justify-content: center;
-}
-
-.authorList {
-  //list-style-type: none;
-  //list-style-position: inside;
-  //margin-right: 20px;
-  //white-space: nowrap;
-}
-
-.nav-item{
-  
 }
 
 .authorDiv {
   display: flex;
   justify-content: space-between;
   width: 100%;
-}
-
-.one-line {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  white-space: normal;
-}
-
-
-.authorUL {
-  display: flex;
-  list-style-type: none;
-  list-style-position: inside;
-  margin-right: 20px;
-  margin-left: -20px;
-}
-
-.side-results{
-  width: 80%;
 }
 
 .titleDiv {
@@ -2459,13 +2187,8 @@ a {
   overflow-y: scroll;
 }
 
-.cards
-{
+.cards {
     display: inline;
-}
-
-.tagDiv {
-  display: flex;
 }
 
 .tag-container{
@@ -2486,23 +2209,12 @@ a {
 }
 .tag-container {
   scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
-  -moz-appearance: none; /* Hide the scrollbar track in Firefox */
-}
-
-.no-bullet-points{ 
-  list-style-type: none;
-}
-
-.tagsList {
-  display: inline;
-
-  list-style-type: none;
+  -moz-appearance: none;
 }
 
 .v-data-table__expanded.v-data-table__expanded__content {
   box-shadow: none !important;
 }
-
 
 .text-tab .b-tab-content{
   overflow-y: auto;
@@ -2511,61 +2223,51 @@ a {
   overflow-y: auto;
 }
 
-
-#info-icon:hover {
-  cursor: pointer;
-  color: blue; /* Change color on hover, adjust as needed */
-}
-
 .text-shadowed {
   text-shadow: 0px 0.2px 1px grey, 0px 0px 1px grey;
 }
 
-
-
-/* Small devices (landscape phones, 544px and up) */
-@media (min-width: 544px) {
-  h1 {
-    font-size: 1.5rem;
-  } /*1rem = 16px*/
+.btn-primary:hover{
+    background-color: rgb(122, 122, 122) !important;
 }
 
-/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
-@media (min-width: 768px) {
-  h1 {
-    font-size: 2rem;
-  } /*1rem = 16px*/
+
+
+a {
+  cursor: pointer;
+  margin-right: 60px;
 }
 
-/* Large devices (desktops, 992px and up) */
-@media (min-width: 992px) {
-  h1 {
-    font-size: 2.5rem;
-  } /*1rem = 16px*/
+a.linkAsText {
+  text-decoration: none;
+  color: black !important;
 }
 
-/* Extra large devices (large desktops, 1200px and up) */
-@media (min-width: 1200px) {
-  h1 {
-    font-size: 3rem;
-  } /*1rem = 16px*/
+hr.dashed {
+  border-top: 3px dashed #bbb;
+}
+hr.dotted {
+  border-top: 3px dotted #bbb;
 }
 
-#nav a {
-  font-weight: bold;
-  color: #000000;
+h3 {
+  display: block
 }
 
-#nav a.router-link-exact-active {
-  color: #ffffff;
+img {
+    width: 90%;
+    height: 60%;
+    object-fit: cover;
 }
 
-#home {
-    margin: 0;
-    padding: 0;
-  }
-
-
+body {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Tahoma;
+  background-color: #ffffff;
+}
 
 header {
   padding-top: 20px;
@@ -2619,20 +2321,84 @@ header {
 
 
 
-
-.btn-primary:hover{
-    background-color: rgb(122, 122, 122) !important;
+/*
+@import url("https://use.fontawesome.com/releases/v5.9.0/css/all.css");
+* {
+  font-size: 1rem;
 }
+*/
+
+// Small devices (landscape phones, 544px and up)
+@media (min-width: 544px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
+// Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint
+@media (min-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+// Large devices (desktops, 992px and up)
+@media (min-width: 992px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+}
+
+// Extra large devices (large desktops, 1200px and up)
+@media (min-width: 1200px) {
+  h1 {
+    font-size: 3rem;
+  }
+}
+
+
+
+#modal-1 .modal-footer .btn-secondary {
+    background-color: rgb(215, 157, 157);
+    color: white;
+}
+
+#info-icon:hover {
+  cursor: pointer;
+  color: blue;
+}
+
+#navigation-icon {
+  padding: 10px 10px 20px;
+  margin-right: 10px;
+  cursor: pointer;
+  i {
+    font-size: 2rem;
+  }
+}
+
+#nav a {
+  font-weight: bold;
+  color: #000000;
+}
+
+#nav a.router-link-exact-active {
+  color: #ffffff;
+}
+
+#home {
+    margin: 0;
+    padding: 0;
+  }
 
 #top-div {
   position: sticky;
   top: 0;
   z-index: 999;
- // background: linear-gradient(to left, rgb(184, 199, 235), rgb(145, 162, 202));
- background: white;
+ //background: linear-gradient(to left, rgb(184, 199, 235), rgb(145, 162, 202));
+  background: white;
   text-align: center;
   max-height: 15vh;
 }
-
 
 </style>

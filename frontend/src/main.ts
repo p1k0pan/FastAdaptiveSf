@@ -6,62 +6,54 @@ import axios from 'axios';
 
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
-//import 'mdb-vue-ui-kit/css/mdb.min.css';
-
 // Import Bootstrap and BootstrapVue CSS files (order is important)
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-// import 'jquery/src/jquery.js';
-// import 'popper.js/dist/popper.min.js';
 
-
+// Import PrimeVue
 import PrimeVue from 'primevue/config'
-// import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice';
-
-// theme
+// Theme
 import 'primevue/resources/themes/lara-light-indigo/theme.css'
-// core
+// Core
 import 'primevue/resources/primevue.min.css'
 
-
+// Import Vuetify
 import vuetify from './plugins/vuetify'
 import 'vuetify/dist/vuetify.min.css'
+
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
-// Make BootstrapVue available throughout your project
-Vue.use(BootstrapVue)
-// Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin)
-
-// PrimeVue
-Vue.use(PrimeVue)
-// PrimeVue Toast
-Vue.use(ToastService)
 
 
-var userDocker = false
-
+// Some deployment variables and settings
 var local = 'http://127.0.0.1:8000/';
 var docker = 'http://localhost:5432/';
-//axios.defaults.baseURL = userDocker ? docker : local; // 'http://localhost:5000/';  // the FastAPI backend
-axios.defaults.baseURL = 'http://127.0.0.1:8000/'; // 'http://localhost:5000/';  // the FastAPI backend
+axios.defaults.baseURL = 'http://127.0.0.1:8000/'; // 'http://localhost:5000/';
 axios.defaults.withCredentials = true;
 Vue.config.productionTip = false
 
-/*new Vue({
-  router,
-  store,
-  vuetify,
-  render: h => h(App)
-}).$mount('#app')
-*/
 
+
+// Make BootstrapVue available throughout the project
+Vue.use(BootstrapVue)
+// Install the BootstrapVue icon components plugin
+Vue.use(IconsPlugin)
+
+// Use PrimeVue
+Vue.use(PrimeVue)
+// Use PrimeVue Toast
+Vue.use(ToastService)
+
+
+
+// Instantiate new Vue instance
 new Vue({
   router,
   store,
   vuetify,
+  
   render: (h) => h("frame", [h(App)]),
   created() {
     this.$store.dispatch("loadTags");

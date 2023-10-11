@@ -21,7 +21,7 @@
             <rect fill="url(#myGradient)" class="image" y="2.6vh"/>
 
             <rect fill="url(#myGradient)" class="title" y="35vh" />
-            <rect fill="url(#myGradient)" class="button" y="35vh" x="30vw"/>
+            <rect fill="url(#myGradient)" class="example-button" y="35vh" x="30vw"/>
 
             <rect fill="url(#myGradient)" class="description1" y="42vh" />
             <rect fill="url(#myGradient)" class="description2" y="45vh" />
@@ -56,8 +56,6 @@
 
 <style>
 
-
-
 .authors {
   width: 60%;
   height: 3%;
@@ -78,7 +76,7 @@
   height: 7%;
 }
 
-.button {
+.example-button {
   width: 30%;
   height: 9%;
 }
@@ -97,4 +95,5 @@
   width: 15%;
   height: 6%;
 }
+
 </style>

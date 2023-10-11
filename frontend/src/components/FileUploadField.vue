@@ -162,23 +162,6 @@
             console.log("Browser History from Chrome Extension")
             for (let i = 0; i < this.content.length; i++) {
               urls.push(this.content[i]["url"]);
-
-              /*
-                [
-                  {
-                      "id": "105",
-                      "referringVisitId": "0",
-                      "transition": "reload",
-                      "visitId": "32",
-                      "visitTime": 1689193248382.165,
-                      "title": "Apple Fruits, varieties, production, seasonality | Libertyprim",
-                      "lastVisitTime": 1689193248382.165,
-                      "typedCount": 0,
-                      "url": "https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm",
-                      "visitCount": 1
-                  },
-                ]
-              */
             } 
 
           } else {
@@ -209,28 +192,7 @@
 
 
       } 
-      /*
-      else if (file.name.includes(".txt")) {
-        console.log("txt file is being processed ...")
-        reader.onload = (res) => {
-          //console.log(res.target.result);
-          this.content = res.target.result;
-        };
-        reader.onerror = (err) => console.log(err);
-        reader.readAsText(file);
 
-
-      } else if (file.name.includes(".pdf")) {
-        console.log("pdf file is being processed ...")
-        reader.onload = (res) => {
-          //console.log(res.target.result);
-          this.content = res.target.result;
-        };
-        reader.onerror = (err) => console.log(err);
-        reader.readAsText(file);
-
-      } 
-      */
       else {
         console.log("error: wrong file format");
         this.errors = []
@@ -311,20 +273,26 @@
   };
   </script>
   
-  <style scoped>
+
+
+<style scoped>
+
 .file-upload .file-upload__error {
   margin-top: 10px;
   color: #f00;
   font-size: 12px;
 }
+
 .file-upload .upload-preview {
   text-align: center;
 }
+
 .file-upload .upload-preview .file-image {
   width: 100%;
   height: 300px;
   object-fit: contain;
 }
+
 .file-upload .upload-preview .file-extension {
   height: 100px;
   width: 100px;
@@ -345,4 +313,5 @@
   color: #000;
   opacity: 0.5;
 }
-  </style>
+
+</style>

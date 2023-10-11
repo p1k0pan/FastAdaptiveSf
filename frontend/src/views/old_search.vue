@@ -46,8 +46,6 @@
                         :maxSize="1000000"
                         accept="json,csv"
                       /> 
-                        <!-- json,pdf,csv,txt -->
-                        <!-- @file-upload="(file) => getUploadedFile(file)" -->
                     </div>
                   </b-modal>
                 </div>
@@ -119,15 +117,6 @@
               <div class="container-fluid">
 
 
-        <!--<div class="row display-flex no-gutters">
-          <div class="col-xs-6 col-md-2">
-            <div class="container"></div>
-          </div>
-
-          <div class="col-xs-6 col-md-7 ms-auto"> -->
-
-
-
             <div class="cards" v-if="testSearchData.length > 0">
               <ul class="list-group result-list">
                 <li
@@ -166,22 +155,6 @@
                               <b-card-title class="wordBreak" title-tag="h5"> {{itemDict["title"]}} </b-card-title>
                             </a>
 
-                            <span> 
-                              <v-btn
-                              class="summarizeButton"
-                              disabled
-                              @click="openSummaryModal"
-                              prepend-icon="mdi-tooltip-text"
-                                  >
-                            <template v-slot:prepend>
-                                  <v-icon color="success"></v-icon>
-                                        </template>
-
-                                Summarize
-                                </v-btn>
-
-                            </span>
-
                           </div>
 
                           <b-card-text class="wordBreak overflow-auto">
@@ -214,10 +187,6 @@
                 </li>
               </ul>
 
-
-              <SummaryModal v-show="showSummaryModal" @close="closeSummaryModal"></SummaryModal>
-
-              <!-- <Card v-for="result in results" :key="result" :result="result" /> -->
             </div>
             
 
@@ -234,14 +203,8 @@
 
 
     </main>
-
-    <!-- <p>{{ loginStatus }}</p>
-    <p>{{ msg }}</p> -->
   </div>
 </template>
-
-
-
 
 
 
@@ -256,20 +219,15 @@ import dayjs from 'dayjs';
 
 import FileUpload from "primevue/fileupload";
 import FileUploadField from "@/components/FileUploadField.vue";
-import SummaryModal from '@/components/SummaryModal.vue'
-//import FileUpload from "primevue/fileupload"
-//import Navigation from "@/components/NavigationBar.vue";
-//import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
 
 const dropzoneOpen = ref(false);
 
 export default Vue.extend({
-  name: "SearchTest_old",
+  name: "Old_search",
 
   components: {
     FileUpload,
     FileUploadField,
-    SummaryModal,
   },
 
   data() {
@@ -290,7 +248,6 @@ export default Vue.extend({
       showFileSelect: true,
 
       msg: [],
-      showSummaryModal: false,
 
       privacyDialog: false,
       searchHistory: '',
@@ -307,13 +264,9 @@ export default Vue.extend({
 
       allHistories: [
       ],
-      //topics: this.$store.dispatch("loadTags"),
-
-      
 
 
-
-      positive_index: 2, // side displays 2, 3, 4
+      positive_index: 2,
       testSearchData: [
         {
           id: 0,
@@ -394,34 +347,6 @@ export default Vue.extend({
       ],
     };
   },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -582,13 +507,6 @@ export default Vue.extend({
       var temp = authors.replace(/'/g, '"');
       const authorsArray= JSON.parse(temp);
       return authorsArray
-    },
-
-    openSummaryModal() {
-      this.showSummaryModal = true;
-    },
-    closeSummaryModal() {
-      this.showSummaryModal = false;
     },
 
     getMessage() {
@@ -906,7 +824,12 @@ export default Vue.extend({
 });
 </script>
 
+
+
+
+
 <style lang="scss">
+
 @import url("https://use.fontawesome.com/releases/v5.9.0/css/all.css");
 * {
   font-size: 1rem;
@@ -950,7 +873,6 @@ a.linkAsText {
     color: black !important; /* Change the color here */
   }
 
-
 .three-lines {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -974,15 +896,11 @@ body {
   height: 150px;  
 }
 
-
-.summarizeButton {
-  margin-top: -6px
-}
-
 .top-bar {
   display: flex;
   width: 100%;
 }
+
 #navigation-icon {
   padding: 10px 10px 20px;
   margin-right: 10px;
@@ -999,9 +917,11 @@ body {
 .open {
   transform: translateX(300px);
 }
+
 .root {
   position: relative;
 }
+
 .modal {
   position: absolute;
   top: 0;
@@ -1013,6 +933,7 @@ body {
   justify-content: center;
   align-items: center;
 }
+
 .modal > div {
   background-color: #fff;
   padding: 50px;
@@ -1034,13 +955,12 @@ body {
 }
 
 .search-bar {
-list-style-type: none;
- width: 1000px;
- float: left;
- margin-right: 10px;
- display:inline-block
-  }
-
+  list-style-type: none;
+  width: 1000px;
+  float: left;
+  margin-right: 10px;
+  display:inline-block
+}
   
 .item {
   margin-right: 10px;
@@ -1050,14 +970,6 @@ a {
   cursor: pointer;
   margin-right: 60px;
 }
-
-
-.result-list {
-}
-
-.result-list-item {
-}
-
 
 .rightSpan {
   text-align: right;
@@ -1124,10 +1036,6 @@ a {
   margin-right: 10px;
 }
 
-.nav-item{
-  
-}
-
 .authorDiv {
   display: flex;
   justify-content: space-between;
@@ -1151,8 +1059,7 @@ a {
   overflow-y: scroll;
 }
 
-.cards
-{
+.cards {
     display: inline;
 }
 
@@ -1175,37 +1082,6 @@ a {
   transition: 0.1s ease background;
 
   margin-right: 10px;
-}
-
-
-
-
-/* Small devices (landscape phones, 544px and up) */
-@media (min-width: 544px) {
-  h1 {
-    font-size: 1.5rem;
-  } /*1rem = 16px*/
-}
-
-/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
-@media (min-width: 768px) {
-  h1 {
-    font-size: 2rem;
-  } /*1rem = 16px*/
-}
-
-/* Large devices (desktops, 992px and up) */
-@media (min-width: 992px) {
-  h1 {
-    font-size: 2.5rem;
-  } /*1rem = 16px*/
-}
-
-/* Extra large devices (large desktops, 1200px and up) */
-@media (min-width: 1200px) {
-  h1 {
-    font-size: 3rem;
-  } /*1rem = 16px*/
 }
 
 header {
@@ -1257,4 +1133,31 @@ header {
     }
   }
 }
+
+
+
+@media (min-width: 544px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 992px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  h1 {
+    font-size: 3rem;
+  }
+}
+
 </style>

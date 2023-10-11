@@ -14,12 +14,6 @@
     <b-row class="mb-2"></b-row>
     
     <div>
-  <!--
-    <b-form v-if="this.username.length < 1" @submit.stop.prevent>
-      <label for="feedback-username">Username </label>
-      <b-form-input v-model="username" :state="validationUsernameStatic" id="feedback-username"></b-form-input>
-    </b-form>
-   -->
 
     <b-form v-if="this.username.length > -1" @submit.stop.prevent>
         <label for="feedback-username">Username </label>
@@ -38,14 +32,6 @@
 
 
    <div v-if="!showPassword">
-  <!--
-    <b-form v-if="this.password.length < 1" @submit.stop.prevent>
-        <label for="feedback-password">Password</label>
-        <span class="display-eye fa fa-eye-slash" @click="toggleShowPassword"></span>
-
-        <b-form-input type="password" v-model="password" :state="validationPasswordStatic" id="feedback-password" aria-describedby="password-help-block"></b-form-input>
-   </b-form>
-   -->
 
     <b-form v-if="this.password.length > -1" @submit.stop.prevent>
         <label for="feedback-password">Password</label>
@@ -63,14 +49,6 @@
 
 
   <div v-if="showPassword">
-  <!--
-    <b-form v-if="this.password.length < 1" @submit.stop.prevent>
-        <label for="feedback-password">Password</label>
-        <span class="display-eye fa fa-eye-slash" @click="toggleShowPassword"></span>
-
-        <b-form-input type="password" v-model="password" :state="validationPasswordStatic" id="feedback-password" aria-describedby="password-help-block"></b-form-input>
-   </b-form> 
-   -->
 
     <b-form v-if="this.password.length > -1" @submit.stop.prevent>
         <label for="feedback-password">Password</label>
@@ -146,7 +124,7 @@
 
 
 
-    
+
 
 <script>
   import { defineComponent } from 'vue';
@@ -169,15 +147,9 @@
     },
 
     computed: {
-      usernameExistingCheck() {
-        // TODO: Check if it already exists
-
-        return this.usernameExisting
-      },
-
 
       validationUsername() {
-        if(this.username.length > 2 && this.username.length < 17 && !this.usernameExistingCheck) {
+        if(this.username.length > 2 && this.username.length < 17) {
           this.usernameValid = true
           return true
 
@@ -216,7 +188,7 @@
 
 
       validationUsernameStatic() {
-        return this.username.length > 2 && this.username.length < 17 && !this.usernameExistingCheck
+        return this.username.length > 2 && this.username.length < 17
       },
 
       validationPasswordStatic() {
@@ -249,7 +221,11 @@
   </script>
   
 
-  <style scoped>
+
+
+
+<style scoped>
+
   .main {
     justify-content: center;
     vertical-align: middle;
@@ -257,48 +233,51 @@
   }
   
   .display-eye {
-  cursor:pointer;
-  float: right;
-  margin-top: 6px;
-  margin-right: 1px;
+    cursor:pointer;
+    float: right;
+    margin-top: 6px;
+    margin-right: 1px;
   }
   
   .rightSpan {
-  float: right;
-  }
-  
-  hr {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  border: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+    float: right;
   }
   
   .separator {
-  display: flex;
-  align-items: center;
-  text-align: center;
+    display: flex;
+    align-items: center;
+    text-align: center;
   }
   
   .separator::before,
+
   .separator::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid #000;
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #000;
   }
   
   .separator:not(:empty)::before {
-  margin-right: .25em;
+    margin-right: .25em;
   }
   
   .separator:not(:empty)::after {
-  margin-left: .25em;
+    margin-left: .25em;
   }
   
   .custom-title {
-  text-shadow:
-    0px 1px 1px grey,
-    0px 0px 0px grey;
+    text-shadow:
+      0px 1px 1px grey,
+      0px 0px 0px grey;
+  }
+
+
+
+  hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
   }
   
   </style>
