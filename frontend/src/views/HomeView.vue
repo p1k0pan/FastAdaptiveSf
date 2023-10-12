@@ -612,34 +612,6 @@
         ></v-text-field>
 
 
-        <v-dialog
-          max-width="500px"
-          >
-          <template v-slot:default="{ privacyDialog }">
-          <v-card>
-            <v-card-title>
-              <span class="text-h5">Information regarding your privacy</span>
-            </v-card-title>
-
-            <v-card-text>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </v-card-text>
-
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="blue-darken-1"
-                variant="text"
-                @click="privacyDialog.value = false"
-              >
-                Close
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-          </template>
-        </v-dialog>
-
-
 
       </v-card-title>
 
@@ -795,6 +767,7 @@ export default Vue.extend({
         "blue-grey"
       ],
 
+      authorsLength: {},
       not_connected: false,
 
       uploadModalLoading: false,
@@ -837,7 +810,7 @@ export default Vue.extend({
       tagCounts: {},
       selectedTags: [],
 
-      positive_index: 0, // side displays 2, 3, 4
+      positive_index: 0,
       main_split_index: 0, 
       mainResults: [],
       sideResults: [],
@@ -987,13 +960,9 @@ export default Vue.extend({
         },
       ],
 
-      
-      authorsLength: {},
 
-
-      isClosing: true,
+      // variables for the history management
       itemToDelete: null,
-      privacyDialog: false,
       searchHistory: '',
       loadingHistoryTable: false,
       expandedHistory: [],
@@ -1019,12 +988,7 @@ export default Vue.extend({
         { text: 'Delete', value: 'actions', sortable: false, align: 'right',},
       ],
 
-      allHistories: [
-      ],
-      //topics: this.$store.dispatch("loadTags"),
-
-      
-      selectedHistoryUpload: [],
+      allHistories: [],
       testHistoryData: [
         {
           date: '14.09.2023',
@@ -1070,32 +1034,24 @@ export default Vue.extend({
         },
       ],
 
-
-
-
-
-
     };
   },
 
 
+
   beforeCreate() {
-    //this.$store.dispatch("loadTags");
+    // nothing
   },
 
   created() {
     this.showSearchResult = false;
-    //this.$store.dispatch("loadTags");
-
-    this.getMessage();
 
     this.handleView();
+
     window.addEventListener("resize", this.handleView);
 
     const searchQuery = ref("");
     const results = ref([]);
-    //await this.handleView();
-
 
     return {
       searchQuery,
@@ -1103,7 +1059,21 @@ export default Vue.extend({
     };
   },
 
+
+  beforeMount() {
+    // nothing
+  },
+
+  mounted() {
+    this.showSearchResult = false
+    this.showTopics = true
+    this.showHistories = false
+  },
+
+
   computed: {
+
+    // Is a user currently logged in?
     isLoggedIn: function () {
       this.loginStatus = this.$store.getters.isAuthenticated;
 
@@ -1114,6 +1084,7 @@ export default Vue.extend({
       return this.$store.getters.isAuthenticated;
     },
 
+    // Calculate the columns per slide page of the topic recommendation carousel
     columns_per_slide() {
       if (this.$vuetify.breakpoint.xl) {
         return 4;
@@ -1130,85 +1101,44 @@ export default Vue.extend({
       return 1;
     },
 
+    // Are the topics already fetched from the Backend? 
     tagsLoadingStatus: function () {
       return this.$store.getters.tagsLoadingStatus
     },
 
+    // Split all of the visible search results into a relevant section and less important one by an index. The less relevant ones need to be displayed by clicking on a Loading button
     visibleResults: function (): any[] {
       return this.mainResults.slice(0, this.loadingIndex)
     },
     
   },
 
-  mounted() {
-    this.showSearchResult = false
-    this.showTopics = true
-    this.showHistories = false
-  },
-
-  beforeMount() {
-    // this.fetch()
-  },
 
   beforeDestroy() {
-    this.clearTimeout();
+    // nothing
   },
-
-
-  watch: {
-      privacyDialog (val) {
-        val || this.closePrivacyDialog()
-      },
-
-      loginStatus (val) {
-        if(this.loginStatus){
-          this.getAllHistories()
-        }
-      }
-    },
 
 
 
   methods: {
+
+    // Switch to the login view
     async login() {
       this.$router.push("/login");
-      this.$bvToast.toast('Toast body content', {
+      this.$bvToast.toast('Login successful', {
           title: `Variant ${'success' || 'default'}`,
           variant: 'success',
           solid: true
         })
     },
 
+    // Log a user out of the local system
     async logout() {
       await this.$store.dispatch("logOut");
       this.$store.dispatch("removeUserTags");
-      // this.$router.push("/");
     },
 
-
-    handleSlideChange(newValue) {
-      this.currentTagSlide = newValue;
-      console.log('Current slide index:', newValue);
-    },
-
-    startTimeout() {
-      this.displayUploadInformation = true;
-      this.clearTimeout();
-
-      this.timeoutId = setTimeout(() => {
-        this.displayUploadInformation = false;
-        this.clearTimeout();
-      }, 6000);
-    },
-
-    clearTimeout() {
-      if (this.timeoutId) {
-        clearTimeout(this.timeoutId);
-        this.timeoutId = null;
-      }
-    },
-
-
+    // Cchange between the Text Upload (individual websites) and the File Upload Tab for user histories
     changeUploadTab(tab){
       if(tab === "Text") {
         this.uploadHistoryTab = 1
@@ -1217,28 +1147,22 @@ export default Vue.extend({
       }
     },
 
+    // Display the date for a given search result in a better looking manner
     formatDate(date: any) {
       const dateToFormat = dayjs(date);
       return dateToFormat.format('dddd MMMM D, YYYY');
     },
 
-    formatTags(tags: any) {
-      //let temp = new Array(tags);
-      //let tagsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
-
-      var temp = tags.replace(/'/g, '"');
-      const tagsArray = JSON.parse(temp);
-      return tagsArray
-    },
-
+    // How many authors does an article have? (its usually just one anyways)
     getAuthorsLength(authors: any, idx: any) {
       this.authorsLength[idx] = Object.keys(authors).length
 
       return true
     },
 
+    // Return back to the original home view with just the topic recommendations
     backToHome(){
-      console.log("back to home")
+      console.log("back to home ...")
       this.searchQuery = ""
       this.showSearchResult = false
 
@@ -1250,8 +1174,9 @@ export default Vue.extend({
       }
     },
 
+    // Load the history management tab and therefore request all the uploaded histories of a user to display them in a datatable
     openHistoryTab(){
-      console.log("history management")
+      console.log("opening history management ...")
       this.searchQuery = ""
       this.showSearchResult = false
 
@@ -1259,15 +1184,9 @@ export default Vue.extend({
       this.showHistories = true
       this.getAllHistories();
     },
-
-    closePrivacyDialog(){
-        this.privacyDialog = false
-    },
-
-
     
+    // Split the re-ranked search results into one main list with the most important ones, one extented list which follows the main list and one sidebar list which contains articles which are still more relevant than the extended ones (but still not really meaningful)
     splitResults() {
-      //const isChecked = this.selectedTags.includes(tag);
       var selectedResults = this.results.slice();
 
       selectedResults = selectedResults.filter(itemDict => {
@@ -1285,22 +1204,21 @@ export default Vue.extend({
       this.extendedResults = extendedResults
       this.sideResults = selectedResults.slice(this.positive_index, this.positive_index + mainResults.length)
       this.mainResults = mainResults.concat(extendedResults);
-
     },
 
-
-    
+    // Preparation to delete an upload history by assigning one (called item)
     prepareToDelete(item) {
       this.itemToDelete = item;
       this.deleteHistoryDialog = true
     },
 
+    // Abort the deletion of an uploaded history
     abortDeletion() {
       this.itemToDelete = null;
       this.deleteHistoryDialog = false
     },
 
-
+    // Delete a complete uploaded history
     deleteHistoryUpload () {
       this.allHistories = this.allHistories.filter(item =>
         JSON.stringify(item) !== JSON.stringify(this.itemToDelete)
@@ -1309,6 +1227,7 @@ export default Vue.extend({
       this.deleteHistoryDialog = false
     },
 
+    // Delete just one URL/ website from an uploaded history
     deleteHistoryURL (upload, itemToDelete) {
       const index = this.allHistories.findIndex(item =>
         JSON.stringify(item) === JSON.stringify(upload)
@@ -1323,6 +1242,7 @@ export default Vue.extend({
       this.deleteUrlDialog = false
     },
 
+    // Change the behavior of some datatable elements when a row is expanded to show more details on a specific history upload
     rowIsExpanded(item){
       if (this.expandedHistory.length > 0) {
         if (item["upload_number"] === this.expandedHistory[0]["upload_number"]) {
@@ -1335,39 +1255,7 @@ export default Vue.extend({
       }
     },
 
-    async getAllHistories() {
-      console.log("GET ALL HISTORIES")
-      const data = {
-        username: this.$store.getters.stateUser,
-        access_token: this.$store.getters.getAccessToken,
-        refresh_token: this.$store.getters.getRefreshToken,
-      }
-
-      this.loadingHistoryTable = true
-
-      try {
-        await this.$store.dispatch("allHistories", data);
-
- //       this.allHistories = this.$store.getters.getAllHistories
-         this.$store.getters.getAllHistories = this.allHistories 
-        console.log("all histories", this.allHistories)
-
-
-        this.loadingHistoryTable = false
-
-      } catch (error) {
-        console.log(error)
-        this.loadingHistoryTable = false
-      }
-
-      if (this.not_connected) {
-        this.allHistories = this.testHistoryData;
-      }
-
-    },
-
-
-
+    // Display the authors for the search results in a better looking manner for the main results list
     formatAuthors(authors: any){
       var authorsString = authors
 
@@ -1397,6 +1285,7 @@ export default Vue.extend({
       return concatenatedString
     },
 
+    // Display the authors for the search results in a better looking manner for the sidebar results
     formatAuthorsForSideView(authors: any){
       var authorsString = authors
 
@@ -1427,7 +1316,6 @@ export default Vue.extend({
 
       } else if (finalArray.length === 1) {
         firstAuthor = "Anonymous"
-
       }
 
       if (concatenatedString.length === 0) {
@@ -1436,24 +1324,19 @@ export default Vue.extend({
       return firstAuthor
     },
 
-
-
-    summarizeArticle(article) {
-      console.log("generating summary of the article ...");
-      console.log(article)
-    },
-
-
+    // Select all tags/topics
     selectAllTags() {
       this.selectedTags = [...this.allTags];
       this.splitResults();
     },
+
+    // Unselect all tags/topics
     unselectAllTags() {
       this.selectedTags = [];
       this.splitResults();
     },
 
-
+    // Reset all of the local history related variables back to the original state (after the upload has been completed)
     resetHistory() {
       this.isUploadedHistoryFileValid = false
       this.isHistoryTextValid = false
@@ -1467,29 +1350,63 @@ export default Vue.extend({
       this.$store.dispatch('resetHistory')
     },
 
-    getMessage() {
-      axios
-        .get("/")
-        .then((res) => {
-          this.msg = res.data["message"];
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    },
-
+    // Load more of the less relevant results
     handleLoadMoreButton() {
       this.showExtendedResults = !this.showExtendedResults
       this.loadingIndex += this.loadingSteps
     },
 
-
-    onCancelLoading() {
-      console.log('User cancelled the loader.')
+    // Display a topic in a better looking manner
+    displayTag(tag) {
+      if( String(tag) === "USER-PREF") {
+        tag = "These articles might be interesting for you"
+      }
+      
+      return tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
     },
 
+    // Can this file be uploaded? Confirmation of its validity
+    checkUploadedFile(isValid) {
+      this.isUploadedHistoryFileValid = isValid;
+    },
+
+    // Window view size
+    handleView() {
+      this.mobileView = window.innerWidth <= 990;
+    },
+
+    //
+    async getAllHistories() {
+      console.log("GET ALL HISTORIES")
+      const data = {
+        username: this.$store.getters.stateUser,
+        access_token: this.$store.getters.getAccessToken,
+        refresh_token: this.$store.getters.getRefreshToken,
+      }
+
+      this.loadingHistoryTable = true
+
+      try {
+        await this.$store.dispatch("allHistories", data);
+
+        this.$store.getters.getAllHistories = this.allHistories 
+        console.log("all histories", this.allHistories)
 
 
+        this.loadingHistoryTable = false
+
+      } catch (error) {
+        console.log(error)
+        this.loadingHistoryTable = false
+      }
+
+      if (this.not_connected) {
+        this.allHistories = this.testHistoryData;
+      }
+
+    },
+
+    //
     async handleSearch() {
       var res = "0"
       this.showSearchResult = true;
@@ -1803,6 +1720,7 @@ export default Vue.extend({
     },
 
 
+    //
     getSearchResults(data) {
       this.results = [];
       if (data === undefined || data === 'undefined' || data === null) {
@@ -1861,6 +1779,7 @@ export default Vue.extend({
 
 
 
+    //
     validateUserHistoryInput() {
       //var urls = this.historyUserInput.split("\n");
       var urls = []
@@ -1924,6 +1843,7 @@ export default Vue.extend({
 
 
 
+    //
     async sendHistory(evt) {
       this.uploadModalLoading = true
       evt.preventDefault()
@@ -2027,40 +1947,8 @@ export default Vue.extend({
         this.uploadModalLoading = false
         this.$bvModal.hide('modal-1')
       }
-      
-      //this.$emit("file-upload", this.file);
-      //this.$refs.form.reset(); RESET FORM TODO
-
-
-
     },
 
-
-    displayTag(tag) {
-      if( String(tag) === "USER-PREF") {
-        tag = "These articles might be interesting for you"
-      }
-      return tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
-    },
-
-
-    checkUploadedFile(isValid) {
-      this.isUploadedHistoryFileValid = isValid;
-    },
-
-    onUpload() {
-      console.log("uploaded");
-    },
-
-
-    handleView() {
-      this.mobileView = window.innerWidth <= 990;
-    },
-
-    toggleDropzone() {
-      this.dropzoneOpen = !dropzoneOpen;
-      console.log("dropzone: " + String(this.dropzoneOpen));
-    },
   },
 });
 </script>

@@ -6,7 +6,7 @@ import tags from './modules/tags'
 
 Vue.use(Vuex)
 
-export const store = new Vuex.Store({ // default
+export const store = new Vuex.Store({
     modules: {
         users,
         history,
