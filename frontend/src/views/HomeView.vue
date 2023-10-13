@@ -718,9 +718,6 @@
       </div>
       
     </main>
-
-    <!-- <p>{{ loginStatus }}</p>
-    <p>{{ msg }}</p> -->
   </div>
 </template>
 
@@ -739,8 +736,6 @@ import FileUpload from "primevue/fileupload";
 import FileUploadField from "@/components/FileUploadField.vue";
 import ContentPlaceholder from '@/components/ContentPlaceholder.vue'
 
-const dropzoneOpen = ref(false);
-
 export default Vue.extend({
   name: "Home",
 
@@ -752,69 +747,37 @@ export default Vue.extend({
 
   data() {
     return {
-      slider: [
-        "red", 
-        "green", 
-        "orange", 
-        "blue", 
-        "pink", 
-        "purple", 
-        "indigo", 
-        "cyan", 
-        "deep-purple", 
-        "light-green", 
-        "deep-orange", 
-        "blue-grey"
-      ],
-
-      authorsLength: {},
+      // display mock data
       not_connected: false,
 
-      uploadModalLoading: false,
+
+      // variables regarding the home page in general
       loginStatus: this.$store.getters.isAuthenticated,
-      searchStatus: 0,
-      
-      results: [],
-      searchQuery: "",
-      firstSearch: true,
-
-      dropzoneOpen: false,
       mobileView: false,
-      showSearchResult: false,
-      showHistories: false,
+
+
+      // variables for the topic recommendation section
       showTopics: true,
-      currentTagSlide: 0,
-
-      isUploadedHistoryFileValid: false,
-      fileSelected: false,
-      showFileSelect: true,
-      uploadHistoryTab: 1,
-      historyUploadStatus: 1,
-      historyUserInput: "",
-      validUrls: [],
-      multiLinePlaceholder: "URL1\nURL2\nURL3,\nURL4 URL5,\nURL6\n...",
-      displayUploadInformation: false,
-      timeoutId: null,
-      tooltipContentPlugin: `
-        Alternatively, you can download our Chrome extension to automatically upload your browsing history!
-
-        Click on the icon.
-      `,
-
-      msg: [],
-      isHistoryTextValid: false,
 
 
-      allTags: [],
-      topTags: [],
-      tagCounts: {},
-      selectedTags: [],
+      // variables for displaying the search results
+      searchQuery: "",
+      results: [],
+
+      showSearchResult: false,
+      searchStatus: 0,
+      authorsLength: {},
 
       positive_index: 0,
       main_split_index: 0, 
       mainResults: [],
       sideResults: [],
       extendedResults: [],
+    
+      allTags: [],
+      topTags: [],
+      tagCounts: {},
+      selectedTags: [],
       
       loadMoreButton: true,
       loadingIndex: 0,
@@ -822,6 +785,58 @@ export default Vue.extend({
       showExtendedResults: false,
       
 
+      // variables for uploading a user history/ prefered websites
+      uploadHistoryTab: 1,
+      historyUploadStatus: 1,
+      showHistories: false,
+
+      isUploadedHistoryFileValid: false,
+      fileSelected: false,
+      showFileSelect: true,
+      historyUserInput: "",
+      validUrls: [],
+      isHistoryTextValid: false,
+
+      uploadModalLoading: false,
+      multiLinePlaceholder: "URL1\nURL2\nURL3,\nURL4 URL5,\nURL6\n...",
+      tooltipContentPlugin: `
+        Alternatively, you can download our Chrome extension to automatically upload your browsing history!
+
+        Click on the icon.
+      `,
+
+
+      // variables for the history management
+      allHistories: [],
+      expandedHistory: [],
+      searchHistory: '',
+
+      loadingHistoryTable: false,
+      itemToDelete: null,
+      deleteUrlDialog: false,
+      deleteHistoryDialog: false,
+      historyTableHeaders: [
+        {
+          text: 'Date',
+          align: 'left',
+          value: 'date',
+        },
+        { text: 'Upload Number', value: 'upload_number' },
+        { text: 'Delete', value: 'actions', sortable: false, align: 'right',},
+      ],
+      URLTableHeaders: [
+        {
+          text: 'Number',
+          align: 'left',
+          value: 'index',
+        },
+        { text: 'Title', value: 'title' },
+        { text: 'URL', value: 'url' },
+        { text: 'Delete', value: 'actions', sortable: false, align: 'right',},
+      ],
+      
+
+      // Mock data to simulate some search results & the history management when the not_connected variable is true
       testSearchData: [
         {
           id: 0,
@@ -859,9 +874,6 @@ export default Vue.extend({
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
         },
-
-
-
         {
           id: 3,
           title: "Going Down the Restaurant Memory Lane of My Childhood",
@@ -960,35 +972,6 @@ export default Vue.extend({
         },
       ],
 
-
-      // variables for the history management
-      itemToDelete: null,
-      searchHistory: '',
-      loadingHistoryTable: false,
-      expandedHistory: [],
-      deleteUrlDialog: false,
-      deleteHistoryDialog: false,
-      historyTableHeaders: [
-        {
-          text: 'Date',
-          align: 'left',
-          value: 'date',
-        },
-        { text: 'Upload Number', value: 'upload_number' },
-        { text: 'Delete', value: 'actions', sortable: false, align: 'right',},
-      ],
-      URLTableHeaders: [
-        {
-          text: 'Number',
-          align: 'left',
-          value: 'index',
-        },
-        { text: 'Title', value: 'title' },
-        { text: 'URL', value: 'url' },
-        { text: 'Delete', value: 'actions', sortable: false, align: 'right',},
-      ],
-
-      allHistories: [],
       testHistoryData: [
         {
           date: '14.09.2023',
@@ -1344,8 +1327,6 @@ export default Vue.extend({
       this.showFileSelect = true
       this.uploadHistoryTab = 1
       this.historyUploadStatus = 1
-      this.displayUploadInformation = false
-      this.timeoutId = null
 
       this.$store.dispatch('resetHistory')
     },
@@ -1353,7 +1334,7 @@ export default Vue.extend({
     // Load more of the less relevant results
     handleLoadMoreButton() {
       this.showExtendedResults = !this.showExtendedResults
-      this.loadingIndex += this.loadingSteps
+      this.loadingIndex += this.loadingSteps // not used anymore, but still a potentially useful feature
     },
 
     // Display a topic in a better looking manner
@@ -1375,7 +1356,175 @@ export default Vue.extend({
       this.mobileView = window.innerWidth <= 990;
     },
 
-    //
+
+    // Check if the websites given by a user are valid and can be processed --> does the input contain actual urls?
+    validateUserHistoryInput() {
+      var urls = []
+      urls = this.historyUserInput.split(/[\n\s]+/)
+      .filter((url) => url.trim() !== "")
+      .map((url) => url.trim());
+
+      if (urls.length <= 1) {
+        urls = [this.historyUserInput.trim()];
+      }
+
+
+      const possible_separators = ["'", '"', ",", " ", "", ";"];
+      urls.forEach((url, index) => {
+        const startsWithSeparator = possible_separators.some((separator) =>
+          url.startsWith(separator)
+        );
+        const endsWithSeparator = possible_separators.some((separator) =>
+          url.endsWith(separator)
+        );
+
+        if (startsWithSeparator) {
+          urls[index] = url.substring(1);
+        }
+        if (endsWithSeparator) {
+          urls[index] = url.substring(0, url.length - 1);
+        }
+      });
+
+
+
+      if (urls.length <= 0) {
+        console.log("The list of URLs is empty.");
+        this.isHistoryTextValid = false
+        return
+      }
+
+      var validUrls = urls.filter((url) => {
+      try {
+        new URL(url);
+        return true;
+
+      } catch (error) {
+        return false;
+      }
+      });
+
+
+      if (validUrls.length > 0) {
+        this.isHistoryTextValid = true
+      } else {
+        this.isHistoryTextValid = false
+      }
+
+      this.validUrls = validUrls
+      console.log(validUrls)
+      console.log(this.isHistoryTextValid)
+    },
+
+
+    // Send a given user history to the backend. The history contains of a list of urls which can be uploaded as a file or written as single website urls by the user.
+    async sendHistory(evt) {
+      this.uploadModalLoading = true
+      evt.preventDefault()
+
+      this.historyUploadStatus = 0
+      console.log("send history to server ...")
+
+      if (this.validUrls.length > 0 && this.uploadHistoryTab === 1) {
+        this.$store.dispatch("setHistory", this.validUrls);
+
+        this.historyUserInput = ""
+        this.validUrls = []
+      }
+
+      const data = {
+        username: this.$store.getters.stateUser,
+        access_token: this.$store.getters.getAccessToken,
+        refresh_token: this.$store.getters.getRefreshToken,
+      }
+
+      if (!this.$store.getters.stateHistory) return;
+      
+
+      await this.$store.dispatch("patchHistory", data);
+      console.log("history status code")
+      console.log(this.$store.getters.historyStatusCode)
+      
+      if (this.$store.getters.historyStatusCode !== "0" && this.$store.getters.historyStatusCode !== "402") {
+        console.log("upload his done")
+        this.historyUploadStatus = 1;
+
+        if (this.$store.getters.historyStatusCode === "200" || this.$store.getters.historyStatusCode === "201") {
+          console.log("success")
+        } 
+
+        if (this.$store.getters.historyStatusCode === "402") {
+          console.log("error while uploading history")
+        } else if (this.$store.getters.historyStatusCode === "404") {
+          console.log("error while uploading history")
+        }
+
+      } else {
+        this.historyUploadStatus = -1;
+      }
+
+
+      if(this.$store.getters.historyStatusCode === "402") {
+        this.logout()
+
+      } else {
+        // Update history management list
+        await this.getAllHistories();
+
+        var res = "0"
+        const authorizationData = {
+          username: this.$store.getters.stateUser,
+          access_token: null,
+          refresh_token: null,
+        }
+
+        console.log("verify tokens")
+        console.log(this.$store.getters.getRefreshToken)
+
+        const endpoint = "/" + `token_verify?refresh=true`;
+        console.log(endpoint)
+
+        await axios
+        .get(endpoint, {
+          headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" }, 
+        })
+        .then((response) => {
+          res = response.data["code"]
+          console.log("res:")
+          console.log(res)
+
+          if (response.data) {
+            // return success
+            if (response.data["code"] === "200" || response.data["code"] === "201") {
+              authorizationData["access_token"] = response.data["result"]["access_token"];
+              authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
+
+              this.$store.dispatch("refreshTokens", authorizationData);
+            }
+              
+            }
+            // reject errors & warnings
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      }
+
+      if(this.not_connected) {
+          this.historyUploadStatus = 1
+      } 
+
+      if(this.historyUploadStatus === 1) {
+        this.backToHome();
+        this.resetHistory();
+
+        this.uploadModalLoading = false
+        this.$bvModal.hide('modal-1')
+      }
+    },
+
+
+    // Request all of the stored histories from a certain user for the history management
     async getAllHistories() {
       console.log("GET ALL HISTORIES")
       const data = {
@@ -1403,10 +1552,10 @@ export default Vue.extend({
       if (this.not_connected) {
         this.allHistories = this.testHistoryData;
       }
-
     },
 
-    //
+
+    // Process a query input from a user. This method requests the re-ranked results from the Backend and handles special cases of conduct. The search feature does not need a separate store.
     async handleSearch() {
       var res = "0"
       this.showSearchResult = true;
@@ -1442,8 +1591,6 @@ export default Vue.extend({
             if (response.data["code"] === "200" || response.data["code"] === "201") {
               this.getSearchResults(response.data["result"]);
             }
-            this.firstSearch = false;
-            //this.showSearchResult = true;
               
             }
             // reject errors & warnings
@@ -1476,8 +1623,6 @@ export default Vue.extend({
             if (response.data["code"] === "200" || response.data["code"] === "201") {
               this.getSearchResults(response.data["result"]);
             }
-            this.firstSearch = false;
-            //this.showSearchResult = true;
               
             }
             // reject errors & warnings
@@ -1507,7 +1652,6 @@ export default Vue.extend({
             if (response.data["code"] === "200" || response.data["code"] === "201") {
               this.getSearchResults(response.data["result"]);
             }
-            this.firstSearch = false;
             //this.showSearchResult = true;
               
             }
@@ -1642,9 +1786,7 @@ export default Vue.extend({
       }
 
 
-      
-
-
+      // Display mock data
       if (this.not_connected) {
         this.positive_index = 2,
         this.results = this.testSearchData
@@ -1710,17 +1852,12 @@ export default Vue.extend({
       }
 
 
-
-
-
-
-      console.log("print this when the request is finished!");
+      console.log("search request finished!");
       console.log(this.searchStatus);
-
     },
 
 
-    //
+    // Bring the raw search results in a form which we can work with
     getSearchResults(data) {
       this.results = [];
       if (data === undefined || data === 'undefined' || data === null) {
@@ -1743,7 +1880,6 @@ export default Vue.extend({
       var positive_index = data["positive_index"];
       this.positive_index=positive_index
 
-      //var img = new Image();
       var resizedImageURL = 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png';
 
 
@@ -1770,182 +1906,6 @@ export default Vue.extend({
         };
 
         this.results.push(dict);
-      }
-
-
-
-    },
-
-
-
-
-    //
-    validateUserHistoryInput() {
-      //var urls = this.historyUserInput.split("\n");
-      var urls = []
-      urls = this.historyUserInput.split(/[\n\s]+/)
-      .filter((url) => url.trim() !== "")
-      .map((url) => url.trim());
-
-      if (urls.length <= 1) {
-        urls = [this.historyUserInput.trim()];
-      }
-
-
-      const possible_separators = ["'", '"', ",", " ", "", ";"];
-      urls.forEach((url, index) => {
-        const startsWithSeparator = possible_separators.some((separator) =>
-          url.startsWith(separator)
-        );
-        const endsWithSeparator = possible_separators.some((separator) =>
-          url.endsWith(separator)
-        );
-
-        if (startsWithSeparator) {
-          urls[index] = url.substring(1);
-        }
-        if (endsWithSeparator) {
-          urls[index] = url.substring(0, url.length - 1);
-        }
-      });
-
-
-
-      if (urls.length <= 0) {
-        console.log("The list of URLs is empty.");
-        this.isHistoryTextValid = false
-        return
-      }
-
-      var validUrls = urls.filter((url) => {
-      try {
-        new URL(url);
-        return true;
-
-      } catch (error) {
-        return false;
-      }
-      });
-
-      //validUrls = validUrls.map((url) => `"${url}"`);
-
-      if (validUrls.length > 0) {
-        this.isHistoryTextValid = true
-      } else {
-        this.isHistoryTextValid = false
-      }
-
-      this.validUrls = validUrls
-      console.log(validUrls)
-      console.log(this.isHistoryTextValid)
-    },
-
-
-
-
-    //
-    async sendHistory(evt) {
-      this.uploadModalLoading = true
-      evt.preventDefault()
-
-      this.historyUploadStatus = 0
-      console.log("send history to server ...")
-
-      if (this.validUrls.length > 0 && this.uploadHistoryTab === 1) {
-        this.$store.dispatch("setHistory", this.validUrls);
-
-        this.historyUserInput = ""
-        this.validUrls = []
-      }
-
-      const data = {
-        username: this.$store.getters.stateUser,
-        access_token: this.$store.getters.getAccessToken,
-        refresh_token: this.$store.getters.getRefreshToken,
-      }
-
-      if (!this.$store.getters.stateHistory) return;
-      
-
-      await this.$store.dispatch("patchHistory", data);
-      console.log("history status code")
-      console.log(this.$store.getters.historyStatusCode)
-      
-      if (this.$store.getters.historyStatusCode !== "0" && this.$store.getters.historyStatusCode !== "402") {
-        console.log("upload his done")
-        this.historyUploadStatus = 1;
-
-        if (this.$store.getters.historyStatusCode === "200" || this.$store.getters.historyStatusCode === "201") {
-          console.log("success")
-        } 
-
-        if (this.$store.getters.historyStatusCode === "402") {
-          console.log("error while uploading history")
-        } else if (this.$store.getters.historyStatusCode === "404") {
-          console.log("error while uploading history")
-        }
-
-      } else {
-        this.historyUploadStatus = -1; // this.historyUploadStatus = -1;
-      }
-
-
-      if(this.$store.getters.historyStatusCode === "402") {
-        this.logout()
-
-      } else {
-        // Update history management list
-        await this.getAllHistories();
-
-        var res = "0"
-        const authorizationData = {
-          username: this.$store.getters.stateUser,
-          access_token: null,
-          refresh_token: null,
-        }
-
-        console.log("verify tokens")
-        console.log(this.$store.getters.getRefreshToken)
-
-        const endpoint = "/" + `token_verify?refresh=true`;
-        console.log(endpoint)
-
-        await axios
-        .get(endpoint, {
-          headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" }, 
-        })
-        .then((response) => {
-          res = response.data["code"]
-          console.log("res:")
-          console.log(res)
-
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              authorizationData["access_token"] = response.data["result"]["access_token"];
-              authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
-
-              this.$store.dispatch("refreshTokens", authorizationData);
-            }
-              
-            }
-            // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      }
-
-      if(this.not_connected) {
-          this.historyUploadStatus = 1
-      } 
-
-      if(this.historyUploadStatus === 1) {
-        this.backToHome();
-        this.resetHistory();
-
-        this.uploadModalLoading = false
-        this.$bvModal.hide('modal-1')
       }
     },
 
