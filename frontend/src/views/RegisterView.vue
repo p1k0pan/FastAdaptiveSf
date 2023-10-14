@@ -120,6 +120,7 @@
 
 
 <script>
+// Imports
 import { defineComponent } from 'vue';
 //import { mapActions } from 'vuex';
 

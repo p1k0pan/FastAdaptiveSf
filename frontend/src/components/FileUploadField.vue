@@ -1,27 +1,27 @@
 <template>
   <div class="file-upload">
     <div class="file-upload__area">
+
       <div v-if="!file.isUploaded">
         <input type="file" name="selectFiles" ref="doc" id="selectFiles" @change="importFile($event)" /> <!-- ($event) -->
       </div>
+
       <div v-if="file.isUploaded" class="upload-preview">
+        
         <div v-if="!file.isHistory" class="file-extention">
           {{ file.fileExtention }}
         </div>
+
         <span class="file-name">
           {{ file.name }}{{ file.isHistory ? `.${file.fileExtention}` : "" }}
         </span>
-        
+
         <div class="">
           <button @click="resetFileInput">Change file</button>
         </div>
 
         <div v-if="errors.length > 0">
-          <div
-            class="file-upload__error"
-            v-for="(error, index) in errors"
-            :key="index"
-          >
+          <div class="file-upload__error" v-for="(error, index) in errors" :key="index">
             <span>{{ error }}</span>
           </div>
         </div>
@@ -30,38 +30,47 @@
         </div>
 
         <pre id="result"></pre>
+
       </div>
+
     </div>
   </div>
 </template>
 
 
-<script>
-  export default {
-    name: "FileUpload",
 
-    props: {
+
+
+<script>
+
+export default {
+  name: "FileUpload",
+
+  props: {
     maxSize: {
       type: Number,
       default: 100,
       required: true,
     },
+
     accept: {
       type: String,
       default: "json,pdf,csv,txt",
     },
-    },
-    emits: ['file-upload'],
+  },
 
-    data () {
+  emits: ['file-upload'],
+
+  data() {
     return {
       errors: [],
       content: {},
 
       showExampleFile: false,
-      isLoading: false,
-      isFileValidBol:false,
+      isFileValidBol: false,
       uploadReady: true,
+
+      // file has a lot more variables that currently required, but this may come in handy in the future
       file: {
         name: "",
         urls: [],
@@ -74,27 +83,26 @@
         isUploaded: false,
       },
     };
-    },
-
-    created() {
-      this.resetFileInput();
-    },
+  },
 
 
-    methods: {
-    async logout() {
-      await this.$store.dispatch("logOut");
-      this.$router.push("/");
-    },
+  created() {
+    this.resetFileInput();
+  },
 
 
+  methods: {
+
+    // Check if the uploaded file has a valid size
     isFileSizeValid(fileSize) {
       if (fileSize <= this.maxSize) {
         console.log("File size is valid");
       } else {
-          this.errors.push(`File size should be less than ${this.maxSize} MB`);
+        this.errors.push(`File size should be less than ${this.maxSize} MB`);
       }
     },
+
+    // Check if the uploaded file has a valid type (f.E. csv)
     isFileTypeValid(fileExtention) {
       if (this.accept.split(",").includes(fileExtention)) {
         console.log("File type is valid");
@@ -102,6 +110,8 @@
         this.errors.push(`File type should be: ${this.accept}`);
       }
     },
+
+    // Check if the uploaded file is valid overall
     isFileValid(file) {
       this.isFileSizeValid(Math.round((file.size / 1024 / 1024) * 100) / 100);
       console.log(this.accept.split(","))
@@ -113,7 +123,7 @@
       }
     },
 
-
+    // Reset all of the inputs for the next file to be uploaded
     resetFileInput() {
       this.showExampleFile = false
       this.errors = []
@@ -134,13 +144,12 @@
         };
       });
     },
-    
 
-
+    // Get the valid file (with the correct format) as an input and return a list of URLs (for now remove all of the remaining information regarding the file)
     async handleFileFormat(file) {
-      // https://masteringjs.io/tutorials/vue/file
+      // Motivated by: https://masteringjs.io/tutorials/vue/file
       const reader = new FileReader();
-      var urls= [];
+      var urls = [];
 
       if (file.name.includes(".json")) {
         console.log("json file is being processed ...")
@@ -148,7 +157,7 @@
           //console.log(res.target.result);
           this.content = JSON.parse(res.target.result);
           console.log(this.content);
-          
+
           if (("Browser History" in this.content)) {
             this.errors = []
             this.errors.push(`Google takeout currently not supported!`);
@@ -157,12 +166,12 @@
 
             this.isFileValidBol = false
             this.$emit('isFileValid', false);
-            
+
           } else if (this.content instanceof Array) {
             console.log("Browser History from Chrome Extension")
             for (let i = 0; i < this.content.length; i++) {
               urls.push(this.content[i]["url"]);
-            } 
+            }
 
           } else {
             this.errors = []
@@ -175,10 +184,9 @@
             this.$emit('isFileValid', false);
           }
         };
+
         reader.onerror = (err) => console.log(err);
         reader.readAsText(file);
-
-
 
       } else if (file.name.includes(".csv")) {
         console.log("csv file is being processed ...")
@@ -188,10 +196,7 @@
         };
         reader.onerror = (err) => console.log(err);
         reader.readAsText(file);
-
-
-
-      } 
+      }
 
       else {
         console.log("error: wrong file format");
@@ -211,26 +216,25 @@
     },
 
 
-
+    // Deal with the upload of the history file´s URLs: Validating and uploading to the backend with helper methods
     async importFile(event) {
       this.errors = [];
 
       // Check if file is selected
       if (event.target.files && this.$refs.doc.files[0]) {
+
         // Check if file is valid
         if (this.isFileValid(event.target.files[0])) {
-            this.isFileValidBol = true
-            this.$emit('isFileValid', true);
+          this.isFileValidBol = true
+          this.$emit('isFileValid', true);
 
-            // history
-            var history = this.$refs.doc.files[0];
-            var urls = await this.handleFileFormat(history);
-            this.$store.dispatch("setHistory", urls);
+          // Handle history URLs 
+          var history = this.$refs.doc.files[0];
+          var urls = await this.handleFileFormat(history);
+          this.$store.dispatch("setHistory", urls);
 
-
-            // Get uploaded file for more information
-            const file = event.target.files[0],
-
+          // Get uploaded file for more information
+          const file = event.target.files[0],
             // Get file size
             fileSize = Math.round((file.size / 1024 / 1024) * 100) / 100,
             // Get file extension
@@ -247,16 +251,17 @@
 
           // Set file data
           this.file = {
-                name: fileName,
-                urls: urls,
-                size: fileSize,
-                type: file.type,
-                body: file,
-                fileExtention: fileExtention,
-                metadata: metadata,
-                isHistory: isHistory,
-                isUploaded: true,
+            name: fileName,
+            urls: urls,
+            size: fileSize,
+            type: file.type,
+            body: file,
+            fileExtention: fileExtention,
+            metadata: metadata,
+            isHistory: isHistory,
+            isUploaded: true,
           };
+          
         } else {
           this.isFileValidBol = false
           this.$emit('isFileValid', false);
@@ -266,13 +271,12 @@
       }
     },
 
-
-    
-    },
-
-  };
-  </script>
+  },
+};
+</script>
   
+
+
 
 
 <style scoped>
@@ -307,6 +311,7 @@
   text-transform: uppercase;
   font-weight: 500;
 }
+
 .file-upload .upload-preview .file-name {
   font-size: 1.2em;
   font-weight: 500;

@@ -1,5 +1,4 @@
 <!-- Form to log a user into the system -->
-
 <template>
   <div style="padding-top: 2%;">
     <div class="main" style="bottom: 0;">
@@ -116,6 +115,7 @@
 
 
 <script>
+// Imports
 import { defineComponent } from 'vue';
 
 export default defineComponent({

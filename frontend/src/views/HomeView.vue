@@ -1026,6 +1026,13 @@ export default Vue.extend({
     async logout() {
       await this.$store.dispatch("logOut");
       this.$store.dispatch("removeUserTags");
+
+      // close everything relevant and return to the default homepage view (topic recommendation)
+      this.backToHome();
+      this.resetHistory();
+
+      this.uploadModalLoading = false
+      this.$bvModal.hide('modal-1')
     },
 
     // Cchange between the Text Upload (individual websites) and the File Upload Tab for user histories
@@ -1294,7 +1301,6 @@ export default Vue.extend({
       });
 
 
-
       if (urls.length <= 0) {
         console.log("The list of URLs is empty.");
         this.isHistoryTextValid = false
@@ -1352,6 +1358,7 @@ export default Vue.extend({
       console.log("history status code")
       console.log(this.$store.getters.historyStatusCode)
 
+      // Handle the request response code
       if (this.$store.getters.historyStatusCode !== "0" && this.$store.getters.historyStatusCode !== "402") {
         console.log("upload his done")
         this.historyUploadStatus = 1;
@@ -1391,6 +1398,7 @@ export default Vue.extend({
         const endpoint = "/" + `token_verify?refresh=true`;
         console.log(endpoint)
 
+        // Request new tokens  (token verify)
         await axios
           .get(endpoint, {
             headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" },
@@ -1448,7 +1456,6 @@ export default Vue.extend({
         this.$store.getters.getAllHistories = this.allHistories
         console.log("all histories", this.allHistories)
 
-
         this.loadingHistoryTable = false
 
       } catch (error) {
@@ -1469,7 +1476,6 @@ export default Vue.extend({
       this.showExtendedResults = false;
       this.searchStatus = 0;
 
-      // async
       console.log("generating results ...");
 
       var query = this.searchQuery;
@@ -1478,8 +1484,10 @@ export default Vue.extend({
       }
 
       var endpoint = "/";
+
+      // If user is logged in request the search results WITH the user preferences
       if (this.isLoggedIn) {
-        console.log("user specific")
+        console.log("user specific search ...")
         var endpoint = endpoint + `search_his?query=${query}`;
 
         await axios
@@ -1507,8 +1515,9 @@ export default Vue.extend({
           });
 
 
+      // If there is NO user logged in, request the search results WITHOUT the specific user preferences
       } else {
-        console.log("regular")
+        console.log("regular search ...")
         var endpoint = endpoint + `search?query=${query}`; // axiosConfig
 
         await axios
@@ -1541,7 +1550,7 @@ export default Vue.extend({
       }
 
 
-
+      // Reponse can be 401, then use the refresh token
       if (res === "401" && this.isLoggedIn) {
         console.log("trying to use refresh the token ...")
 
@@ -1571,10 +1580,12 @@ export default Vue.extend({
 
 
       if (this.isLoggedIn) {
+      // Reponse can be 402, then log out because the tokens are not valid
         if (res === "402") {
           console.log("forcefully logging out")
           this.logout()
-
+        
+          // Else the request worked and we want to refresh the tokens (token verify)
         } else {
           var res = "0"
           const authorizationData = {
@@ -1617,14 +1628,11 @@ export default Vue.extend({
       }
 
 
+      // Format the search results: Build topics/tags for the search (top and most popular) + divide the search result list into main, side and extended lists
       if (typeof this.results !== 'undefined' && this.results.length > 0) {
         this.searchStatus = 1;
 
-
         this.loadingIndex = this.positive_index
-
-
-
 
         var mainResults = this.results.slice(0, this.positive_index)
         this.main_split_index = this.positive_index + mainResults.length
@@ -1635,9 +1643,6 @@ export default Vue.extend({
         this.mainResults = mainResults.concat(extendedResults);
         console.log("side results: ", this.sideResults, this.sideResults.length)
         console.log("main results: ", this.mainResults, this.mainResults.length)
-
-
-
 
         var topTags = []
         var tagCounts = {};
@@ -1663,15 +1668,14 @@ export default Vue.extend({
 
           this.results[i]["tags"] = finalArray
 
-
-
           for (let j = 0; j < this.results[i]["tags"].length; j++) {
             var tag = this.results[i]["tags"][j];
             tagCounts[tag] = (tagCounts[tag] || 0) + 1;
           }
         }
 
-        // sort tags in popularity order
+
+        // Sort tags in popularity order
         var sortedTags = Object.keys(tagCounts).sort(function (a, b) {
           return tagCounts[b] - tagCounts[a];
         });
@@ -1685,7 +1689,6 @@ export default Vue.extend({
         this.topTags = topTags
         this.tagCounts = tagCounts
         this.selectedTags = [...this.allTags];
-
 
 
       } else {
@@ -1758,6 +1761,7 @@ export default Vue.extend({
         this.selectedTags = [...this.allTags];
       }
 
+      // -------------------------------------
 
       console.log("search request finished!");
       console.log(this.searchStatus);
@@ -1787,9 +1791,10 @@ export default Vue.extend({
       var positive_index = data["positive_index"];
       this.positive_index = positive_index
 
+      // default image in case there is none present
       var resizedImageURL = 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png';
 
-
+      // Convert Backend response to a useable data structure (list of dicts)
       for (let i = 0; i < titles.length; i++) {
         titles[i] = titles[i]
         urls[i] = urls[i]
