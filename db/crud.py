@@ -49,7 +49,6 @@ def update_histories(user_name: str, upload_urls:List, device:str):
         i= int(df['index'].iloc[-1])
         print("last index: ", i)
         df["date"]=df["date"].astype('str')
-        print("date", df["date"])
         i+=1
         flag=True
     except FileNotFoundError:
@@ -107,10 +106,21 @@ def update_histories(user_name: str, upload_urls:List, device:str):
     with open(directory_name+user_file+".txt", 'w') as file:
         file.write(str(first_key) + "\n")
         file.write(str(second_key) + "\n")
+    return ['Ok', '200', 'update success', user_name]
 
+def delete_history(index:int, date_str:str, history:pd.DataFrame):
+    if date_str == "":
+        # if date is not None that means delete all history with date
+        history = history[history['index'] != index]
+    else:
+        history = history[history['date'] != date_str]
 
-    return ['Ok', '200', 'Success update data', user_name]
+    # Reset the index
+    history = history.reset_index(drop=True)
 
+    # Reassign the "i" column with the same values as the index
+    history['index'] = history.index
+    return history
 
 def extract_url(url, i, d):
 
