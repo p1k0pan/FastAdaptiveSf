@@ -1,23 +1,17 @@
+<!-- THIS IS AN OLD PAGE: It exists just to display an old search result UI (is not in use in the activte system) and is NOT cleaned up to the usual standard -->
 <template>
   <div id="home" class="divide-y divide-gray-200">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <a class="navbar-brand ml-4 mb-2">Adaptive Storyfinder</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
 
-          
+
           <v-spacer></v-spacer>
 
           <li class="nav-item active">
@@ -30,52 +24,41 @@
 
           <li class="nav-item">
 
-                <div v-if="isLoggedIn">
-                  <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')" variant="outline-primary" class="mb-2">
-                    Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
-                  </b-button>
+            <div v-if="isLoggedIn">
+              <b-button v-b-modal.modal-1 @click="$store.dispatch('resetHistory')" variant="outline-primary" class="mb-2">
+                Upload History <b-icon icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
+              </b-button>
 
-                  <b-modal id="modal-1" title="Upload your history!" @ok="sendHistory" @close="$store.dispatch('resetHistory')">
-                    <div>
-                      <button @click="showFileSelect = !showFileSelect" v-if="!fileSelected">
-                        Select a file
-                      </button>
-                    </div>
-                    <div v-show="showFileSelect">
-                      <FileUploadField
-                        :maxSize="1000000"
-                        accept="json,csv"
-                      /> 
-                    </div>
-                  </b-modal>
+              <b-modal id="modal-1" title="Upload your history!" @ok="sendHistory"
+                @close="$store.dispatch('resetHistory')">
+                <div>
+                  <button @click="showFileSelect = !showFileSelect" v-if="!fileSelected">
+                    Select a file
+                  </button>
                 </div>
-
-
-                <div class="p-4" v-if="!isLoggedIn">
+                <div v-show="showFileSelect">
+                  <FileUploadField :maxSize="1000000" accept="json,csv" />
                 </div>
+              </b-modal>
+            </div>
+
+
+            <div class="p-4" v-if="!isLoggedIn">
+            </div>
           </li>
 
           <li class="nav-item active">
             <form class="search-bar form-inline mx-auto ml-4" @submit.prevent="handleSearch">
-              <input
-                class="form-control mr-sm-2 rounded"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-                v-model.trim="searchQuery"
-              />
+              <input class="form-control mr-sm-2 rounded" type="search" placeholder="Search" aria-label="Search"
+                v-model.trim="searchQuery" />
             </form>
-            
+
           </li>
 
-          
+
           <li class="nav-item active">
-            <button
-              class="btn btn-outline-success my-2 my-sm-0 ml-2"
-              color="indigo-darken-3"
-              type="submit"
-              @click="handleSearch"
-            >
+            <button class="btn btn-outline-success my-2 my-sm-0 ml-2" color="indigo-darken-3" type="submit"
+              @click="handleSearch">
               Search
             </button>
           </li>
@@ -104,9 +87,7 @@
 
     <main>
 
-      <div 
-        style="bottom: 0;"
-      >
+      <div style="bottom: 0;">
         <b-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden">
           <b-col></b-col>
 
@@ -117,92 +98,88 @@
               <div class="container-fluid">
 
 
-            <div class="cards" v-if="testSearchData.length > 0">
-              <ul class="list-group result-list">
-                <li
-                  class="list-group-item result-list-item border-0"
-                  v-for="(itemDict, idx) in testSearchData"
-                  :key="idx"
-                >
-                  <v-container>
-                  
-                    <b-row no-gutters>
-                      <b-col md="4">
-                      <a :href="itemDict['url']"  target="_blank">
-                        <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0 resultImg"></b-card-img>
-                      </a>
-                      </b-col>
+                <div class="cards" v-if="testSearchData.length > 0">
+                  <ul class="list-group result-list">
+                    <li class="list-group-item result-list-item border-0" v-for="(itemDict, idx) in testSearchData"
+                      :key="idx">
+                      <v-container>
 
-
-                    
-                      <b-col md="8 position-relative"> <!-- https://www.codeply.com/p/TGtv6KDKvD -->
-                      <b-card no-body class="mb-3 position-absolute top-0 bottom-0 start-0 end-0">
-                        <b-card-header>
-
-                            
-                          <div class="tagDiv overflow-auto">
-                              <li v-for='(tag, index) in formatTags(itemDict["tags"])' :key="tag + index" class="tagsList">
-                                {{ tag.replace("'", "").replace("'", "") }}
-                              </li>
-                          </div>
-                        </b-card-header>
-                        
-                        
-                        <b-card-body class="h-100 d-flex flex-column">
-                          <div class="titleDiv">
-
-                            <a :href="itemDict['url']"  target="_blank" class="linkAsText">
-                              <b-card-title class="wordBreak" title-tag="h5"> {{itemDict["title"]}} </b-card-title>
+                        <b-row no-gutters>
+                          <b-col md="4">
+                            <a :href="itemDict['url']" target="_blank">
+                              <b-card-img :src="itemDict['thumbnail']" alt="Image"
+                                class="rounded-0 resultImg"></b-card-img>
                             </a>
+                          </b-col>
 
-                          </div>
 
-                          <b-card-text class="wordBreak overflow-auto">
-                            <p class="three-lines"> {{ itemDict["text"] }} </p> <!-- https://codepen.io/raevilman/pen/OJpQXjg/left -->
-                          </b-card-text>
-                        </b-card-body>
 
-                        <template #footer>
-                          <small class="text-muted">
-                            <div style="display: flex; justify-content: space-between;">
+                          <b-col md="8 position-relative"> <!-- https://www.codeply.com/p/TGtv6KDKvD -->
+                            <b-card no-body class="mb-3 position-absolute top-0 bottom-0 start-0 end-0">
+                              <b-card-header>
 
-                              <div class="authorDiv">
-                                <li v-for='(author, index) in formatAuthors(itemDict["authors"])' :key="author + index" class="authorList">
-                                  <span class=""> {{ author.replace("'", "").replace("'", "") }} </span>
-                                </li>
 
-                                <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
-                              </div>
+                                <div class="tagDiv overflow-auto">
+                    <li v-for='(tag, index) in formatTags(itemDict["tags"])' :key="tag + index" class="tagsList">
+                      {{ tag.replace("'", "").replace("'", "") }}
+                    </li>
+                </div>
+                </b-card-header>
 
-                            </div>
-                          </small>
-                        </template>
-                        
-                      </b-card>
-                      </b-col>
 
-                    </b-row>
-                  </v-container>
+                <b-card-body class="h-100 d-flex flex-column">
+                  <div class="titleDiv">
 
-                </li>
-              </ul>
+                    <a :href="itemDict['url']" target="_blank" class="linkAsText">
+                      <b-card-title class="wordBreak" title-tag="h5"> {{ itemDict["title"] }} </b-card-title>
+                    </a>
 
-            </div>
-            
+                  </div>
 
-            </div>
+                  <b-card-text class="wordBreak overflow-auto">
+                    <p class="three-lines"> {{ itemDict["text"] }} </p>
+                    <!-- https://codepen.io/raevilman/pen/OJpQXjg/left -->
+                  </b-card-text>
+                </b-card-body>
+
+                <template #footer>
+                  <small class="text-muted">
+                    <div style="display: flex; justify-content: space-between;">
+
+                      <div class="authorDiv">
+                        <li v-for='(author, index) in formatAuthors(itemDict["authors"])' :key="author + index"
+                          class="authorList">
+                          <span class=""> {{ author.replace("'", "").replace("'", "") }} </span>
+                        </li>
+
+                        <span class="rightSpan"> {{ formatDate(itemDict["timestamp"]) }} </span>
+                      </div>
+
+                    </div>
+                  </small>
+                </template>
+
             </b-card>
           </b-col>
 
-          <b-col></b-col>
         </b-row>
+        </v-container>
+
+        </li>
+        </ul>
+
       </div>
 
 
+  </div>
+  </b-card>
+  </b-col>
 
+  <b-col></b-col>
+  </b-row>
+  </div>
 
-
-    </main>
+  </main>
   </div>
 </template>
 
@@ -233,7 +210,7 @@ export default Vue.extend({
   data() {
     return {
       loginStatus: this.$store.getters.isAuthenticated,
-      
+
       results: [],
       searchQuery: "",
       firstSearch: true,
@@ -343,7 +320,7 @@ export default Vue.extend({
 
           summary: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
         },
-        
+
       ],
     };
   },
@@ -353,13 +330,11 @@ export default Vue.extend({
 
 
   beforeCreate() {
-    //this.$store.dispatch("loadTags");
+    // nothing
   },
 
   created() {
     this.showSearchResult = false;
-    //this.$store.dispatch("loadTags");
-
     this.getMessage();
 
     this.handleView();
@@ -367,7 +342,6 @@ export default Vue.extend({
 
     const searchQuery = ref("");
     const results = ref([]);
-    //await this.handleView();
 
     return {
       searchQuery,
@@ -398,20 +372,20 @@ export default Vue.extend({
   },
 
   beforeMount() {
-    // this.fetch()
+    // nothing
   },
 
   watch: {
-      privacyDialog (val) {
-        val || this.closePrivacyDialog()
-      },
-
-      loginStatus (val) {
-        if(this.loginStatus){
-          this.getAllHistories()
-        }
-      }
+    privacyDialog(val) {
+      val || this.closePrivacyDialog()
     },
+
+    loginStatus(val) {
+      if (this.loginStatus) {
+        this.getAllHistories()
+      }
+    }
+  },
 
 
 
@@ -422,7 +396,6 @@ export default Vue.extend({
 
     async logout() {
       await this.$store.dispatch("logOut");
-      // this.$router.push("/");
     },
 
     formatDate(date: any) {
@@ -431,15 +404,12 @@ export default Vue.extend({
     },
 
     formatTags(tags: any) {
-      //let temp = new Array(tags);
-      //let tagsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
-
       var temp = tags.replace(/'/g, '"');
       const tagsArray = JSON.parse(temp);
       return tagsArray
     },
 
-    backToHome(){
+    backToHome() {
       console.log("back to home")
       this.searchQuery = ""
       this.showSearchResult = false
@@ -448,7 +418,7 @@ export default Vue.extend({
       this.showHistories = false
     },
 
-    openHistoryTab(){
+    openHistoryTab() {
       console.log("history management")
       this.searchQuery = ""
       this.showSearchResult = false
@@ -457,8 +427,8 @@ export default Vue.extend({
       this.showHistories = true
     },
 
-    closePrivacyDialog(){
-        this.privacyDialog = false
+    closePrivacyDialog() {
+      this.privacyDialog = false
     },
 
 
@@ -476,16 +446,16 @@ export default Vue.extend({
         await this.$store.dispatch("allHistories", data);
 
         this.allHistories = [
-        {
-          date: '14.09.2023',
-          upload: "History 1",
-          urls: ["https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm", "https://www.healthline.com/nutrition/10-health-benefits-of-apples"],
-        },
-        {
-          date: '18.09.2023',
-          upload: "History 2",
-          urls: [],
-        },
+          {
+            date: '14.09.2023',
+            upload: "History 1",
+            urls: ["https://www.libertyprim.com/en/lexique-familles/103/apple-lexique-des-fruits.htm", "https://www.healthline.com/nutrition/10-health-benefits-of-apples"],
+          },
+          {
+            date: '18.09.2023',
+            upload: "History 2",
+            urls: [],
+          },
         ]
         this.loadingHistoryTable = false
 
@@ -497,15 +467,9 @@ export default Vue.extend({
 
 
 
-    formatAuthors(authors: any){
-      //authors = JSON.parse(authors.replace(/,]$/, ']').replace(/'/g, '"'))
-      //authors.replace(/\[|\]/g,'').split(',')
-
-      //let temp = new Array(authors);
-      //let authorsArray = JSON.parse(temp[0]).replace("[", "").replace("]", "").split(",");
-
+    formatAuthors(authors: any) {,
       var temp = authors.replace(/'/g, '"');
-      const authorsArray= JSON.parse(temp);
+      const authorsArray = JSON.parse(temp);
       return authorsArray
     },
 
@@ -526,7 +490,6 @@ export default Vue.extend({
     async handleSearch() {
       var res = "0"
 
-      // async
       console.log("generating results ...");
 
       var query = this.searchQuery;
@@ -535,35 +498,35 @@ export default Vue.extend({
       }
 
       var endpoint = "/";
-      if(this.isLoggedIn) {
+      if (this.isLoggedIn) {
         console.log("user specific")
         var endpoint = endpoint + `search_his?query=${query}`;
 
         await axios
-        .get(endpoint,
-        {
-          headers: { 'Authorization': this.$store.getters.getAccessToken, "Access-Control-Allow-Origin": "*" }, 
-        })
-        .then((response) => {
-          console.log("adwad")
-          res = response.data["code"]
-          console.log("res:")
-          console.log(res)
+          .get(endpoint,
+            {
+              headers: { 'Authorization': this.$store.getters.getAccessToken, "Access-Control-Allow-Origin": "*" },
+            })
+          .then((response) => {
+            console.log("adwad")
+            res = response.data["code"]
+            console.log("res:")
+            console.log(res)
 
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              this.getSearchResults(response.data["result"]);
-            }
-            this.firstSearch = false;
-            this.showSearchResult = true;
-              
+            if (response.data) {
+              // return success
+              if (response.data["code"] === "200" || response.data["code"] === "201") {
+                this.getSearchResults(response.data["result"]);
+              }
+              this.firstSearch = false;
+              this.showSearchResult = true;
+
             }
             // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
 
 
       } else {
@@ -571,112 +534,112 @@ export default Vue.extend({
         var endpoint = endpoint + `search?query=${query}`; // axiosConfig
 
         await axios
-        .get(endpoint,
-          { 
-            headers: {
-              "Access-Control-Allow-Origin": "*",
-              'Access-Control-Allow-Credentials':true,
-            }, 
-            // withCredentials: true,
-          })
-        .then((response) => {
-          res = response.data["code"]
-          console.log("res:")
-          console.log(res)
+          .get(endpoint,
+            {
+              headers: {
+                "Access-Control-Allow-Origin": "*",
+                'Access-Control-Allow-Credentials': true,
+              },
+              // withCredentials: true,
+            })
+          .then((response) => {
+            res = response.data["code"]
+            console.log("res:")
+            console.log(res)
 
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              this.getSearchResults(response.data["result"]);
-            }
-            this.firstSearch = false;
-            this.showSearchResult = true;
-              
+            if (response.data) {
+              // return success
+              if (response.data["code"] === "200" || response.data["code"] === "201") {
+                this.getSearchResults(response.data["result"]);
+              }
+              this.firstSearch = false;
+              this.showSearchResult = true;
+
             }
             // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
 
       }
 
 
 
-      if(res === "401" && this.isLoggedIn) {
+      if (res === "401" && this.isLoggedIn) {
         console.log("trying to use refresh the token ...")
 
         await axios
-        .get(endpoint, 
-          { 
-            headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" }, 
+          .get(endpoint,
+            {
+              headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" },
+            })
+          .then((response) => {
+            res = response.data["code"]
+            console.log(res)
+
+            if (response.data) {
+              // return success
+              if (response.data["code"] === "200" || response.data["code"] === "201") {
+                this.getSearchResults(response.data["result"]);
+              }
+              this.firstSearch = false;
+              this.showSearchResult = true;
+
+            }
+            // reject errors & warnings
           })
-        .then((response) => {
-          res = response.data["code"]
-          console.log(res)
-
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              this.getSearchResults(response.data["result"]);
-            }
-            this.firstSearch = false;
-            this.showSearchResult = true;
-              
-            }
-            // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+          .catch((error) => {
+            console.log(error);
+          });
       }
 
 
-    if(this.isLoggedIn) {
-      if(res === "402") {
-        console.log("forcefully logging out")
-        this.logout
+      if (this.isLoggedIn) {
+        if (res === "402") {
+          console.log("forcefully logging out")
+          this.logout
 
-      } else {
-        var res = "0"
-        const authorizationData = {
-          username: this.$store.getters.stateUser,
-          access_token: null,
-          refresh_token: null,
+        } else {
+          var res = "0"
+          const authorizationData = {
+            username: this.$store.getters.stateUser,
+            access_token: null,
+            refresh_token: null,
+          }
+
+          console.log("verify tokens")
+          console.log(this.$store.getters.getRefreshToken)
+
+          const endpoint = "/" + `token_verify?refresh=true`;
+          console.log(endpoint)
+
+          await axios
+            .get(endpoint, {
+              headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" },
+            })
+            .then((response) => {
+              res = response.data["code"]
+              console.log("res:")
+              console.log(res)
+
+              if (response.data) {
+                // return success
+                if (response.data["code"] === "200" || response.data["code"] === "201") {
+                  authorizationData["access_token"] = response.data["result"]["access_token"];
+                  authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
+
+                  this.$store.dispatch("refreshTokens", authorizationData);
+                }
+
+              }
+              // reject errors & warnings
+            })
+            .catch((error) => {
+              console.log(error);
+            });
         }
-
-        console.log("verify tokens")
-        console.log(this.$store.getters.getRefreshToken)
-
-        const endpoint = "/" + `token_verify?refresh=true`;
-        console.log(endpoint)
-
-        await axios
-        .get(endpoint, {
-          headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" }, 
-        })
-        .then((response) => {
-          res = response.data["code"]
-          console.log("res:")
-          console.log(res)
-
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              authorizationData["access_token"] = response.data["result"]["access_token"];
-              authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
-
-              this.$store.dispatch("refreshTokens", authorizationData);
-            }
-              
-            }
-            // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
       }
-    }
       console.log("print this when the request is finished!");
     },
 
@@ -746,7 +709,7 @@ export default Vue.extend({
       console.log("history status code")
       console.log(this.$store.getters.historyStatusCode)
 
-      if(this.$store.getters.historyStatusCode === "402") {
+      if (this.$store.getters.historyStatusCode === "402") {
         this.logout
 
       } else {
@@ -767,42 +730,35 @@ export default Vue.extend({
         console.log(endpoint)
 
         await axios
-        .get(endpoint, {
-          headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" }, 
-        })
-        .then((response) => {
-          res = response.data["code"]
-          console.log("res:")
-          console.log(res)
+          .get(endpoint, {
+            headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" },
+          })
+          .then((response) => {
+            res = response.data["code"]
+            console.log("res:")
+            console.log(res)
 
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              authorizationData["access_token"] = response.data["result"]["access_token"];
-              authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
+            if (response.data) {
+              // return success
+              if (response.data["code"] === "200" || response.data["code"] === "201") {
+                authorizationData["access_token"] = response.data["result"]["access_token"];
+                authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
 
-              this.$store.dispatch("refreshTokens", authorizationData);
-            }
-              
+                this.$store.dispatch("refreshTokens", authorizationData);
+              }
+
             }
             // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       }
 
 
 
-      if(this.$store.getters.isHistoryValid) {
-        //this.fileSelected = true;
-        //this.showFileSelect = false;
+      if (this.$store.getters.isHistoryValid) {
       }
-      
-      //this.$emit("file-upload", this.file);
-      //this.$refs.form.reset(); RESET FORM TODO
-
-
 
     },
 
@@ -829,21 +785,21 @@ export default Vue.extend({
 
 
 <style lang="scss">
-
 @import url("https://use.fontawesome.com/releases/v5.9.0/css/all.css");
+
 * {
   font-size: 1rem;
 }
 
 img {
-    width: 90%;
-    height: 60%;
-    object-fit: cover;
+  width: 90%;
+  height: 60%;
+  object-fit: cover;
 }
 
 .thumbnail {
-    width: 300px;
-    height: 200px;
+  width: 300px;
+  height: 200px;
 
 }
 
@@ -864,14 +820,15 @@ h3 {
 .newline {
   clear: both;
 }
+
 .horizontalList {
-    display:inline
+  display: inline
 }
 
 a.linkAsText {
-    text-decoration: none;
-    color: black !important; /* Change the color here */
-  }
+  text-decoration: none;
+  color: black !important;
+}
 
 .three-lines {
   overflow: hidden;
@@ -891,9 +848,9 @@ body {
   background-color: #7ca971;
 }
 
-.topicDiv{
-  width: 200px;  
-  height: 150px;  
+.topicDiv {
+  width: 200px;
+  height: 150px;
 }
 
 .top-bar {
@@ -905,12 +862,13 @@ body {
   padding: 10px 10px 20px;
   margin-right: 10px;
   cursor: pointer;
+
   i {
     font-size: 2rem;
   }
 }
 
-.no-border{
+.no-border {
   border: none;
 }
 
@@ -934,15 +892,15 @@ body {
   align-items: center;
 }
 
-.modal > div {
+.modal>div {
   background-color: #fff;
   padding: 50px;
   border-radius: 10px;
 }
 
 .topicLink {
-    color: black;
-    text-decoration: none;
+  color: black;
+  text-decoration: none;
 }
 
 .resultRow {
@@ -959,9 +917,9 @@ body {
   width: 1000px;
   float: left;
   margin-right: 10px;
-  display:inline-block
+  display: inline-block
 }
-  
+
 .item {
   margin-right: 10px;
 }
@@ -1049,7 +1007,7 @@ a {
 }
 
 .wordBreak {
-  word-break:break-word;
+  word-break: break-word;
 }
 
 .overflowY {
@@ -1060,7 +1018,7 @@ a {
 }
 
 .cards {
-    display: inline;
+  display: inline;
 }
 
 .tagDiv {
@@ -1068,7 +1026,7 @@ a {
   width: 100%;
 }
 
-.no-bullet-points{ 
+.no-bullet-points {
   list-style-type: none;
 }
 
@@ -1087,6 +1045,7 @@ a {
 header {
   padding-top: 50px;
   padding-bottom: 50px;
+
   h1 {
     color: #888;
     font-size: 1.2rem;
@@ -1094,18 +1053,22 @@ header {
     text-align: center;
     text-transform: uppercase;
     margin-bottom: 30px;
+
     strong {
       color: #313131;
     }
+
     &:hover {
       color: #313131;
     }
   }
+
   .search-box {
     display: flex;
     justify-content: center;
     padding-left: 30px;
     padding-right: 30px;
+
     .search-field {
       appearance: none;
       background: none;
@@ -1121,9 +1084,11 @@ header {
       color: #313131;
       font-size: 20px;
       transition: 0.4s;
+
       &::placeholder {
         color: #aaa;
       }
+
       &:focus,
       &:valid {
         color: #fff;

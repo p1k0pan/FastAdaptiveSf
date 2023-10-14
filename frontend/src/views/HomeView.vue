@@ -1,105 +1,97 @@
+<!-- Home page which contains the topic recommendations in its default state. Conditionally, it displays the search results, the history management section or opens a modal for uploading a user history -->
 <template>
   <div>
+    <div class="container-fluid" id="top-div" style="text-align: center;">
 
-    <!--<nav class="navbar navbar-expand-lg navbar-light bg-light" style="display:block;">-->
-      <div class="container-fluid" id="top-div" style="text-align: center;">
-        <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center" style="padding-top: 0.2vh; padding-bottom: 0.2vh;">
-          <v-col cols="3" >
-            <a class="navbar-brand" @click="backToHome" style="font-weight: bold; color: black; font-size: 22px;">Adaptive Storyfinder</a>
-            <button
-              class="navbar-toggler"
-              type="button"
-              data-toggle="collapse"
-              data-target="#navbarSupportedContent"
-              aria-controls="navbarSupportedContent"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span class="navbar-toggler-icon"></span>
-            </button>
-          </v-col>
-          
-          <v-col cols="1">
-            <div class="nav-item active" style="margin-left: -10%">
-                <b-button variant="outline-primary" @click="openHistoryTab" :disabled="!isLoggedIn" class="" style="padding: 1%;" >
-                  <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
-                    <b-icon  icon="file-earmark-ruled" aria-hidden="true"></b-icon>
-                    <span style="font-size: 16px;">My histories</span>
+      <v-row align-v="center" class="text-align: center; overflow-hidden nav-text align-center"
+        style="padding-top: 0.2vh; padding-bottom: 0.2vh;">
+
+        <v-col cols="3">
+          <a class="navbar-brand" @click="backToHome" style="font-weight: bold; color: black; font-size: 22px;">Adaptive
+            Storyfinder</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </v-col>
+
+        <v-col cols="1">
+          <div class="nav-item active" style="margin-left: -10%">
+            <b-button variant="outline-primary" @click="openHistoryTab" :disabled="!isLoggedIn" class=""
+              style="padding: 1%;">
+              <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
+                <b-icon icon="file-earmark-ruled" aria-hidden="true"></b-icon>
+                <span style="font-size: 16px;">My histories</span>
+              </div>
+            </b-button>
+          </div>
+        </v-col>
+
+        <v-col cols="1">
+          <div class="nav-item active">
+            <div>
+
+              <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" :disabled="!isLoggedIn" class=""
+                style="padding: 1%;">
+                <div style="text-align: center;">
+                  Upload History
+                  <b-icon style="display: block; margin: 0 auto;" icon="file-earmark-arrow-up"
+                    aria-hidden="true"></b-icon>
+                </div>
+              </b-button>
+
+              <b-modal ref="historyModal" style="overflow-y: auto;" id="modal-1" title="Upload your browser history!"
+                @ok="sendHistory" ok-title="Confirm"
+                :ok-disabled="!((uploadHistoryTab === 1 && isHistoryTextValid) || (uploadHistoryTab === 2 && isUploadedHistoryFileValid))"
+                @close="resetHistory">
+
+                <template #modal-title>
+                  <div>
+                    <a href="https://chrome.google.com/webstore/category/extensions?utm_source=ext_app_menu"
+                      target="_blank">
+                      <b-icon icon="info-circle" id="info-icon" v-b-tooltip.hover.top="tooltipContentPlugin"></b-icon>
+                    </a>
+                    Upload your browser history!
                   </div>
-                </b-button>
-            </div>
-          </v-col>
+                </template>
 
-          <v-col cols="1">
-            <div class="nav-item active">
-              <div >
-                  <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" :disabled="!isLoggedIn" class="" style="padding: 1%;">
-                    <div style="text-align: center;">    
-                    Upload History 
-                      <b-icon style="display: block; margin: 0 auto;" icon="file-earmark-arrow-up" aria-hidden="true"></b-icon>
-                    </div>
-                  </b-button>
+                <div v-if="uploadHistoryTab === 1" style="margin-bottom: 2%; margin-top: -1%;">
+                  Enter relevant website URLs that you have visited or that represent your preferences in the text box
+                  below and click on Confirm.
+                </div>
 
-                  <b-modal ref="historyModal" style="overflow-y: auto;" id="modal-1" title="Upload your browser history!" @ok="sendHistory" ok-title="Confirm" :ok-disabled="!((uploadHistoryTab === 1 && isHistoryTextValid) || (uploadHistoryTab === 2 && isUploadedHistoryFileValid))" @close="resetHistory">
+                <div v-if="uploadHistoryTab === 2" style="margin-bottom: 2%; margin-top: -1%;">
+                  Upload a .json or a .csv file containing relevant URLs of the websites you visited and click on Confirm.
+                </div>
 
-                      <template #modal-title>
-                        <div>
-                          <a href="https://chrome.google.com/webstore/category/extensions?utm_source=ext_app_menu" target="_blank">
-                            <b-icon
-                              icon="info-circle"
-                              id="info-icon"
-                              v-b-tooltip.hover.top="tooltipContentPlugin"
-                            ></b-icon>
-                          </a>
-                          Upload your browser history!
-                        </div>
-                      </template>
+                <div style="height: 100%;" v-if="!uploadModalLoading">
+                  <b-tabs content-class="mt-3" fill>
+                    <b-tab title="Text" active @click="changeUploadTab('Text')" class="text-tab" style="height: 100%;">
+                      <b-form-textarea id="textarea" v-model="historyUserInput" @input="validateUserHistoryInput"
+                        :placeholder="multiLinePlaceholder" rows="10" max-rows="10"></b-form-textarea>
+                    </b-tab>
 
-                    <div v-if=" uploadHistoryTab === 1" style="margin-bottom: 2%; margin-top: -1%;">
-                      Enter relevant website URLs that you have visited or that represent your preferences in the text box below and click on Confirm.
-                    </div>
-                    <div v-if="uploadHistoryTab === 2" style="margin-bottom: 2%; margin-top: -1%;">
-                      Upload a .json or a .csv file containing relevant URLs of the websites you visited and click on Confirm.
-                    </div>
-
-
-                    <div style="height: 100%;" v-if="!uploadModalLoading">
-                      <b-tabs content-class="mt-3" fill>
-                        <b-tab title="Text" active @click="changeUploadTab('Text')" class="text-tab" style="height: 100%;">
-                          <b-form-textarea
-                            id="textarea"
-                            v-model="historyUserInput"
-                            @input="validateUserHistoryInput"
-                            :placeholder="multiLinePlaceholder"
-                            rows="10"
-                            max-rows="10"
-                          ></b-form-textarea>
-                        </b-tab>
-
-                        <b-tab title="File" @click="changeUploadTab('File')" class="file-tab" style="height: 100%;">
-                          <div>
-                            <button v-if="!fileSelected">
-                              Select a file!
-                            </button>
-                          </div>
-                          <div v-show="showFileSelect">
-                            <FileUploadField
-                              :maxSize="1000000"
-                              accept="json, csv"
-                              @isFileValid="checkUploadedFile"
-                            /> 
-                          </div>
-                        </b-tab>
-                      </b-tabs>
-
-                      <div v-if="uploadHistoryTab === 1" style="margin-bottom: 9.8%;">
+                    <b-tab title="File" @click="changeUploadTab('File')" class="file-tab" style="height: 100%;">
+                      <div>
+                        <button v-if="!fileSelected">
+                          Select a file!
+                        </button>
                       </div>
+                      <div v-show="showFileSelect">
+                        <FileUploadField :maxSize="1000000" accept="json, csv" @isFileValid="checkUploadedFile" />
+                      </div>
+                    </b-tab>
+                  </b-tabs>
 
-                      <div v-if="uploadHistoryTab === 2">
-                        <div class="border-top my-3"></div>
-                        <div v-if="uploadHistoryTab === 2" style="margin-bottom: 2%; margin-top: -1%;">
-                          <p> Please make sure that the file uses this format: </p>
-                          <pre style="white-space: pre-line; text-align: left; font-size: 12px; margin-bottom: -6%;">
+                  <div v-if="uploadHistoryTab === 1" style="margin-bottom: 9.8%;">
+                  </div>
+
+                  <div v-if="uploadHistoryTab === 2">
+                    <div class="border-top my-3"></div>
+
+                    <div v-if="uploadHistoryTab === 2" style="margin-bottom: 2%; margin-top: -1%;">
+                      <p> Please make sure that the file uses this format: </p>
+                      <pre style="white-space: pre-line; text-align: left; font-size: 12px; margin-bottom: -6%;">
                             [
                               &nbsp;&nbsp; {
                                 &nbsp;&nbsp;&nbsp;&nbsp; "url": "https://www.google.com",
@@ -112,87 +104,84 @@
                               &nbsp;&nbsp; },
                             ]
                           </pre>
-                        </div>
                     </div>
+                  </div>
 
-                    
-                    <div style="height: 100%; margin-top: 1%; color: red;" class="centered" v-if="!uploadModalLoading && historyUploadStatus === -1">
-                      <v-divider></v-divider>
-                      Could not upload the history!
-                    </div>
-
-                    </div>
-
-                    <div style="height: 100%;" v-if="uploadModalLoading">
-                      <div class="loading-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <div style="margin-bottom: 1%;">
-                          Uploading history
-                        </div>
-                        <div class="loader" style="display: block; text-align: center;"></div>
-                      </div>
-                    </div>
-
-                  </b-modal>
+                  <div style="height: 100%; margin-top: 1%; color: red;" class="centered"
+                    v-if="!uploadModalLoading && historyUploadStatus === -1">
+                    <v-divider></v-divider>
+                    Could not upload the history!
+                  </div>
                 </div>
+
+                <div style="height: 100%;" v-if="uploadModalLoading">
+                  <div class="loading-container"
+                    style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div style="margin-bottom: 1%;">
+                      Uploading history
+                    </div>
+                    <div class="loader" style="display: block; text-align: center;"></div>
+                  </div>
+                </div>
+
+              </b-modal>
+
             </div>
-          </v-col>
+          </div>
+        </v-col>
 
+        <v-col cols="4" style="width: 100%;">
+          <div class="nav-item active" style="width: 100%;">
+            <form class="search-bar form-inline mx-auto ml-4" style="min-width: 100%; max-width: 100%;"
+              @submit.prevent="handleSearch">
+              <b-form-input class="form-control mr-sm-2 rounded" v-model="searchQuery" placeholder="Search ..."
+                aria-label="Search"></b-form-input>
 
+            </form>
+          </div>
+        </v-col>
 
-          <v-col cols="4" style="width: 100%;">
-            <div class="nav-item active" style="width: 100%;">
-              <form class="search-bar form-inline mx-auto ml-4" style="min-width: 100%; max-width: 100%;" @submit.prevent="handleSearch">
-                <b-form-input class="form-control mr-sm-2 rounded" v-model="searchQuery" placeholder="Search ..." aria-label="Search"></b-form-input>
-                
-              </form>
+        <v-col cols="1">
+          <div class="nav-item active" style="margin-left: -10%;">
+            <b-button variant="outline-primary" class="btn btn-outline-success my-2 my-sm-0 ml-2" color="indigo-darken-3"
+              type="submit" @click="handleSearch">
+              Search
+            </b-button>
+          </div>
+        </v-col>
+
+        <v-col cols="1">
+          <div class="nav-item active">
+
+            <div v-if="isLoggedIn">
+              {{ this.$store.getters.stateUser }}
             </div>
-          </v-col>
 
-          <v-col cols="1">
-            <div class="nav-item active" style="margin-left: -10%;">
-              <b-button
-                variant="outline-primary"
-                class="btn btn-outline-success my-2 my-sm-0 ml-2"
-                color="indigo-darken-3"
-                type="submit"
-                @click="handleSearch"
-              >
-                Search
+            <div v-if="!isLoggedIn">
+              <b-button variant="outline-primary" @click="login" class="" style="padding: 1%;">
+                <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
+                  <b-icon icon="box-arrow-in-right" aria-hidden="true"
+                    style="padding-right: 4%; padding-top: 2%; padding-left: 1%;"></b-icon>
+                  <span style="font-size: 16px;">Log In</span>
+                </div>
               </b-button>
             </div>
-          </v-col>
 
-          <v-col cols="1">
-            <div class="nav-item active">
-              
-              <div v-if="isLoggedIn">
-                {{ this.$store.getters.stateUser }}
-              </div>
-
-              <div v-if="!isLoggedIn">
-                <b-button variant="outline-primary" @click="login" class="" style="padding: 1%;" >
-                  <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
-                    <b-icon  icon="box-arrow-in-right" aria-hidden="true" style="padding-right: 4%; padding-top: 2%; padding-left: 1%;"></b-icon>
-                    <span style="font-size: 16px;">Log In</span>
-                  </div>
-                </b-button>
+            <div v-if="isLoggedIn">
+              <b-button variant="outline-primary" @click="logout" class="" style="padding: 1%;">
+                <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
+                  <b-icon icon="box-arrow-in-left" aria-hidden="true"
+                    style="padding-right: 1%; padding-top: 2%; padding-left: 4%;"></b-icon>
+                  <span style="font-size: 16px;">Log Out</span>
                 </div>
-
-              <div v-if="isLoggedIn">
-                <b-button variant="outline-primary" @click="logout" class="" style="padding: 1%;" >
-                  <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
-                    <b-icon  icon="box-arrow-in-left" aria-hidden="true" style="padding-right: 1%; padding-top: 2%; padding-left: 4%;"></b-icon>
-                    <span style="font-size: 16px;">Log Out</span>
-                  </div>
-                </b-button>
-              </div>
+              </b-button>
             </div>
-          </v-col>
 
-        </v-row>
-      </div>
-    <!--</nav>-->
+          </div>
+        </v-col>
 
+      </v-row>
+    </div>
 
 
 
@@ -200,44 +189,35 @@
 
     <main style="margin-top: 1vh;">
 
-      <div v-if="showSearchResult"
-        style="bottom: 0;"
-      >
+      
+      <!-- Use this homepage to show search results -->
+      <div v-if="showSearchResult" style="bottom: 0;">
 
+        <!-- Load search results -->
+        <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden"
+          v-if="searchStatus === 0">
 
-      <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === 0">
-          <v-col cols="2">
-          </v-col>
+          <v-col cols="2"></v-col>
 
           <v-col cols="6">
-            <b-card border-variant="light" >
-            <div class="container-fluid" style="margin-bottom:-1%;">
-
-              <div class="cards">
-              <ul class="list-group">
-                <li
-                  class="list-group-item border-0"
-                  v-for="idx in 6" :key="idx"
-                >
-
-                <v-container class="bg-surface-variant" style="height: 60vh;" >
-                    <content-placeholder style="width: 100%; height: 100%;"></content-placeholder>
-                </v-container>
-
-                </li>
-              </ul>
-
-
-            </div>
-
-            </div>
+            <b-card border-variant="light">
+              <div class="container-fluid" style="margin-bottom:-1%;">
+                <div class="cards">
+                  <ul class="list-group">
+                    <li class="list-group-item border-0" v-for="idx in 6" :key="idx">
+                      <v-container class="bg-surface-variant" style="height: 60vh;">
+                        <content-placeholder style="width: 100%; height: 100%;"></content-placeholder>
+                      </v-container>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </b-card>
           </v-col>
 
           <v-col cols="4" style="width: 90%;">
-
             <div class="cards">
-              <v-container style="margin-left: -2%; width: 100%; height: 5%;" >
+              <v-container style="margin-left: -2%; width: 100%; height: 5%;">
                 <div class="placeholder-div" style="width: 50%; height: 50%;">
                 </div>
               </v-container>
@@ -245,41 +225,48 @@
 
             <v-divider class="border-opacity-20" style="margin-top: 2%;"> </v-divider>
 
-            <div class="cards">
-            </div>
+            <div class="cards"></div>
           </v-col>
-    </v-row>
+
+        </v-row>
 
 
-    <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === -1" style="margin-top: 3%;">
-          
+        <!-- No results found -->
+        <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden"
+          v-if="searchStatus === -1" style="margin-top: 3%;">
+
           <div class="centered">
             Could not find any related articles ...
           </div>
 
-    </v-row>
+        </v-row>
 
 
-        <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden" v-if="searchStatus === 1">
+        <!-- Display the search results section (if a user searched for a query) -->
+        <v-row align-v="center" align-h="center" class="justify-content-md-center overflow-hidden"
+          v-if="searchStatus === 1">
 
-
-
+          <!-- Sort after topic section -->
           <v-col cols="2">
-
             <div class="cards" v-if="results.length > 0">
               <v-container style="margin-left: -1%; margin-top: -1%;">
                 <div class="container-fluid">
+
                   <h4 style="margin-top: 0%;" class="text-shadowed">All topics </h4>
 
                   <div style="margin-bottom: 1%;">
-                    <b-button style="border-radius: 4px; background-color: rgb(184, 199, 235); border: none; margin-right: 2%" @click="unselectAllTags">Unselect All</b-button>
+                    <b-button
+                      style="border-radius: 4px; background-color: rgb(184, 199, 235); border: none; margin-right: 2%"
+                      @click="unselectAllTags">Unselect All</b-button>
                     <v-divider vertical></v-divider>
-                    <b-button style="border-radius: 4px; background-color: rgb(184, 199, 235); border: none;" @click="selectAllTags">Select All</b-button>
+                    <b-button style="border-radius: 4px; background-color: rgb(184, 199, 235); border: none;"
+                      @click="selectAllTags">Select All</b-button>
                   </div>
 
                   <div v-for="(tag, index) in allTags" class="checkbox_div" :key="tag + index">
                     <label>
-                      <input type="checkbox" v-model="selectedTags" :value="tag" @change="splitResults()" class="custom-checkbox">
+                      <input type="checkbox" v-model="selectedTags" :value="tag" @change="splitResults()"
+                        class="custom-checkbox">
                       <span class="checkbox-material">
                         <span class="check">
                         </span>
@@ -288,124 +275,105 @@
                     </label>
                   </div>
 
-                  
-
                 </div>
               </v-container>
             </div>
           </v-col>
 
-
-
+          <!-- Main results (in the middle) -->
           <v-col cols="6">
             <b-card border-variant="light">
-
               <div class="container-fluid" style="margin-bottom:-1%;">
-
                 <div class="cards" v-if="results.length > 0">
                   <ul class="list-group">
-                    <li
-                      class="list-group-item border-0"
-                      v-for="(itemDict, idx) in visibleResults"
-                      :key="idx"
-                    >
+                    <li class="list-group-item border-0" v-for="(itemDict, idx) in visibleResults" :key="idx">
 
-                    <v-container class="bg-surface-variant">
-                      <v-row no-gutters>
-                        
-                        <v-col cols="12">
-                            <div class="authorDiv" style="margin-bottom:-1%;" v-if='getAuthorsLength(itemDict["authors"], idx)'>
-                              <p style="display:inline" class=""> <i class="fas fa-user"></i> {{ formatAuthors(itemDict["authors"]) }} </p>
+                      <v-container class="bg-surface-variant">
+                        <v-row no-gutters>
 
-                              <span class="rightSpan"> <i class="far fa-clock"></i> {{ formatDate(itemDict["timestamp"]) }} </span>
+                          <v-col cols="12">
+                            <div class="authorDiv" style="margin-bottom:-1%;"
+                              v-if='getAuthorsLength(itemDict["authors"], idx)'>
+                              <p style="display:inline" class=""> <i class="fas fa-user"></i> {{
+                                formatAuthors(itemDict["authors"]) }} </p>
+
+                              <span class="rightSpan"> <i class="far fa-clock"></i> {{ formatDate(itemDict["timestamp"])
+                              }} </span>
                             </div>
-                        </v-col>
+                          </v-col>
 
-                        <v-col cols="12">
-                          <a :href="itemDict['url']"  target="_blank">
-                            <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0 resultImg"></b-card-img>
-                          </a>
-                        </v-col>
-
-                        <v-col cols="12">
-                          <div class="titleDiv" style="margin-top:1%;">
-                            <a :href="itemDict['url']"  target="_blank" class="linkAsText">
-                              <b-card-title class="wordBreak" title-tag="h4"> {{itemDict["title"]}} </b-card-title>
+                          <v-col cols="12">
+                            <a :href="itemDict['url']" target="_blank">
+                              <b-card-img :src="itemDict['thumbnail']" alt="Image"
+                                class="rounded-0 resultImg"></b-card-img>
                             </a>
-                            
+                          </v-col>
 
-                
-                            <span> 
-                              
+                          <v-col cols="12">
+                            <div class="titleDiv" style="margin-top:1%;">
+                              <a :href="itemDict['url']" target="_blank" class="linkAsText">
+                                <b-card-title class="wordBreak" title-tag="h4"> {{ itemDict["title"] }} </b-card-title>
+                              </a>
+                              <span>
+                                <!-- Nothing (we thought about adding a summary feature here, but the realization was not sufficiently possible)-->
+                              </span>
+                            </div>
+                          </v-col>
 
-                                
+                          <v-col cols="12">
+                            <b-card-text class="wordBreak overflow-auto" style="margin-top: 0.1%;">
+                              <p class="three-lines"> {{ itemDict["text"] }} </p>
+                            </b-card-text>
+                          </v-col>
 
-                            </span>
-                          </div>
-                        </v-col>
+                          <v-col cols="12">
+                            <div>
+                              <ul class="d-flex flex-wrap" style="margin-left: -3.5%; margin-top: -1.5%;">
+                                <li v-for='(tag, index) in itemDict["tags"]' :key="tag + index" class="tag-list-item">
+                                  <b-button class="btn-primary"
+                                    style="border-radius: 8px; background-color: #F2F2F2; border: none;"> {{
+                                      displayTag(tag) }} </b-button>
+                                </li>
+                              </ul>
+                            </div>
+                          </v-col>
 
-                        <v-col cols="12">
-                          <b-card-text class="wordBreak overflow-auto" style="margin-top: 0.1%;">
-                            <p class="three-lines"> {{ itemDict["text"] }} </p> <!-- https://codepen.io/raevilman/pen/OJpQXjg/left -->
-                          </b-card-text>
-                        </v-col>
-                        
-                        <v-col cols="12">
-                          <div>
-                            <ul class="d-flex flex-wrap" style="margin-left: -3.5%; margin-top: -1.5%;">
-                            <li v-for='(tag, index) in itemDict["tags"]' :key="tag + index" class="tag-list-item">
-                              <b-button class="btn-primary" style="border-radius: 8px; background-color: #F2F2F2; border: none;"> {{ displayTag(tag) }} </b-button>
-                            </li>
-                            </ul>
-                          </div>
-                        </v-col>
+                        </v-row>
+                      </v-container>
 
-                      </v-row>
-                    </v-container>
+                      <div style="margin-top: 0%;" v-if="idx + 1 === positive_index">
+                        <hr class="dotted">
+                        <hr class="dotted">
+                      </div>
 
-                    <div style="margin-top: 0%;" v-if="idx+1 === positive_index">
-                      <hr class="dotted">
-                      <hr class="dotted">
-                    </div>
-                    <div v-if="(idx+1 === positive_index) && (!showExtendedResults)" class="centered"> <!-- v-if="loadMoreButton" -->
-                      <b-button @click="handleLoadMoreButton" style="background-color: rgb(184, 199, 235); border-radius: 4px;">Load more of the less relevant results</b-button>
-                    </div>
+                      <div v-if="(idx + 1 === positive_index) && (!showExtendedResults)" class="centered">
+                        <b-button @click="handleLoadMoreButton"
+                          style="background-color: rgb(184, 199, 235); border-radius: 4px;">Load more of the less relevant
+                          results</b-button>
+                      </div>
 
                     </li>
-
-
                   </ul>
-
-
-
-                  <!-- <Card v-for="result in results" :key="result" :result="result" /> -->
                 </div>
-
-
-                </div>
+              </div>
             </b-card>
           </v-col>
 
-          
-
+          <!-- Sidebar results -->
           <v-col cols="4" style="width: 90%;">
-            
+
             <div class="cards" v-if="results.length > 0">
               <v-container style="margin-left: -2%;">
                 <div class="container-fluid">
                   <h4 style="margin-top: 0%; margin-left: 0.1%;" class="text-shadowed">Top topics</h4>
-
                   <div class="tag-container">
-                  <ul class="d-flex flex-wrap" style="margin-left: -4%;">
-                    <li
-                      class="list-group-item border-0"
-                      v-for="(tag, idx) in topTags"
-                      :key="tag + idx"
-                    >
-                      <b-button class="btn-primary" style="border-radius: 8px; background-color: #F2F2F2; border: none;"> {{ displayTag(tag) }} </b-button>
-                      
-                    </li>
-                  </ul>
+                    <ul class="d-flex flex-wrap" style="margin-left: -4%;">
+                      <li class="list-group-item border-0" v-for="(tag, idx) in topTags" :key="tag + idx">
+                        <b-button class="btn-primary"
+                          style="border-radius: 8px; background-color: #F2F2F2; border: none;"> {{ displayTag(tag) }}
+                        </b-button>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </v-container>
@@ -413,7 +381,6 @@
 
             <v-divider class="border-opacity-20" style="margin-top: 1%;"> </v-divider>
 
-            
             <div class="cards" v-if="results.length > 0">
               <v-container style="margin-left: -1%; margin-top: -1%;">
                 <div class="container-fluid">
@@ -422,301 +389,241 @@
               </v-container>
             </div>
 
-
             <div class="cards" v-if="results.length > 0">
               <ul class="list-group" style="margin-left: -4%; margin-top: -3%;">
-                <li
-                  class="list-group-item border-0"
-                  v-for="(itemDict, idx) in sideResults"
-                  :key="idx"
-                >
+                <li class="list-group-item border-0" v-for="(itemDict, idx) in sideResults" :key="idx">
+                  <v-container style="margin-left: -2%;">
+                    <v-row no-gutters>
 
-                <v-container style="margin-left: -2%;">
-                  <v-row no-gutters>
-                    
-                    <v-col cols="12">
-                        <div class="authorDiv" style="margin-bottom:-1%;" v-if='getAuthorsLength(itemDict["authors"], idx)'>
-                          <p class="" style="font-family: Arial, Helvetica, sans-serif;"> <i class="far fa-clock"></i> {{ formatAuthorsForSideView(itemDict["authors"]) }} </p>
+                      <v-col cols="12">
+                        <div class="authorDiv" style="margin-bottom:-1%;"
+                          v-if='getAuthorsLength(itemDict["authors"], idx)'>
+                          <p class="" style="font-family: Arial, Helvetica, sans-serif;"> <i class="far fa-clock"></i> {{
+                            formatAuthorsForSideView(itemDict["authors"]) }} </p>
 
-                          <span class="rightSpan"> <i class="far fa-clock"></i> {{ formatDate(itemDict["timestamp"]) }} </span>
+                          <span class="rightSpan"> <i class="far fa-clock"></i> {{ formatDate(itemDict["timestamp"]) }}
+                          </span>
                         </div>
-                    </v-col>
-                    
-                    <v-col cols="12">
-                      <a :href="itemDict['url']"  target="_blank">
-                        <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0 resultImg" style="width: 100%;"></b-card-img>
-                      </a>
-                    </v-col>
+                      </v-col>
 
-                    <v-col cols="12">
-                      <div class="titleDiv" style="margin-top:1%;">
-                        <a :href="itemDict['url']"  target="_blank" class="linkAsText">
-                          <b-card-title class="wordBreak" title-tag="h5"> {{itemDict["title"]}} </b-card-title>
+                      <v-col cols="12">
+                        <a :href="itemDict['url']" target="_blank">
+                          <b-card-img :src="itemDict['thumbnail']" alt="Image" class="rounded-0 resultImg"
+                            style="width: 100%;"></b-card-img>
                         </a>
-                      </div>
-                    </v-col>
+                      </v-col>
 
-                    <v-col cols="12">
-                      <b-card-text class="wordBreak overflow-auto" >
-                        <p class="three-lines"> {{ itemDict["text"] }} </p> <!-- https://codepen.io/raevilman/pen/OJpQXjg/left -->
-                      </b-card-text>
-                    </v-col>
-                    
-
-                  </v-row>
-                </v-container>
-
-                </li>
-              </ul>
-            </div>
-
-          </v-col>
-
-
-
-
-        </v-row>
-      </div>
-
-
-
-
-
-
-
-      <div v-if="!showSearchResult"
-        style="bottom: 0;"
-      >
-
-      <div v-if="showTopics && !showHistories"
-        style="bottom: 0;"
-      >
-      
-      <b-row align-v="center" align-h="center" class="justify-content-md-center">
-          <b-col></b-col>
-
-          <b-col cols="9">
-            <b-row class="mb-4 mt-4"></b-row>
-
-            <div class="container-fluid">
-        
-
-              <div v-if="this.$store.getters.tagsLoadingStatus === 0" class="centered">
-                <div class="loading-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                  <div style="margin-bottom: 2%;">
-                    Loading topics
-                  </div>
-                  <div class="loader" style="display: block; text-align: center;"></div>
-                </div>
-              </div>
-
-
-              <ul class="list-group" v-if="this.$store.getters.stateBothTags.length > 0 && this.$store.getters.tagsLoadingStatus === 1">
-                <li 
-                  class="list-group-item no-border mb-1"
-                  v-for="(item, index) in this.$store.getters.stateBothTags"
-                  :key="index"
-                >
-
-                   <h3 class="text-shadowed"> {{ displayTag(item["tag"]) }} </h3>
-                  <b-row class="mb-4"></b-row>
-
-
-                  <v-container style="position:relative">
-
-                    <v-slide-group show-arrows="never" id="article-slider" v-if="item['sites'].length < 3" style="margin-left: 4%;">
-                      <v-slide-item 
-                        v-for="(sites, index) in item['sites']"
-                        :key="index"
-                        >
-                      
-
-                      <b-card class="mr-6">
-                        <div class="thumbnail">
-                          <a :href="sites['url']" target="_blank" class="linkAsText">
-                            <img :src="sites['thumbnail']" alt="..." style="width:100%">
-                            <div class="wordBreak overflowY">
-                              <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ sites["title"] }} </h5>
-
-
-                            </div>
+                      <v-col cols="12">
+                        <div class="titleDiv" style="margin-top:1%;">
+                          <a :href="itemDict['url']" target="_blank" class="linkAsText">
+                            <b-card-title class="wordBreak" title-tag="h5"> {{ itemDict["title"] }} </b-card-title>
                           </a>
                         </div>
-                      </b-card>
-                      </v-slide-item>
-                    </v-slide-group>
+                      </v-col>
 
-                    <!--https://codepen.io/kasia123/pen/xxEmgmG-->
-                    <v-carousel v-if="item['sites'].length > 2" height="300" hide-delimiters progress="primary" show-arrows="hover"> 
-                      <template v-for="(sites, index) in item['sites']"> 
-                        <v-carousel-item v-if="(index + 1) % columns_per_slide === 1 || columns_per_slide === 1" 
-                              :key="index" style=""
-                                > 
-                                  <v-row class="flex-nowrap" style="height: 100%; margin-left: 3.2%; width: 90%;"> 
-                                    <template v-for="(n,i) in columns_per_slide"> 
-                                      <template > 
-                                        
-                                        <v-col :key="i">
-                                          <b-card class="" v-if="(+index + i) < item['sites'].length" style="height: 100%;">
-                                            <div class="thumbnail">
-                                              <a :href="item['sites'][+index + i]['url']" target="_blank" class="linkAsText">
-                                                <img :src="item['sites'][+index + i]['thumbnail']" alt="..." style="width:100%">
-                                                <div class="wordBreak overflowY">
-                                                  <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ item['sites'][+index + i]["title"] }} </h5>
+                      <v-col cols="12">
+                        <b-card-text class="wordBreak overflow-auto">
+                          <p class="three-lines"> {{ itemDict["text"] }} </p>
+                        </b-card-text>
+                      </v-col>
 
-
-                                                </div>
-                                              </a>
-                                            </div>
-                                          </b-card>
-                                        </v-col> 
-
-                                      </template> 
-                                    </template> 
-                                  </v-row> 
-                          </v-carousel-item>
-                        </template> 
-                      </v-carousel> 
+                    </v-row>
                   </v-container>
-
-
                 </li>
               </ul>
-              <div v-if="this.$store.getters.tagsLoadingStatus === -1" class="centered">
-                Could not load a selection of related topics!
-              </div>
-    
-
             </div>
-          </b-col>
+          </v-col>
 
-          <b-col></b-col>
-        </b-row>
+        </v-row>
 
       </div>
 
 
-      <div v-if="showHistories && !showTopics"
-        style="bottom: 0;"
-      >
-      
-      
-      <v-card>
-      <v-card-title>
-
-        <v-text-field
-            v-model="searchHistory"
-            label="Search"
-            single-line
-            hide-details
-        ></v-text-field>
 
 
 
-      </v-card-title>
-
-      <v-responsive
-         class="overflow-y-auto">
-      <v-data-table
-        :headers="historyTableHeaders"
-        :items="allHistories"
-        :expanded.sync="expandedHistory"
-        :loading="loadingHistoryTable"
-        show-expand
-        single-expand
-        item-key="upload_number"
-        :hide-default-footer="true"
-        :search="searchHistory">
-
-        
-        <template v-slot:top>
-
-        <v-dialog v-model="deleteHistoryDialog" max-width="600px">
-          <v-card>
-            <v-card-title class="text-h5">Are you sure you want to fully remove this history<br> upload and all of its URLs?</v-card-title>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="green-darken-1"
-                variant="text"
-                @click="abortDeletion"
-              >
-                No
-              </v-btn>
-              <v-btn
-                color="green-darken-1"
-                @click="deleteHistoryUpload"
-              >
-                Yes, remove this history upload!
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-        </template>
-        <template v-slot:item.actions="{ item }">
-        <v-icon
-        v-if='item.upload_number !== "..." && rowIsExpanded(item)'
-        small
-        color="red"
-        @click.stop="prepareToDelete(item)"
-        >
-        mdi-delete
-        </v-icon>
-        </template>
-        
-    
-        <template v-slot:expanded-item="{ headers, item: upload}">
-
-            <td :colspan="headers.length" v-if='upload.upload_number !== "..."'>
-                <div class="row sp-details" style="margin-top: 0.2%; margin-bottom: -2%;">
-                  <v-card
-                    class="mx-auto"
-                  >
-                    
-
-
-                  <v-data-table
-                    :headers="URLTableHeaders"
-                    :items="upload.sites"
-                    :sort-by="[{ key: 'index', order: 'asc' }]"
-                    class="">
-
-                    <template v-slot:top>
-
-                    </template>
-                    <template v-slot:item.actions="{ item: item }">
-                      <v-icon
-                        v-if='item.upload_number !== "..."'
-                        small
-                        color="red"
-                        @click.stop="deleteHistoryURL(upload, item)"
-                      >
-                        mdi-delete
-                      </v-icon>
-                    </template>
-
-                  </v-data-table> 
+      <!-- Display something else than the search results -->
+      <div v-if="!showSearchResult" style="bottom: 0;">
 
 
 
-                  </v-card>
+        <!-- Use this homepage to display the topic recommendation section (default) -->
+        <div v-if="showTopics && !showHistories" style="bottom: 0;">
+          <b-row align-v="center" align-h="center" class="justify-content-md-center">
+
+            <b-col></b-col>
+
+            <b-col cols="9">
+              <b-row class="mb-4 mt-4"></b-row>
+
+              <div class="container-fluid">
+
+                <div v-if="this.$store.getters.tagsLoadingStatus === 0" class="centered">
+                  <div class="loading-container"
+                    style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div style="margin-bottom: 2%;">
+                      Loading topics
+                    </div>
+                    <div class="loader" style="display: block; text-align: center;"></div>
+                  </div>
                 </div>
-            </td>
-            <td :colspan="headers.length" v-else>
-              Upload more histories for a more comprehensive experience!
-            </td>
 
-        </template>
+                <ul class="list-group"
+                  v-if="this.$store.getters.stateBothTags.length > 0 && this.$store.getters.tagsLoadingStatus === 1">
+                  <li class="list-group-item no-border mb-1" v-for="(item, index) in this.$store.getters.stateBothTags"
+                    :key="index">
 
-      </v-data-table>
-      </v-responsive>
-    </v-card>
+                    <h3 class="text-shadowed"> {{ displayTag(item["tag"]) }} </h3>
+                    <b-row class="mb-4"></b-row>
+
+                    <v-container style="position:relative">
+
+                      <v-slide-group show-arrows="never" id="article-slider" v-if="item['sites'].length < 3"
+                        style="margin-left: 4%;">
+                        <v-slide-item v-for="(sites, index) in item['sites']" :key="index">
+
+
+                          <b-card class="mr-6">
+                            <div class="thumbnail">
+                              <a :href="sites['url']" target="_blank" class="linkAsText">
+                                <img :src="sites['thumbnail']" alt="..." style="width:100%">
+                                <div class="wordBreak overflowY">
+                                  <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{ sites["title"]
+                                  }} </h5>
+
+
+                                </div>
+                              </a>
+                            </div>
+                          </b-card>
+                        </v-slide-item>
+                      </v-slide-group>
+
+                      <!--https://codepen.io/kasia123/pen/xxEmgmG-->
+                      <v-carousel v-if="item['sites'].length > 2" height="300" hide-delimiters progress="primary"
+                        show-arrows="hover">
+                        <template v-for="(sites, index) in item['sites']">
+                          <v-carousel-item v-if="(index + 1) % columns_per_slide === 1 || columns_per_slide === 1"
+                            :key="index" style="">
+                            <v-row class="flex-nowrap" style="height: 100%; margin-left: 3.2%; width: 90%;">
+                              <template v-for="(n, i) in columns_per_slide">
+                                <template>
+
+                                  <v-col :key="i">
+                                    <b-card class="" v-if="(+index + i) < item['sites'].length" style="height: 100%;">
+                                      <div class="thumbnail">
+                                        <a :href="item['sites'][+index + i]['url']" target="_blank" class="linkAsText">
+                                          <img :src="item['sites'][+index + i]['thumbnail']" alt="..." style="width:100%">
+                                          <div class="wordBreak overflowY">
+                                            <h5 class="mt-2" style="word-wrap: break-word;white-space: normal;"> {{
+                                              item['sites'][+index + i]["title"] }} </h5>
+
+
+                                          </div>
+                                        </a>
+                                      </div>
+                                    </b-card>
+                                  </v-col>
+
+                                </template>
+                              </template>
+                            </v-row>
+                          </v-carousel-item>
+                        </template>
+                      </v-carousel>
+                    </v-container>
+                  </li>
+                </ul>
+
+                <div v-if="this.$store.getters.tagsLoadingStatus === -1" class="centered">
+                  Could not load a selection of related topics!
+                </div>
+
+              </div>
+            </b-col>
+
+            <b-col></b-col>
+
+          </b-row>
+        </div>
+
+
+
+        <!-- Use this homepage to display the history management section -->
+        <div v-if="showHistories && !showTopics" style="bottom: 0;">
+          <v-card>
+
+            <v-card-title>
+              <v-text-field v-model="searchHistory" label="Search" single-line hide-details></v-text-field>
+            </v-card-title>
+
+            <v-responsive class="overflow-y-auto">
+              <v-data-table :headers="historyTableHeaders" :items="allHistories" :expanded.sync="expandedHistory"
+                :loading="loadingHistoryTable" show-expand single-expand item-key="upload_number"
+                :hide-default-footer="true" :search="searchHistory">
+
+                <template v-slot:top>
+
+                  <v-dialog v-model="deleteHistoryDialog" max-width="600px">
+                    <v-card>
+                      <v-card-title class="text-h5">Are you sure you want to fully remove this history<br> upload and all
+                        of its URLs?</v-card-title>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="green-darken-1" variant="text" @click="abortDeletion">
+                          No
+                        </v-btn>
+                        <v-btn color="green-darken-1" @click="deleteHistoryUpload">
+                          Yes, remove this history upload!
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </template>
+
+                <template v-slot:item.actions="{ item }">
+                  <v-icon v-if='item.upload_number !== "..." && rowIsExpanded(item)' small color="red"
+                    @click.stop="prepareToDelete(item)">
+                    mdi-delete
+                  </v-icon>
+                </template>
+
+                <template v-slot:expanded-item="{ headers, item: upload }">
+                  <td :colspan="headers.length" v-if='upload.upload_number !== "..."'>
+                    <div class="row sp-details" style="margin-top: 0.2%; margin-bottom: -2%;">
+                      <v-card class="mx-auto">
+                        <v-data-table :headers="URLTableHeaders" :items="upload.sites"
+                          :sort-by="[{ key: 'index', order: 'asc' }]" class="">
+
+                          <template v-slot:top>
+
+                          </template>
+                          <template v-slot:item.actions="{ item: item }">
+                            <v-icon v-if='item.upload_number !== "..."' small color="red"
+                              @click.stop="deleteHistoryURL(upload, item)">
+                              mdi-delete
+                            </v-icon>
+                          </template>
+
+                        </v-data-table>
+                      </v-card>
+                    </div>
+                  </td>
+
+                  <td :colspan="headers.length" v-else>
+                    Upload more histories for a more comprehensive experience!
+                  </td>
+                </template>
+
+              </v-data-table>
+            </v-responsive>
+
+          </v-card>
+        </div>
 
       </div>
 
 
-      </div>
-      
     </main>
   </div>
 </template>
@@ -769,21 +676,21 @@ export default Vue.extend({
       authorsLength: {},
 
       positive_index: 0,
-      main_split_index: 0, 
+      main_split_index: 0,
       mainResults: [],
       sideResults: [],
       extendedResults: [],
-    
+
       allTags: [],
       topTags: [],
       tagCounts: {},
       selectedTags: [],
-      
+
       loadMoreButton: true,
       loadingIndex: 0,
       loadingSteps: 5,
       showExtendedResults: false,
-      
+
 
       // variables for uploading a user history/ prefered websites
       uploadHistoryTab: 1,
@@ -822,7 +729,7 @@ export default Vue.extend({
           value: 'date',
         },
         { text: 'Upload Number', value: 'upload_number' },
-        { text: 'Delete', value: 'actions', sortable: false, align: 'right',},
+        { text: 'Delete', value: 'actions', sortable: false, align: 'right', },
       ],
       URLTableHeaders: [
         {
@@ -832,9 +739,9 @@ export default Vue.extend({
         },
         { text: 'Title', value: 'title' },
         { text: 'URL', value: 'url' },
-        { text: 'Delete', value: 'actions', sortable: false, align: 'right',},
+        { text: 'Delete', value: 'actions', sortable: false, align: 'right', },
       ],
-      
+
 
       // Mock data to simulate some search results & the history management when the not_connected variable is true
       testSearchData: [
@@ -1093,7 +1000,7 @@ export default Vue.extend({
     visibleResults: function (): any[] {
       return this.mainResults.slice(0, this.loadingIndex)
     },
-    
+
   },
 
 
@@ -1109,21 +1016,28 @@ export default Vue.extend({
     async login() {
       this.$router.push("/login");
       this.$bvToast.toast('Login successful', {
-          title: `Variant ${'success' || 'default'}`,
-          variant: 'success',
-          solid: true
-        })
+        title: `Variant ${'success' || 'default'}`,
+        variant: 'success',
+        solid: true
+      })
     },
 
     // Log a user out of the local system
     async logout() {
       await this.$store.dispatch("logOut");
       this.$store.dispatch("removeUserTags");
+
+      // close everything relevant and return to the default homepage view (topic recommendation)
+      this.backToHome();
+      this.resetHistory();
+
+      this.uploadModalLoading = false
+      this.$bvModal.hide('modal-1')
     },
 
     // Cchange between the Text Upload (individual websites) and the File Upload Tab for user histories
-    changeUploadTab(tab){
-      if(tab === "Text") {
+    changeUploadTab(tab) {
+      if (tab === "Text") {
         this.uploadHistoryTab = 1
       } else if (tab === "File") {
         this.uploadHistoryTab = 2
@@ -1144,21 +1058,21 @@ export default Vue.extend({
     },
 
     // Return back to the original home view with just the topic recommendations
-    backToHome(){
+    backToHome() {
       console.log("back to home ...")
       this.searchQuery = ""
       this.showSearchResult = false
 
       this.showTopics = true
       this.showHistories = false
-      
+
       if (this.$route.path !== '/') {
         this.$router.push('/');
       }
     },
 
     // Load the history management tab and therefore request all the uploaded histories of a user to display them in a datatable
-    openHistoryTab(){
+    openHistoryTab() {
       console.log("opening history management ...")
       this.searchQuery = ""
       this.showSearchResult = false
@@ -1167,7 +1081,7 @@ export default Vue.extend({
       this.showHistories = true
       this.getAllHistories();
     },
-    
+
     // Split the re-ranked search results into one main list with the most important ones, one extented list which follows the main list and one sidebar list which contains articles which are still more relevant than the extended ones (but still not really meaningful)
     splitResults() {
       var selectedResults = this.results.slice();
@@ -1177,7 +1091,7 @@ export default Vue.extend({
         return this.selectedTags.some(tag => tags.includes(tag));
       });
       console.log(this.selectedTags)
-      
+
 
 
       var mainResults = selectedResults.slice(0, this.positive_index)
@@ -1202,16 +1116,16 @@ export default Vue.extend({
     },
 
     // Delete a complete uploaded history
-    deleteHistoryUpload () {
+    deleteHistoryUpload() {
       this.allHistories = this.allHistories.filter(item =>
         JSON.stringify(item) !== JSON.stringify(this.itemToDelete)
       );
-      
+
       this.deleteHistoryDialog = false
     },
 
     // Delete just one URL/ website from an uploaded history
-    deleteHistoryURL (upload, itemToDelete) {
+    deleteHistoryURL(upload, itemToDelete) {
       const index = this.allHistories.findIndex(item =>
         JSON.stringify(item) === JSON.stringify(upload)
       );
@@ -1226,7 +1140,7 @@ export default Vue.extend({
     },
 
     // Change the behavior of some datatable elements when a row is expanded to show more details on a specific history upload
-    rowIsExpanded(item){
+    rowIsExpanded(item) {
       if (this.expandedHistory.length > 0) {
         if (item["upload_number"] === this.expandedHistory[0]["upload_number"]) {
           return true
@@ -1239,10 +1153,10 @@ export default Vue.extend({
     },
 
     // Display the authors for the search results in a better looking manner for the main results list
-    formatAuthors(authors: any){
+    formatAuthors(authors: any) {
       var authorsString = authors
 
-      var authorArray = JSON.parse(authorsString );
+      var authorArray = JSON.parse(authorsString);
       var charArray = [];
       for (var j = 0; j < authorArray.length; j++) {
         var author = authorArray[j];
@@ -1264,15 +1178,15 @@ export default Vue.extend({
 
       if (concatenatedString.length === 0) {
         return "/";
-      } 
+      }
       return concatenatedString
     },
 
     // Display the authors for the search results in a better looking manner for the sidebar results
-    formatAuthorsForSideView(authors: any){
+    formatAuthorsForSideView(authors: any) {
       var authorsString = authors
 
-      var authorArray = JSON.parse(authorsString );
+      var authorArray = JSON.parse(authorsString);
       var charArray = [];
       for (var j = 0; j < authorArray.length; j++) {
         var author = authorArray[j];
@@ -1289,7 +1203,7 @@ export default Vue.extend({
         return element.trim().replace(/^'(.*)'$/, '$1');
       });
 
-      
+
       let firstAuthor;
       if (finalArray.length > 1) {
         firstAuthor = String(finalArray[0]) + " et al.";
@@ -1303,7 +1217,7 @@ export default Vue.extend({
 
       if (concatenatedString.length === 0) {
         return "/";
-      } 
+      }
       return firstAuthor
     },
 
@@ -1339,10 +1253,10 @@ export default Vue.extend({
 
     // Display a topic in a better looking manner
     displayTag(tag) {
-      if( String(tag) === "USER-PREF") {
+      if (String(tag) === "USER-PREF") {
         tag = "These articles might be interesting for you"
       }
-      
+
       return tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
     },
 
@@ -1361,8 +1275,8 @@ export default Vue.extend({
     validateUserHistoryInput() {
       var urls = []
       urls = this.historyUserInput.split(/[\n\s]+/)
-      .filter((url) => url.trim() !== "")
-      .map((url) => url.trim());
+        .filter((url) => url.trim() !== "")
+        .map((url) => url.trim());
 
       if (urls.length <= 1) {
         urls = [this.historyUserInput.trim()];
@@ -1387,7 +1301,6 @@ export default Vue.extend({
       });
 
 
-
       if (urls.length <= 0) {
         console.log("The list of URLs is empty.");
         this.isHistoryTextValid = false
@@ -1395,13 +1308,13 @@ export default Vue.extend({
       }
 
       var validUrls = urls.filter((url) => {
-      try {
-        new URL(url);
-        return true;
+        try {
+          new URL(url);
+          return true;
 
-      } catch (error) {
-        return false;
-      }
+        } catch (error) {
+          return false;
+        }
       });
 
 
@@ -1439,19 +1352,20 @@ export default Vue.extend({
       }
 
       if (!this.$store.getters.stateHistory) return;
-      
+
 
       await this.$store.dispatch("patchHistory", data);
       console.log("history status code")
       console.log(this.$store.getters.historyStatusCode)
-      
+
+      // Handle the request response code
       if (this.$store.getters.historyStatusCode !== "0" && this.$store.getters.historyStatusCode !== "402") {
         console.log("upload his done")
         this.historyUploadStatus = 1;
 
         if (this.$store.getters.historyStatusCode === "200" || this.$store.getters.historyStatusCode === "201") {
           console.log("success")
-        } 
+        }
 
         if (this.$store.getters.historyStatusCode === "402") {
           console.log("error while uploading history")
@@ -1464,7 +1378,7 @@ export default Vue.extend({
       }
 
 
-      if(this.$store.getters.historyStatusCode === "402") {
+      if (this.$store.getters.historyStatusCode === "402") {
         this.logout()
 
       } else {
@@ -1484,37 +1398,38 @@ export default Vue.extend({
         const endpoint = "/" + `token_verify?refresh=true`;
         console.log(endpoint)
 
+        // Request new tokens  (token verify)
         await axios
-        .get(endpoint, {
-          headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" }, 
-        })
-        .then((response) => {
-          res = response.data["code"]
-          console.log("res:")
-          console.log(res)
+          .get(endpoint, {
+            headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" },
+          })
+          .then((response) => {
+            res = response.data["code"]
+            console.log("res:")
+            console.log(res)
 
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              authorizationData["access_token"] = response.data["result"]["access_token"];
-              authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
+            if (response.data) {
+              // return success
+              if (response.data["code"] === "200" || response.data["code"] === "201") {
+                authorizationData["access_token"] = response.data["result"]["access_token"];
+                authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
 
-              this.$store.dispatch("refreshTokens", authorizationData);
-            }
-              
+                this.$store.dispatch("refreshTokens", authorizationData);
+              }
+
             }
             // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       }
 
-      if(this.not_connected) {
-          this.historyUploadStatus = 1
-      } 
+      if (this.not_connected) {
+        this.historyUploadStatus = 1
+      }
 
-      if(this.historyUploadStatus === 1) {
+      if (this.historyUploadStatus === 1) {
         this.backToHome();
         this.resetHistory();
 
@@ -1538,9 +1453,8 @@ export default Vue.extend({
       try {
         await this.$store.dispatch("allHistories", data);
 
-        this.$store.getters.getAllHistories = this.allHistories 
+        this.$store.getters.getAllHistories = this.allHistories
         console.log("all histories", this.allHistories)
-
 
         this.loadingHistoryTable = false
 
@@ -1562,7 +1476,6 @@ export default Vue.extend({
       this.showExtendedResults = false;
       this.searchStatus = 0;
 
-      // async
       console.log("generating results ...");
 
       var query = this.searchQuery;
@@ -1571,153 +1484,155 @@ export default Vue.extend({
       }
 
       var endpoint = "/";
-      if(this.isLoggedIn) {
-        console.log("user specific")
+
+      // If user is logged in request the search results WITH the user preferences
+      if (this.isLoggedIn) {
+        console.log("user specific search ...")
         var endpoint = endpoint + `search_his?query=${query}`;
 
         await axios
-        .get(endpoint,
-        {
-          headers: { 'Authorization': this.$store.getters.getAccessToken, "Access-Control-Allow-Origin": "*" }, 
-        })
-        .then((response) => {
-          console.log("adwad")
-          res = response.data["code"]
-          console.log("res:")
-          console.log(res)
+          .get(endpoint,
+            {
+              headers: { 'Authorization': this.$store.getters.getAccessToken, "Access-Control-Allow-Origin": "*" },
+            })
+          .then((response) => {
+            console.log("adwad")
+            res = response.data["code"]
+            console.log("res:")
+            console.log(res)
 
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              this.getSearchResults(response.data["result"]);
-            }
-              
+            if (response.data) {
+              // return success
+              if (response.data["code"] === "200" || response.data["code"] === "201") {
+                this.getSearchResults(response.data["result"]);
+              }
+
             }
             // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
 
 
+      // If there is NO user logged in, request the search results WITHOUT the specific user preferences
       } else {
-        console.log("regular")
+        console.log("regular search ...")
         var endpoint = endpoint + `search?query=${query}`; // axiosConfig
 
         await axios
-        .get(endpoint,
-          { 
-            headers: {
-              "Access-Control-Allow-Origin": "*",
-              'Access-Control-Allow-Credentials':true,
-            }, 
-            // withCredentials: true,
-          })
-        .then((response) => {
-          res = response.data["code"]
-          console.log("res:")
-          console.log(res)
+          .get(endpoint,
+            {
+              headers: {
+                "Access-Control-Allow-Origin": "*",
+                'Access-Control-Allow-Credentials': true,
+              },
+              // withCredentials: true,
+            })
+          .then((response) => {
+            res = response.data["code"]
+            console.log("res:")
+            console.log(res)
 
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              this.getSearchResults(response.data["result"]);
-            }
-              
+            if (response.data) {
+              // return success
+              if (response.data["code"] === "200" || response.data["code"] === "201") {
+                this.getSearchResults(response.data["result"]);
+              }
+
             }
             // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
 
       }
 
 
-
-      if(res === "401" && this.isLoggedIn) {
+      // Reponse can be 401, then use the refresh token
+      if (res === "401" && this.isLoggedIn) {
         console.log("trying to use refresh the token ...")
 
         await axios
-        .get(endpoint, 
-          { 
-            headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" }, 
+          .get(endpoint,
+            {
+              headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" },
+            })
+          .then((response) => {
+            res = response.data["code"]
+            console.log(res)
+
+            if (response.data) {
+              // return success
+              if (response.data["code"] === "200" || response.data["code"] === "201") {
+                this.getSearchResults(response.data["result"]);
+              }
+              //this.showSearchResult = true;
+
+            }
+            // reject errors & warnings
           })
-        .then((response) => {
-          res = response.data["code"]
-          console.log(res)
-
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              this.getSearchResults(response.data["result"]);
-            }
-            //this.showSearchResult = true;
-              
-            }
-            // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+          .catch((error) => {
+            console.log(error);
+          });
       }
 
 
-    if(this.isLoggedIn) {
-      if(res === "402") {
-        console.log("forcefully logging out")
-        this.logout()
+      if (this.isLoggedIn) {
+      // Reponse can be 402, then log out because the tokens are not valid
+        if (res === "402") {
+          console.log("forcefully logging out")
+          this.logout()
+        
+          // Else the request worked and we want to refresh the tokens (token verify)
+        } else {
+          var res = "0"
+          const authorizationData = {
+            username: this.$store.getters.stateUser,
+            access_token: null,
+            refresh_token: null,
+          }
 
-      } else {
-        var res = "0"
-        const authorizationData = {
-          username: this.$store.getters.stateUser,
-          access_token: null,
-          refresh_token: null,
+          console.log("verify tokens")
+          console.log(this.$store.getters.getRefreshToken)
+
+          const endpoint = "/" + `token_verify?refresh=true`;
+          console.log(endpoint)
+
+          await axios
+            .get(endpoint, {
+              headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" },
+            })
+            .then((response) => {
+              res = response.data["code"]
+              console.log("res:")
+              console.log(res)
+
+              if (response.data) {
+                // return success
+                if (response.data["code"] === "200" || response.data["code"] === "201") {
+                  authorizationData["access_token"] = response.data["result"]["access_token"];
+                  authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
+
+                  this.$store.dispatch("refreshTokens", authorizationData);
+                }
+
+              }
+              // reject errors & warnings
+            })
+            .catch((error) => {
+              console.log(error);
+            });
         }
-
-        console.log("verify tokens")
-        console.log(this.$store.getters.getRefreshToken)
-
-        const endpoint = "/" + `token_verify?refresh=true`;
-        console.log(endpoint)
-
-        await axios
-        .get(endpoint, {
-          headers: { 'Authorization': this.$store.getters.getRefreshToken, "Access-Control-Allow-Origin": "*" }, 
-        })
-        .then((response) => {
-          res = response.data["code"]
-          console.log("res:")
-          console.log(res)
-
-          if (response.data) {
-            // return success
-            if (response.data["code"] === "200" || response.data["code"] === "201") {
-              authorizationData["access_token"] = response.data["result"]["access_token"];
-              authorizationData["refresh_token"] = response.data["result"]["refresh_token"];
-
-              this.$store.dispatch("refreshTokens", authorizationData);
-            }
-              
-            }
-            // reject errors & warnings
-        })
-        .catch((error) => {
-          console.log(error);
-        });
       }
-    }
 
-      
+
+      // Format the search results: Build topics/tags for the search (top and most popular) + divide the search result list into main, side and extended lists
       if (typeof this.results !== 'undefined' && this.results.length > 0) {
         this.searchStatus = 1;
 
-
         this.loadingIndex = this.positive_index
-
-
-
 
         var mainResults = this.results.slice(0, this.positive_index)
         this.main_split_index = this.positive_index + mainResults.length
@@ -1729,9 +1644,6 @@ export default Vue.extend({
         console.log("side results: ", this.sideResults, this.sideResults.length)
         console.log("main results: ", this.mainResults, this.mainResults.length)
 
-
-
-
         var topTags = []
         var tagCounts = {};
         for (let i = 0; i < this.results.length; i++) {
@@ -1756,16 +1668,15 @@ export default Vue.extend({
 
           this.results[i]["tags"] = finalArray
 
-
-
           for (let j = 0; j < this.results[i]["tags"].length; j++) {
             var tag = this.results[i]["tags"][j];
             tagCounts[tag] = (tagCounts[tag] || 0) + 1;
           }
         }
 
-        // sort tags in popularity order
-        var sortedTags = Object.keys(tagCounts).sort(function(a, b) {
+
+        // Sort tags in popularity order
+        var sortedTags = Object.keys(tagCounts).sort(function (a, b) {
           return tagCounts[b] - tagCounts[a];
         });
 
@@ -1780,7 +1691,6 @@ export default Vue.extend({
         this.selectedTags = [...this.allTags];
 
 
-
       } else {
         this.searchStatus = -1;
       }
@@ -1789,7 +1699,7 @@ export default Vue.extend({
       // Display mock data
       if (this.not_connected) {
         this.positive_index = 2,
-        this.results = this.testSearchData
+          this.results = this.testSearchData
         this.searchStatus = 1;
 
 
@@ -1827,7 +1737,7 @@ export default Vue.extend({
 
           this.results[i]["tags"] = finalArray
 
-          
+
 
           for (let j = 0; j < this.results[i]["tags"].length; j++) {
             var tag = this.results[i]["tags"][j];
@@ -1836,7 +1746,7 @@ export default Vue.extend({
         }
 
         // sort tags in popularity order
-        var sortedTags = Object.keys(tagCounts).sort(function(a, b) {
+        var sortedTags = Object.keys(tagCounts).sort(function (a, b) {
           return tagCounts[b] - tagCounts[a];
         });
 
@@ -1851,6 +1761,7 @@ export default Vue.extend({
         this.selectedTags = [...this.allTags];
       }
 
+      // -------------------------------------
 
       console.log("search request finished!");
       console.log(this.searchStatus);
@@ -1878,11 +1789,12 @@ export default Vue.extend({
 
       var indices = data["index"];
       var positive_index = data["positive_index"];
-      this.positive_index=positive_index
+      this.positive_index = positive_index
 
+      // default image in case there is none present
       var resizedImageURL = 'https://miro.medium.com/v2/resize:fit:1100/format:webp/1*jfdwtvU6V6g99q3G7gq7dQ.png';
 
-
+      // Convert Backend response to a useable data structure (list of dicts)
       for (let i = 0; i < titles.length; i++) {
         titles[i] = titles[i]
         urls[i] = urls[i]
@@ -1920,24 +1832,25 @@ export default Vue.extend({
 <style lang="scss">
 
 .loader {
-    width: 48px;
-    height: 48px;
-    border: 5px solid #000000;
-    border-bottom-color: transparent;
-    border-radius: 50%;
-    display: inline-block;
-    box-sizing: border-box;
-    animation: rotation 1s linear infinite;
-    }
+  width: 48px;
+  height: 48px;
+  border: 5px solid #000000;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
 
-    @keyframes rotation {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-} 
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 .thumbnail {
   width: 300px;
@@ -1986,7 +1899,7 @@ export default Vue.extend({
   width: 100%;
   float: left;
   margin-right: 10px;
-  display:inline-block
+  display: inline-block
 }
 
 .list-group-item {
@@ -2025,7 +1938,7 @@ export default Vue.extend({
 }
 
 .wordBreak {
-  word-break:break-word;
+  word-break: break-word;
 }
 
 .overflowY {
@@ -2036,10 +1949,10 @@ export default Vue.extend({
 }
 
 .cards {
-    display: inline;
+  display: inline;
 }
 
-.tag-container{
+.tag-container {
   max-height: 17vh;
   overflow: auto;
   display: flex;
@@ -2049,12 +1962,15 @@ export default Vue.extend({
 .tag-container::-webkit-scrollbar {
   background: rgba(0, 0, 0, 0.1);
 }
+
 .tag-container::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.1);
 }
+
 .tag-container::-webkit-scrollbar-track {
   background-color: transparent;
 }
+
 .tag-container {
   scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
   -moz-appearance: none;
@@ -2064,9 +1980,10 @@ export default Vue.extend({
   box-shadow: none !important;
 }
 
-.text-tab .b-tab-content{
+.text-tab .b-tab-content {
   overflow-y: auto;
 }
+
 .file-tab .b-tab-content {
   overflow-y: auto;
 }
@@ -2075,8 +1992,8 @@ export default Vue.extend({
   text-shadow: 0px 0.2px 1px grey, 0px 0px 1px grey;
 }
 
-.btn-primary:hover{
-    background-color: rgb(122, 122, 122) !important;
+.btn-primary:hover {
+  background-color: rgb(122, 122, 122) !important;
 }
 
 
@@ -2094,6 +2011,7 @@ a.linkAsText {
 hr.dashed {
   border-top: 3px dashed #bbb;
 }
+
 hr.dotted {
   border-top: 3px dotted #bbb;
 }
@@ -2103,9 +2021,9 @@ h3 {
 }
 
 img {
-    width: 90%;
-    height: 60%;
-    object-fit: cover;
+  width: 90%;
+  height: 60%;
+  object-fit: cover;
 }
 
 body {
@@ -2120,6 +2038,7 @@ body {
 header {
   padding-top: 20px;
   padding-bottom: 20px;
+
   h1 {
     color: #888;
     font-size: 1.2rem;
@@ -2127,18 +2046,22 @@ header {
     text-align: center;
     text-transform: uppercase;
     margin-bottom: 30px;
+
     strong {
       color: #313131;
     }
+
     &:hover {
       color: #313131;
     }
   }
+
   .search-box {
     display: flex;
     justify-content: center;
     padding-left: 30px;
     padding-right: 30px;
+
     .search-field {
       appearance: none;
       background: none;
@@ -2154,9 +2077,11 @@ header {
       color: #313131;
       font-size: 20px;
       transition: 0.4s;
+
       &::placeholder {
         color: #aaa;
       }
+
       &:focus,
       &:valid {
         color: #fff;
@@ -2207,8 +2132,8 @@ header {
 
 
 #modal-1 .modal-footer .btn-secondary {
-    background-color: rgb(215, 157, 157);
-    color: white;
+  background-color: rgb(215, 157, 157);
+  color: white;
 }
 
 #info-icon:hover {
@@ -2220,6 +2145,7 @@ header {
   padding: 10px 10px 20px;
   margin-right: 10px;
   cursor: pointer;
+
   i {
     font-size: 2rem;
   }
@@ -2235,15 +2161,15 @@ header {
 }
 
 #home {
-    margin: 0;
-    padding: 0;
-  }
+  margin: 0;
+  padding: 0;
+}
 
 #top-div {
   position: sticky;
   top: 0;
   z-index: 999;
- //background: linear-gradient(to left, rgb(184, 199, 235), rgb(145, 162, 202));
+  //background: linear-gradient(to left, rgb(184, 199, 235), rgb(145, 162, 202));
   background: white;
   text-align: center;
   max-height: 15vh;
