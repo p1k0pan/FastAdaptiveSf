@@ -251,7 +251,7 @@ async def get_user(user_name:str, db: Session =db_session ):
     return schema.Response(status="Ok", code="200", message="Success get user", result=_users)
 
 @app.get('/user/history',tags=["User"])
-async def get_user(user_name:str, token=Depends(token_verify)):
+async def get_user_history(user_name:str, token=Depends(token_verify)):
     if token.code == "201" or token.code== "200":
         file_path = f"history/{user_name}.json"
         try:
@@ -263,6 +263,30 @@ async def get_user(user_name:str, token=Depends(token_verify)):
                     grouped_data[date].append(item)
                 result = dict(grouped_data)
             return schema.Response(status="Ok", code="200", message="successful get user history", result=result)
+        except FileNotFoundError:
+            print(f"The file {file_path} does not exist.")
+            return schema.Response(status="Failed", code="404", message="file not exist", result={})
+        except json.JSONDecodeError:
+            print(f"The file {file_path} is not a valid JSON file.")
+            return schema.Response(status="Failed", code="400", message="not valid Json file", result={})
+    else:
+        return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
+
+@app.patch('/user/history/delete',tags=["User"])
+async def delete_history(user_name:str,index:int, date_str="", token=Depends(token_verify)):
+    if token.code == "201" or token.code== "200":
+        file_path = f"history/{user_name}.json"
+        try:
+            with open(file_path, 'r') as f:
+                history = pd.read_json(f)
+                history["date"]=history["date"].astype('str')
+                result = crud.delete_history(index, date_str, history)
+                if len(result) != 0:
+                    result.to_json(file_path, orient='records', indent=4)
+                    return schema.Response(status="Ok", code="200", message="successful delete", result=None)
+                else:
+                    return schema.Response(status="Failed", code="500", message="unknown error", result=None)
+
         except FileNotFoundError:
             print(f"The file {file_path} does not exist.")
             return schema.Response(status="Failed", code="404", message="file not exist", result={})
