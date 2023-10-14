@@ -2,7 +2,7 @@
 
 FastAPI Adaptive Storyfinder
 
-Please visit the Wiki of this Git Repository and read it [Getting Started](1.-Getting-Started) section carefully!
+Please visit the [**Wiki**](https://github.com/p1k0pan/FastAdaptiveSf/wiki) of this Git Repository and read it [Getting Started](https://github.com/p1k0pan/FastAdaptiveSf/wiki/1.-Getting-Started) section carefully!
 
 This project contains the following main parts:
 - The Backend with FastAPI which is mainly realized with the main.py and the folders db, deploy and modules
