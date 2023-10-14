@@ -36,7 +36,8 @@
                 <div style="text-align: center;">
                   Upload History
                   <b-icon style="display: block; margin: 0 auto;" icon="file-earmark-arrow-up"
-                    aria-hidden="true"></b-icon>
+                    aria-hidden="true">
+                  </b-icon>
                 </div>
               </b-button>
 
@@ -567,7 +568,8 @@
                   <v-dialog v-model="deleteHistoryDialog" max-width="600px">
                     <v-card>
                       <v-card-title class="text-h5">Are you sure you want to fully remove this history<br> upload and all
-                        of its URLs?</v-card-title>
+                        of its URLs?
+                      </v-card-title>
                       <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn color="green-darken-1" variant="text" @click="abortDeletion">
@@ -655,7 +657,7 @@ export default Vue.extend({
   data() {
     return {
       // display mock data
-      not_connected: false,
+      mock: false,
 
 
       // variables regarding the home page in general
@@ -743,7 +745,7 @@ export default Vue.extend({
       ],
 
 
-      // Mock data to simulate some search results & the history management when the not_connected variable is true
+      // Mock data to simulate some search results & the history management when the mock variable is true
       testSearchData: [
         {
           id: 0,
@@ -1121,6 +1123,16 @@ export default Vue.extend({
         JSON.stringify(item) !== JSON.stringify(this.itemToDelete)
       );
 
+      const data = {
+        username: this.$store.getters.stateUser,
+        access_token: this.$store.getters.getAccessToken,
+        refresh_token: this.$store.getters.getRefreshToken,
+
+        affectedUpload: this.itemToDelete,
+      }
+
+      this.$store.dispatch("deleteHistoryUpload", data);
+
       this.deleteHistoryDialog = false
     },
 
@@ -1135,6 +1147,19 @@ export default Vue.extend({
           JSON.stringify(item) !== JSON.stringify(itemToDelete)
         );
       }
+
+      const data = {
+        username: this.$store.getters.stateUser,
+        access_token: this.$store.getters.getAccessToken,
+        refresh_token: this.$store.getters.getRefreshToken,
+
+        upload_date: upload["date"], // upload.date
+        upload_number: upload["upload_number"], // upload.upload_number
+
+        urlToDelete: itemToDelete,
+      }
+
+      this.$store.dispatch("deleteHistoryURL", data);
 
       this.deleteUrlDialog = false
     },
@@ -1425,7 +1450,7 @@ export default Vue.extend({
           });
       }
 
-      if (this.not_connected) {
+      if (this.mock) {
         this.historyUploadStatus = 1
       }
 
@@ -1463,7 +1488,7 @@ export default Vue.extend({
         this.loadingHistoryTable = false
       }
 
-      if (this.not_connected) {
+      if (this.mock) {
         this.allHistories = this.testHistoryData;
       }
     },
@@ -1697,7 +1722,7 @@ export default Vue.extend({
 
 
       // Display mock data
-      if (this.not_connected) {
+      if (this.mock) {
         this.positive_index = 2,
           this.results = this.testSearchData
         this.searchStatus = 1;

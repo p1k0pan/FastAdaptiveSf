@@ -16,14 +16,17 @@
     "allowJs": true,      
     "noImplicitAny":false,
     "strictNullChecks": false,
+    
     "types": [
       "webpack-env"
     ],
+
     "paths": {
       "@/*": [
         "src/*"
       ]
     },
+
     "lib": [
       "esnext",
       "dom",

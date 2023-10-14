@@ -467,7 +467,7 @@ export default Vue.extend({
 
 
 
-    formatAuthors(authors: any) {,
+    formatAuthors(authors: any) {
       var temp = authors.replace(/'/g, '"');
       const authorsArray = JSON.parse(temp);
       return authorsArray
@@ -753,11 +753,6 @@ export default Vue.extend({
           .catch((error) => {
             console.log(error);
           });
-      }
-
-
-
-      if (this.$store.getters.isHistoryValid) {
       }
 
     },
