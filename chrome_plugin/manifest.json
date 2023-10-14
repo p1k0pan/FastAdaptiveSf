@@ -1,75 +1,75 @@
 {
-    "manifest_version": 3,
-    "name": "My Extension",
-    "version": "1.0.1",
-  
+  "manifest_version": 3,
+  "name": "My Extension",
+  "version": "1.0.1",
 
-
-    "action":{
-        // "default_popup": "/views/login.html",
-        "default_popup": "/views/startup.html",
-        "default_title": "Latest Covid Report",
-
-        "default_icon": {
-            "128": "/assets/icons/128.png"
-        }
-    },
-    "default_locale": "en",
-    "description": "A plain text description",
-    "icons": {
-        "128": "/assets/icons/128.png"
-    },
-  
-
-
-    "author": "Jingheng Pan, Adrian Lindloff, Lijunnan Bai",
-
-    "background": {
-        "service_worker": "background.js"
-    },
-    "content_scripts": [
-      {
-        "js": ["scripts/content.js"],
-        "matches": ["<all_urls>"],
-        "run_at": "document_start"
-      }
-    ],
-    "options_page": "",
-      "content_security_policy": {
-        "extension_pages": "script-src 'self'; object-src 'self';"
-      },
-
-    "host_permissions": [
-        "http://*/*", 
-        "https://*/*",
-        "https://developer.chrome.com/*"
-    ],
-    "permissions": [
-        "system.cpu",
-        "system.memory",
-        "system.storage",
-        "system.display",
-        "contextMenus",
-
-        "storage",
-        "activeTab",
-        "scripting",
-        "tabs",
-        "scripting",
-        "history",
-        "notifications",
-        "cookies"
-    ],
-    "requirements": {
-
-    },
-
-    "commands": {
-        "_execute_action": {
-          "suggested_key": {
-            "default": "Ctrl+U",
-            "mac": "Command+U"
-          }
-        }
+  "action": {
+    "default_popup": "/views/startup.html",
+    "default_title": "Latest Covid Report",
+    "default_icon": {
+      "128": "/assets/icons/128.png"
     }
+  },
+
+  "default_locale": "en",
+  "description": "A plain text description",
+  "icons": {
+    "128": "/assets/icons/128.png"
+  },
+  "author": "Jingheng Pan, Adrian Lindloff, Lijunnan Bai",
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "js": [
+        "scripts/content.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+
+  "options_page": "",
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*",
+    "https://developer.chrome.com/*"
+  ],
+
+  "permissions": [
+    "system.cpu",
+    "system.memory",
+    "system.storage",
+    "system.display",
+    "contextMenus",
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "scripting",
+    "history",
+    "notifications",
+    "cookies"
+  ],
+
+  "requirements": {},
+  
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+U",
+        "mac": "Command+U"
+      }
+    }
+  }
 }
