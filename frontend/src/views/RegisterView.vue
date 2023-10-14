@@ -1,124 +1,117 @@
+<!-- Form to register a new user -->
 <template>
   <div style="padding-top: 2%;">
-    <div
-      class="main"
-      style="bottom: 0;"
-      >
+    <div class="main" style="bottom: 0;">
       <b-row align-v="center" align-h="center" class="justify-content-md-center">
+
         <b-col></b-col>
+
         <b-col cols="6">
+          <b-card class="" border-variant="dark">
 
-    <b-card class="" border-variant="dark">
-    <b-card-title class="text-center custom-title">Sign up for the Adaptive Storyfinder!</b-card-title>
-    <b-card-sub-title class="text-center">Browse articles according to your taste.</b-card-sub-title>
-    <b-row class="mb-2"></b-row>
-    
-    <div>
+            <b-card-title class="text-center custom-title">Sign up for the Adaptive Storyfinder!</b-card-title>
+            <b-card-sub-title class="text-center">Browse articles according to your taste.</b-card-sub-title>
 
-    <b-form v-if="this.username.length > -1" @submit.stop.prevent>
-        <label for="feedback-username">Username </label>
-        <b-form-input v-model="username" :state="validationUsername" id="feedback-username"></b-form-input>
+            <b-row class="mb-2"></b-row>
 
-        <b-form-invalid-feedback :state="validationUsername">
-        Your username must be 3-16 characters long.
-      </b-form-invalid-feedback>
-      <b-form-valid-feedback :state="validationUsername">
-        This username is valid.
-      </b-form-valid-feedback>
-    </b-form>
-    </div>
-   
-   <b-row class="mb-4"></b-row>
+            <div>
+              <b-form v-if="this.username.length > -1" @submit.stop.prevent>
+                <label for="feedback-username">Username </label>
+                <b-form-input v-model="username" :state="validationUsername" id="feedback-username"></b-form-input>
 
+                <b-form-invalid-feedback :state="validationUsername">
+                  Your username must be 3-16 characters long.
+                </b-form-invalid-feedback>
+                <b-form-valid-feedback :state="validationUsername">
+                  This username is valid.
+                </b-form-valid-feedback>
+              </b-form>
+            </div>
 
-   <div v-if="!showPassword">
+            <b-row class="mb-4"></b-row>
 
-    <b-form v-if="this.password.length > -1" @submit.stop.prevent>
-        <label for="feedback-password">Password</label>
-        <span class="display-eye fa fa-eye-slash" @click="toggleShowPassword"></span>
+            <div v-if="!showPassword">
 
-        <b-form-input type="password" v-model="password" :state="validationPassword" id="feedback-password" aria-describedby="password-help-block"></b-form-input>
-        <b-form-invalid-feedback :state="validationPassword">
-        Your username must be 6-20 characters long.
-      </b-form-invalid-feedback>
-      <b-form-valid-feedback :state="validationPassword">
-        This password is valid.
-      </b-form-valid-feedback>
-    </b-form>
-  </div>
+              <b-form v-if="this.password.length > -1" @submit.stop.prevent>
+                <label for="feedback-password">Password</label>
+                <span class="display-eye fa fa-eye-slash" @click="toggleShowPassword"></span>
 
+                <b-form-input type="password" v-model="password" :state="validationPassword" id="feedback-password"
+                  aria-describedby="password-help-block"></b-form-input>
+                <b-form-invalid-feedback :state="validationPassword">
+                  Your username must be 6-20 characters long.
+                </b-form-invalid-feedback>
+                <b-form-valid-feedback :state="validationPassword">
+                  This password is valid.
+                </b-form-valid-feedback>
+              </b-form>
+            </div>
 
-  <div v-if="showPassword">
+            <div v-if="showPassword">
+              <b-form v-if="this.password.length > -1" @submit.stop.prevent>
+                <label for="feedback-password">Password</label>
+                <span class="display-eye fa fa-eye" @click="toggleShowPassword"></span>
 
-    <b-form v-if="this.password.length > -1" @submit.stop.prevent>
-        <label for="feedback-password">Password</label>
-        <span class="display-eye fa fa-eye" @click="toggleShowPassword"></span>
+                <b-form-input type="text" v-model="password" :state="validationPassword" id="feedback-password"
+                  aria-describedby="password-help-block"></b-form-input>
+                <b-form-invalid-feedback :state="validationPassword">
+                  Your username must be 6-20 characters long.
+                </b-form-invalid-feedback>
+                <b-form-valid-feedback :state="validationPassword">
+                  This password is valid.
+                </b-form-valid-feedback>
+              </b-form>
+            </div>
 
-        <b-form-input type="text" v-model="password" :state="validationPassword" id="feedback-password" aria-describedby="password-help-block"></b-form-input>
-        <b-form-invalid-feedback :state="validationPassword">
-        Your username must be 6-20 characters long.
-      </b-form-invalid-feedback>
-      <b-form-valid-feedback :state="validationPassword">
-        This password is valid.
-      </b-form-valid-feedback>
-    </b-form>
-  </div>
+            <b-row class="mb-2"></b-row>
 
+            <div class="extra">
+              <span class=""> <input class="form-check-input" type="checkbox" id="checkbox"
+                  v-model="stayLoggedIn"> Remember me? </span>
+              <span class="rightSpan"> Already have an account? <a href="/login">Login</a> </span>
+            </div>
 
-  
-  <b-row class="mb-2"></b-row>
+            <b-row class="mb-4"></b-row>
 
-  <div class="extra">
-    <span class=""> <input class="form-check-input" type="checkbox" id="checkbox" v-model="stayLoggedIn"></input> Remember me? </span>
-    <span class="rightSpan"> Already have an account?   <a href="/login">Login</a> </span>
-  </div>
+            <div class="text-center">
+              <b-button v-if="!validation" variant="outline-primary" size="lg" type="submit" disabled>Sign up</b-button>
+              <b-button v-if="validation" variant="outline-primary" size="lg" type="submit" @click="submit">
+                Sign up
+              </b-button>
+            </div>
 
+            <b-row class="mb-4"></b-row>
+            <b-row class="mb-4"></b-row>
+            <div class="separator"> or </div>
+            <b-row class="mb-4"></b-row>
 
-  <b-row class="mb-4"></b-row>
+            <div class="text-center">
+              <p class="mb-n1">Login with</p>
 
-  <div class="text-center">
-    <b-button v-if="!validation" variant="outline-primary" size="lg" type="submit" disabled >Sign up</b-button>
-    <b-button v-if="validation" variant="outline-primary" size="lg" type="submit" @click="submit" >Sign up</b-button>
-  </div>
+              <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-google"></i>
+              </button>
 
+              <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-github"></i>
+              </button>
 
-  <b-row class="mb-4"></b-row>
-  <b-row class="mb-4"></b-row>
+              <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-twitter"></i>
+              </button>
 
+              <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-facebook-f"></i>
+              </button>
+            </div>
 
-  <div class="separator"> or </div>
-
-  <b-row class="mb-4"></b-row>
-  
-  <div class="text-center">
-    <p class="mb-n1">Login with</p>
-
-    <button type="button" class="btn btn-link btn-floating mx-1">
-      <i class="fab fa-google"></i>
-    </button>
-
-    <button type="button" class="btn btn-link btn-floating mx-1">
-      <i class="fab fa-github"></i>
-    </button>
-
-    <button type="button" class="btn btn-link btn-floating mx-1">
-      <i class="fab fa-twitter"></i>
-    </button>
-    
-    <button type="button" class="btn btn-link btn-floating mx-1">
-      <i class="fab fa-facebook-f"></i>
-    </button>
-</div>
-
-
-
-        </b-card>
+          </b-card>
         </b-col>
 
         <b-col></b-col>
+
       </b-row>
     </div>
-
   </div>
 </template>
 
@@ -127,98 +120,93 @@
 
 
 <script>
-  import { defineComponent } from 'vue';
-  //import { mapActions } from 'vuex';
-  
-  export default defineComponent({
-    name: 'Register',
-    data() {
-      return {
-        showPassword: false,
-        stayLoggedIn: false,
-        
-        usernameValid: false,
-        usernameExisting: false,
-        passwordValid: false,
+import { defineComponent } from 'vue';
+//import { mapActions } from 'vuex';
 
-        username: '',
-        password: '',
-      };
+export default defineComponent({
+  name: 'Register',
+  data() {
+    return {
+      showPassword: false,
+      stayLoggedIn: false,
+
+      usernameValid: false,
+      usernameExisting: false,
+      passwordValid: false,
+
+      username: '',
+      password: '',
+    };
+  },
+
+  computed: {
+    // Validate the given username
+    validationUsername() {
+      if (this.username.length > 2 && this.username.length < 17) {
+        this.usernameValid = true
+        return true
+
+      } else {
+        this.usernameValid = false
+        return false
+      }
     },
 
-    computed: {
+    // Validate the given password
+    validationPassword() {
+      if (this.password.length > 5 && this.password.length < 21) {
+        this.passwordValid = true
+        return true
 
-      validationUsername() {
-        if(this.username.length > 2 && this.username.length < 17) {
-          this.usernameValid = true
-          return true
+      } else {
+        this.passwordValid = false
+        return false
+      }
+    },
+
+    // Check if both username and the password are valid locally
+    validation() {
+      return this.usernameValid && this.passwordValid
+    },
+  },
+
+
+
+  methods: {
+    // Show or hide the password
+    toggleShowPassword() {
+      this.showPassword = !this.showPassword;
+    },
+
+    // Redirect to the login form
+    routeToLoginView() {
+      this.$router.push('/login')
+    },
+
+    // Submit the register form
+    async submit() {
+      const formDict = {
+        username: this.username,
+        password: this.password,
+      }
+
+      try {
+        await this.$store.dispatch("register", formDict);
+
+        if (this.$store.getters.isAuthenticated) {
+          this.$router.push('/');
 
         } else {
-          this.usernameValid = false
-          return false
+          console.log("Sign Up failed.")
         }
-      },
-
-      validationPassword() {
-        if(this.password.length > 5 && this.password.length < 21) {
-          this.passwordValid = true
-          return true
-
-        } else {
-          this.passwordValid = false
-          return false
-        }
-      },
-
-
-      validation() {
-        return this.usernameValid && this.passwordValid
-      },
+      } catch (error) {
+        throw 'Error while signing up.';
+      }
 
     },
-
-    methods: {
-      toggleShowPassword() {
-        this.showPassword = !this.showPassword;
-      },
-
-      routeToLoginView() {
-        this.$router.push('/login')
-      },
-
-
-      validationUsernameStatic() {
-        return this.username.length > 2 && this.username.length < 17
-      },
-
-      validationPasswordStatic() {
-        return this.password.length > 5 && this.password.length < 21
-      },
-
-
-      async submit() {
-        const formDict = {
-          username: this.username,
-          password: this.password,
-        }
-
-        try {
-          await this.$store.dispatch("register", formDict);
-
-          if(this.$store.getters.isAuthenticated) {
-            this.$router.push('/');
-
-          } else {
-            console.log("Sign Up failed.")
-          }
-        } catch (error) {
-          throw 'Error while signing up.';
-        }
-
-      },
-    },
-  });
-  </script>
+  },
+});
+</script>
   
 
 
@@ -226,58 +214,58 @@
 
 <style scoped>
 
-  .main {
-    justify-content: center;
-    vertical-align: middle;
-    position: relative;
-  }
-  
-  .display-eye {
-    cursor:pointer;
-    float: right;
-    margin-top: 6px;
-    margin-right: 1px;
-  }
-  
-  .rightSpan {
-    float: right;
-  }
-  
-  .separator {
-    display: flex;
-    align-items: center;
-    text-align: center;
-  }
-  
-  .separator::before,
+.main {
+  justify-content: center;
+  vertical-align: middle;
+  position: relative;
+}
 
-  .separator::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid #000;
-  }
-  
-  .separator:not(:empty)::before {
-    margin-right: .25em;
-  }
-  
-  .separator:not(:empty)::after {
-    margin-left: .25em;
-  }
-  
-  .custom-title {
-    text-shadow:
-      0px 1px 1px grey,
-      0px 0px 0px grey;
-  }
+.display-eye {
+  cursor: pointer;
+  float: right;
+  margin-top: 6px;
+  margin-right: 1px;
+}
+
+.rightSpan {
+  float: right;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
+.separator::before,
+
+.separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #000;
+}
+
+.separator:not(:empty)::before {
+  margin-right: .25em;
+}
+
+.separator:not(:empty)::after {
+  margin-left: .25em;
+}
+
+.custom-title {
+  text-shadow:
+    0px 1px 1px grey,
+    0px 0px 0px grey;
+}
 
 
 
-  hr {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    border: 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-  }
-  
-  </style>
+hr {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+</style>
