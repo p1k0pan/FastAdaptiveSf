@@ -273,7 +273,7 @@ async def get_user_history(user_name:str, token=Depends(token_verify)):
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
 @app.patch('/user/history/delete',tags=["User"])
-async def delete_history(user_name:str,index:int, date_str="", token=Depends(token_verify)):
+async def delete_history(user_name:str,index=-1, date_str="", token=Depends(token_verify)):
     if token.code == "201" or token.code== "200":
         file_path = f"history/{user_name}.json"
         try:
