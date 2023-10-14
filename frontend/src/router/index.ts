@@ -12,9 +12,11 @@ const routes: Array<RouteConfig> = [
     path: '/',
     name: 'Home',
     component: HomeView,
-    /*beforeEnter: (to, from, next) => {
-      console.log("entering home page")
-    }, */
+    /*
+      beforeEnter: (to, from, next) => {
+        console.log("entering home page")
+      }, 
+    */
   },
   {
     path: '/login',
@@ -34,7 +36,6 @@ const routes: Array<RouteConfig> = [
     component: OldSearchView
   },
 ]
-
 
 
 const router = new VueRouter({
