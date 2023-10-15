@@ -1478,7 +1478,7 @@ export default Vue.extend({
       try {
         await this.$store.dispatch("allHistories", data);
 
-        this.$store.getters.getAllHistories = this.allHistories
+        this.allHistories = this.$store.getters.getAllHistories
         console.log("all histories", this.allHistories)
 
         this.loadingHistoryTable = false
