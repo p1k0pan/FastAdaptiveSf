@@ -559,7 +559,7 @@
             </v-card-title>
 
             <v-responsive class="overflow-y-auto">
-              <v-data-table :headers="historyTableHeaders" :items="allHistories" :expanded.sync="expandedHistory"
+              <v-data-table :headers="historyTableHeaders" :items="this.$store.getters.getAllHistories" :expanded.sync="expandedHistory"
                 :loading="loadingHistoryTable" show-expand single-expand item-key="upload_number"
                 :hide-default-footer="true" :search="searchHistory">
 
@@ -1133,6 +1133,7 @@ export default Vue.extend({
 
       this.$store.dispatch("deleteHistoryUpload", data);
 
+      this.allHistories = this.$store.getters.getAllHistories
       this.deleteHistoryDialog = false
     },
 
@@ -1162,6 +1163,7 @@ export default Vue.extend({
 
       this.$store.dispatch("deleteHistoryURL", data);
 
+      this.allHistories = this.$store.getters.getAllHistories
       this.deleteUrlDialog = false
     },
 

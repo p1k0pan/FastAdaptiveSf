@@ -362,6 +362,9 @@ const actions = {
             await context.dispatch('allHistories', data);
         }
 
+        console.log("updated histories: ")
+        console.log(histories)
+        
         // Commit all of a users uploaded history to the store (to display them later on history management)
         if (Object.keys(histories).length > 0) {
             context.commit('SET_ALL_HISTORIES', histories)
@@ -478,6 +481,9 @@ const actions = {
             histories = []
             await context.dispatch('allHistories', data);
         }
+
+        console.log("updated histories: ")
+        console.log(histories)
 
         // Commit all of a users uploaded history to the store (to display them later on history management)
         if (Object.keys(histories).length > 0) {
