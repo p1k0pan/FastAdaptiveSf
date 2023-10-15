@@ -1,4 +1,4 @@
-// manage the function on home_highlighting.html such as highlight function
+// Manage the functions on home_highlighting.html such as the highlight function
 
 
 
@@ -8,7 +8,7 @@ function toggleDropdown() {
 }
 
 
-//
+// Check if the dropdown button is rendered (outdated)
 window.addEventListener('click', function (event) {
   if (!event.target.matches('.dropbtn')) {
     var dropdowns = document.getElementsByClassName("dropdown-content");
@@ -24,7 +24,7 @@ window.addEventListener('click', function (event) {
 });
 
 
-// get the current tab the user currently focus on to do further actions 
+// Get the current tab (website) of the user to do further actions with it
 async function getCurrentTab() {
   let queryOptions = { active: true, currentWindow: true };
   let [tab] = await chrome.tabs.query(queryOptions);
@@ -33,7 +33,7 @@ async function getCurrentTab() {
 }
 
 
-// send the command to content.js
+// Send the command to content.js
 function sendMessageToContent(action, tabId) {
   return new Promise((resolve, reject) => {
     chrome.tabs.sendMessage(tabId, { action: action }, function (response) {
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
   });
 
 
-  // -------------- Switch from handling logic regarding the highlighting to logic regarding the upload of browser histories
+  // -------------- Switch from handling logic regarding the highlighting to logic regarding the upload of browser histories --------------
   
 
   // Get the important buttons to add click events for the HISTORY-RELATED functionality
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', async function (e) {
 });
 
 
-// 
+// Retrieve a users Chrome history from within a certain timespan as a list of URLs
 async function retrieveHistory(timeRange) {
   return new Promise((resolve, reject) => {
     let startTime;
@@ -429,7 +429,7 @@ function patchHistory(e, history) {
 }
 
 
-// change the higlight style when clicked the button
+// Change the higlighting style when the button is clicked
 function changeHighlightStyle(isDisabled, highlightImg, highlightText) {
   if (!isDisabled) {
     highlightImg.src = "../assets/icons/enabled_button.svg"
@@ -446,7 +446,7 @@ function changeHighlightStyle(isDisabled, highlightImg, highlightText) {
 }
 
 
-// instead of use url to extract content and highlight, this function highlighted with the content extracted from content.js
+// Instead of using an url to extract content and highlight, this function highlights with the content extracted from content.js
 function highlightParagraphsContent(e, body) {
   e.preventDefault();
   var res = "0";
@@ -593,7 +593,7 @@ function highlightUrlContent(e, currentUrl) {
 }
 
 
-// 
+// Upload the retrieved list of URLs from the Chrome history to the backend
 function uploadHistories(e, data) {
   e.preventDefault();
   var res = "0";
@@ -744,7 +744,6 @@ function refreshAuthorizationTokens(e) {
   });
 
 }
-
 
 
 // User logout functionality
