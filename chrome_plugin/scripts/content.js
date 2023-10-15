@@ -1,8 +1,9 @@
-// 
+// content.js is seperated from other scripts, it directly apply to every websites 
+//so it is able to make plugin interact with the website 
 
 
 
-//
+// get the content from websites which contains <p>, <h1>, <h2>, <li> tags
 function parse_paragraph() {
   const p = document.querySelectorAll('p')
   const h1 = document.querySelectorAll('h1')
@@ -38,7 +39,7 @@ function parse_paragraph() {
 }
 
 
-//
+// highlight the paragraphs by changing the style of the id 
 function highlightToPage(ids) {
   for (var i = 0; i < ids.length; i++) {
     var selector = document.getElementById(ids[i])
@@ -59,7 +60,7 @@ function highlightToPage(ids) {
 }
 
 
-//
+// cancel the highlight by removing the <marker> and <text> tags
 function highlightRevert(ids) {
   for (var i = 0; i < ids.length; i++) {
     var selector = document.getElementById(ids[i])
@@ -71,7 +72,7 @@ function highlightRevert(ids) {
 }
 
 
-// 
+// define the onMessage listener to listen the command from home.js
 document.addEventListener('DOMContentLoaded', async function () {
   console.log("test content.js")
   var site = document.head.querySelector("meta[property='og:site_name']")
