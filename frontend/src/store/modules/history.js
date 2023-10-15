@@ -145,7 +145,8 @@ const actions = {
     // Request all of a users uploaded histories for the history management
     async allHistories(context, data) {
         var res = "0"
-        const histories = []
+        var result = null
+        var histories = []
 
         const username = data["username"]
         const access_token = data["access_token"]
@@ -168,31 +169,7 @@ const actions = {
 
                 if (response.data) {
                     if (response.data["code"] === "200" || response.data["code"] === "201") {
-                        var result = response.data["result"]
-                        console.log("result is ", result)
-
-                        var counter = 1;
-                        
-                        // Convert the received histories of a user to a format which can be displayed in a datatable (list of dicts)
-                        for (const [key, value] of Object.entries(result)) {
-                            var dict = {
-                                date: key,
-                                upload_number: counter,
-                                sites: value,
-                            };
-
-                            histories.push(dict);
-                            counter = counter + 1;
-                        }
-
-                        histories.push(
-                            {
-                                date: '',
-                                upload_number: '...',
-                                sites: [],
-                            },
-                        );
-
+                        result = response.data["result"]
                         console.log("get all histories: success!")
                         console.log(response.data["result"])
 
@@ -240,8 +217,7 @@ const actions = {
 
                     if (response.data) {
                         if (response.data["code"] === "200" || response.data["code"] === "201") {
-                            histories = response.data["result"]
-
+                            result = response.data["result"]
                             console.log("get all histories: success!")
                             console.log(response.data["result"])
                         }
@@ -253,7 +229,7 @@ const actions = {
                 });
         }
 
-        
+
         // Some more possible status codes
         if (res == "404") {
             console.log("file not exist")
@@ -261,6 +237,18 @@ const actions = {
 
         if (res == "400") {
             console.log("not valid Json file")
+        }
+
+
+        // Convert the received histories of a user to a format which can be displayed in a datatable (list of dicts)
+        if (result !== undefined && result !== 'undefined' && result !== null) {
+            const tempDict = {
+                result: result,
+            }
+            histories = await context.dispatch('formatHistory', tempDict);
+
+        } else {
+            histories = []
         }
 
         // Commit all of a users uploaded history to the store (to display them later on history management)
@@ -273,6 +261,8 @@ const actions = {
     // Delete a user history upload from the backend
     async deleteHistoryUpload(context, data) {
         var res = "0"
+        var result = null
+        var histories = []
 
         const username = data["username"]
         const access_token = data["access_token"]
@@ -282,7 +272,7 @@ const actions = {
         var dateParts = affectedUpload["date"].split('.')
         var finalDate = affectedUpload["date"]
 
-        if(dateParts.length === 3){
+        if (dateParts.length === 3) {
             var day = dateParts[0]
             var month = dateParts[1]
             var year = dateParts[2]
@@ -316,7 +306,9 @@ const actions = {
 
                 if (response.data) {
                     if (response.data["code"] === "200" || response.data["code"] === "201") {
+                        result = response.data["result"]
                         console.log("history upload deleted successfully!")
+                        console.log(response.data["result"])
                     }
                     // reject errors & warnings
                 }
@@ -345,7 +337,9 @@ const actions = {
 
                     if (response.data) {
                         if (response.data["code"] === "200" || response.data["code"] === "201") {
+                            result = response.data["result"]
                             console.log("history upload deleted successfully!")
+                            console.log(response.data["result"])
                         }
                         // reject errors & warnings
                     }
@@ -355,13 +349,32 @@ const actions = {
                 });
         }
 
+
+        // Handle updated user history
+        if (result !== undefined && result !== 'undefined' && result !== null) {
+            const tempDict = {
+                result: result,
+            }
+            histories = await context.dispatch('formatHistory', tempDict);
+
+        } else {
+            histories = []
+            await context.dispatch('allHistories', data);
+        }
+
+        // Commit all of a users uploaded history to the store (to display them later on history management)
+        if (Object.keys(histories).length > 0) {
+            context.commit('SET_ALL_HISTORIES', histories)
+        }
     },
 
 
     // Delete a single URL/Link from an uploaded user history (from the backend)
     async deleteHistoryURL(context, data) {
         var res = "0"
-        
+        var result = null
+        var histories = []
+
         const username = data["username"]
         const access_token = data["access_token"]
         const refresh_token = data["refresh_token"]
@@ -371,7 +384,7 @@ const actions = {
         var dateParts = affected_upload_date.split('.')
         var finalDate = affected_upload_date
 
-        if(dateParts.length === 3){
+        if (dateParts.length === 3) {
             var day = dateParts[0]
             var month = dateParts[1]
             var year = dateParts[2]
@@ -410,7 +423,9 @@ const actions = {
 
                 if (response.data) {
                     if (response.data["code"] === "200" || response.data["code"] === "201") {
+                        result = response.data["result"]
                         console.log("URL from the affected history upload deleted successfully!")
+                        console.log(response.data["result"])
                     }
                     // reject errors & warnings
                 }
@@ -439,7 +454,9 @@ const actions = {
 
                     if (response.data) {
                         if (response.data["code"] === "200" || response.data["code"] === "201") {
+                            result = response.data["result"]
                             console.log("URL from the affected history upload deleted successfully!")
+                            console.log(response.data["result"])
                         }
                         // reject errors & warnings
                     }
@@ -449,7 +466,53 @@ const actions = {
                 });
         }
 
+
+        // Handle updated user history
+        if (result !== undefined && result !== 'undefined' && result !== null) {
+            const tempDict = {
+                result: result,
+            }
+            histories = await context.dispatch('formatHistory', tempDict);
+
+        } else {
+            histories = []
+            await context.dispatch('allHistories', data);
+        }
+
+        // Commit all of a users uploaded history to the store (to display them later on history management)
+        if (Object.keys(histories).length > 0) {
+            context.commit('SET_ALL_HISTORIES', histories)
+        }
     },
+
+
+    // Convert the received histories of a user to a format which can be displayed in a datatable (list of dicts)
+    async formatHistory(context, data) {
+        var result = data["result"]
+        var histories = []
+
+        var counter = 1;
+        for (const [key, value] of Object.entries(result)) {
+            var dict = {
+                date: key,
+                upload_number: counter,
+                sites: value,
+            };
+
+            histories.push(dict);
+            counter = counter + 1;
+        }
+
+        histories.push(
+            {
+                date: '',
+                upload_number: '...',
+                sites: [],
+            },
+        );
+
+        return histories
+    }
 
 };
 
