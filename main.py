@@ -276,16 +276,32 @@ async def get_user_history(user_name:str, token=Depends(token_verify)):
 async def delete_history(user_name:str,index=-1, date_str="", token=Depends(token_verify)):
     if token.code == "201" or token.code== "200":
         file_path = f"history/{user_name}.json"
+        result = None
         try:
             with open(file_path, 'r') as f:
                 history = pd.read_json(f)
                 history["date"]=history["date"].astype('str')
                 result = crud.delete_history(int(index), date_str, history)
-                if len(result) != 0:
-                    result.to_json(file_path, orient='records', indent=4)
-                    return schema.Response(status="Ok", code="200", message="successful delete", result=None)
-                else:
-                    return schema.Response(status="Failed", code="500", message="unknown error", result=None)
+            if result is not None:
+                result.to_json(file_path, orient='records', indent=4)
+                try:
+                    with open(file_path, 'r') as f:
+                        data = json.load(f)
+                        grouped_data = defaultdict(list)
+                        for item in data:
+                            date = item['date']
+                            grouped_data[date].append(item)
+                        result = dict(grouped_data)
+                    return schema.Response(status="Ok", code="200", message="successful delete", result=result)
+                except FileNotFoundError:
+                    print(f"The file {file_path} does not exist.")
+                    return schema.Response(status="Failed", code="404", message="file not exist", result={})
+                except json.JSONDecodeError:
+                    print(f"The file {file_path} is not a valid JSON file.")
+                    return schema.Response(status="Failed", code="400", message="not valid Json file", result={})
+
+            else:
+                return schema.Response(status="Failed", code="500", message="unknown error", result=None)
 
         except FileNotFoundError:
             print(f"The file {file_path} does not exist.")
