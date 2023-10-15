@@ -1,3 +1,6 @@
+# Generate topics for the dataset articles
+
+
 from queue import Empty
 from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -8,7 +11,6 @@ import ast
 import re
 from collections import Counter
 import matplotlib.pyplot as plt
-
 
 
 
@@ -45,7 +47,7 @@ if create_topics:
     df2=pd.read_csv('../cleaned_medium_articles_v9.csv')
     df2 = df2.iloc[starting_index:]
 
-
+    # split article into parts
     def split_text_into_parts(text, max_words_per_part, max_parts):
         words = text.split()
         total_words = len(words)
@@ -65,6 +67,7 @@ if create_topics:
 
     total_label=[]
     idx_cnt = starting_index - 1
+    # iterate over text
     for value in tqdm(df2['text']):
         topics = {}
         max_words=250 # words for each split of the article                             # VARIABLE
@@ -143,23 +146,6 @@ if create_topics:
                 except OSError as e:
                     print(f"Error: {e.filename} - {e.strerror}")
 
-
-    # def multi_label(row, max):
-    #     labels=[]
-    #     try:
-    #         for p in split_text_into_parts(row['text'], max):
-    #             cl = classifier(p)[0]
-    #             score = cl['score']
-    #             label = cl['label']
-    #             if label not in labels:
-    #                 labels.append(label)
-    #         return labels
-    #     except:
-    #         return multi_label(row, max-50)
-
-    # tqdm.pandas()
-    # df2['topic2'] = df2.progress_apply(multi_label, args=(250,), axis=1)
-
     df2_truncated = df2.iloc[:len(total_label)]
     df2_truncated['topic2']=total_label
     df2_truncated.to_csv('cleaned_medium_articles_v11' + '_' + "final" + '_' + str(RUN) + '.csv',index=False)
@@ -234,8 +220,7 @@ if handle_errors:
     
 
 
-
-
+# Get the first part of an article text
 def first_text_part(text, words_per_chunk):
         words = re.findall(r'\w+', text)
     
@@ -246,6 +231,7 @@ def first_text_part(text, words_per_chunk):
         return first_part
 
 
+# Calculate some topics
 def calculate_new_topics(row, classifier):
     contains_error = False
     topics_as_list = []
@@ -313,7 +299,7 @@ def calculate_new_topics(row, classifier):
 
 
 
-
+# Show some relevant statistical values & distributions regarding the generated topics of the dataset
 if statistical_distribution:
     print("reading DataFrame for statistical distribution analysis ...")
     final_df=pd.read_csv('../cleaned_medium_articles_v14.csv')
@@ -402,3 +388,5 @@ if statistical_distribution:
     plt.ylabel('Frequency')
     plt.title('Topic Distribution')
     plt.show()
+
+
