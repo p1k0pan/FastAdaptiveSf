@@ -17,7 +17,7 @@
 
         <v-col cols="1">
           <div class="nav-item active" style="margin-left: -10%">
-            <b-button variant="outline-primary" @click="openHistoryTab" :disabled="!isLoggedIn" class=""
+            <b-button variant="outline-primary" @click="openHistoryTab" :disabled="!this.$store.getters.isAuthenticated" class=""
               style="padding: 1%;">
               <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
                 <b-icon icon="file-earmark-ruled" aria-hidden="true"></b-icon>
@@ -31,7 +31,7 @@
           <div class="nav-item active">
             <div>
 
-              <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" :disabled="!isLoggedIn" class=""
+              <b-button v-b-modal.modal-1 @click="resetHistory" variant="outline-primary" :disabled="!this.$store.getters.isAuthenticated" class=""
                 style="padding: 1%;">
                 <div style="text-align: center;">
                   Upload History
@@ -154,11 +154,11 @@
         <v-col cols="1">
           <div class="nav-item active">
 
-            <div v-if="isLoggedIn">
+            <div v-if="this.$store.getters.isAuthenticated">
               {{ this.$store.getters.stateUser }}
             </div>
 
-            <div v-if="!isLoggedIn">
+            <div v-if="!this.$store.getters.isAuthenticated">
               <b-button variant="outline-primary" @click="login" class="" style="padding: 1%;">
                 <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
                   <b-icon icon="box-arrow-in-right" aria-hidden="true"
@@ -168,7 +168,7 @@
               </b-button>
             </div>
 
-            <div v-if="isLoggedIn">
+            <div v-if="this.$store.getters.isAuthenticated">
               <b-button variant="outline-primary" @click="logout" class="" style="padding: 1%;">
                 <div style="text-align: center; padding-top: 9%; padding-bottom: 9%;">
                   <b-icon icon="box-arrow-in-left" aria-hidden="true"
@@ -905,13 +905,13 @@ export default Vue.extend({
           upload_number: 2,
           sites: [
             {
-              index: 0,
+              index: 2,
               title: "Medizin-Nobelpreis für Wegbereiter der Covid-19-Impfung",
               url: "https://www.welt.de/wissenschaft/article247774502/Medizin-Nobelpreis-fuer-Grundlagenforschung-zu-Covid-19-Impfung.html",
               content: "\nAn apple is a sweet, edible fruit produced by an apple tree (Malus domestic). In France, it is the most consumed edible fruit and the third in the planet. The main types of apples come from the domestic apple or common apple. The species of Malus Domestica has about 20,000 varieties and cultivars around the world. The fruit has a characteristic stocky shape and often spherical, it is eaten when ripe, raw, cooked, or dried. Its juice is drunk fresh or pasteurized. When fermented, it becomes cider. Associated with the fruit forbidden in the Book of Genesis, it often symbolizes original sin. The fruit we consume today is descended from the Malus Sieversii species; it has been consumed by humans since the Neolithic age in the Central. Kazakhstan claims its origin, but the apple was already consumed by the Chinese 3,000 years ago. From a botanical point of view, it is a complex fruit, something between the berry and the drupe, often called a false fruit. Because a real fruit is formed from the ovary of a flower. An apple's flesh is not derived from the ovary but instead it is a swollen receptacle (or part of the stem). The actual fruit is in the core, the bit we throw away. The same is true of pears. Its colors at maturity change from green to red, passing through a wide variety of intermediate shades: pale green, yellow, or orange. The success of this fruit is undisputed, because today there are more than 20,000 varieties of apples of which 7,000 are regularly cultivated across the globe. China, the United States and Poland are the three largest producers of apples. China harvests 44 million tons, the United States 4.6 million tons and Poland 3.6 million tons. The EU is also one of the leading producers, has increased its production by 33% on average for the past three years. France harvests 1.5 million tons."
             },
             {
-              index: 1,
+              index: 3,
               title: "Taktische Züge 2",
               url: "https://www.spiegel.de/politik/deutschland/news-des-tages-eu-aussenminister-in-kiew-aerztestreik-nobelpreis-fuer-medizin-a-1494d6e8-689c-48df-9d26-be635b06061a",
               content: ""
@@ -1511,7 +1511,7 @@ export default Vue.extend({
       var endpoint = "/";
 
       // If user is logged in request the search results WITH the user preferences
-      if (this.isLoggedIn) {
+      if (this.$store.getters.isAuthenticated) { // isLoggedIn
         console.log("user specific search ...")
         var endpoint = endpoint + `search_his?query=${query}`;
 
@@ -1576,7 +1576,7 @@ export default Vue.extend({
 
 
       // Reponse can be 401, then use the refresh token
-      if (res === "401" && this.isLoggedIn) {
+      if (res === "401" && this.$store.getters.isAuthenticated) { // isLoggedIn
         console.log("trying to use refresh the token ...")
 
         await axios
@@ -1604,7 +1604,7 @@ export default Vue.extend({
       }
 
 
-      if (this.isLoggedIn) {
+      if (this.$store.getters.isAuthenticated) { // isLoggedIn
       // Reponse can be 402, then log out because the tokens are not valid
         if (res === "402") {
           console.log("forcefully logging out")

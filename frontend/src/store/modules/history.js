@@ -151,7 +151,7 @@ const actions = {
         const access_token = data["access_token"]
         const refresh_token = data["refresh_token"]
 
-        const endpoint = "/" + `user/history?user_name=` + String(username);
+        const endpoint = "/" + `user/history?user_name=` + username;
         console.log(endpoint)
         console.log("fetching all histories of this user ...")
 
@@ -284,11 +284,24 @@ const actions = {
         const refresh_token = data["refresh_token"]
 
         const affectedUpload = data["affectedUpload"] // date, sites, upload_number
+        var dateParts = affectedUpload["date"].split('.')
+        var finalDate = affectedUpload["date"]
+
+        if(dateParts.length === 3){
+            var day = dateParts[0]
+            var month = dateParts[1]
+            var year = dateParts[2]
+            finalDate = year + '-' + month + '-' + day;
+        } else {
+            console.log("could not format history upload date")
+        }
 
         console.log("history to delete: ")
-        console.log(affectedUpload)
+        console.log(affectedUpload["date"]) // original: 14.09.2023
+        console.log(affectedUpload["sites"])
+        console.log(affectedUpload["upload_number"])
 
-        const endpoint = "/" + ``;
+        const endpoint = "/" + `user/history/delete?user_name=` + username + `&index=0&date_str=` + finalDate;
         console.log(endpoint)
         console.log("deleting a history upload from the backend ...")
 
@@ -296,8 +309,7 @@ const actions = {
             .patch(
                 endpoint,
                 {
-                    user_name: username,
-
+                    // nothing
                 },
                 {
                     headers: { 'Authorization': access_token },
@@ -328,8 +340,7 @@ const actions = {
                 .patch(
                     endpoint,
                     {
-                        user_name: username,
-                        
+                        // nothing
                     },
                     {
                         headers: { 'Authorization': refresh_token },
@@ -361,16 +372,30 @@ const actions = {
         const refresh_token = data["refresh_token"]
 
         const affected_upload_date = data["upload_date"]
-        const affected_upload_number = data["upload_number"]
+
+        var dateParts = affected_upload_date.split('.')
+        var finalDate = affected_upload_date
+
+        if(dateParts.length === 3){
+            var day = dateParts[0]
+            var month = dateParts[1]
+            var year = dateParts[2]
+            finalDate = year + '-' + month + '-' + day;
+            console.log("trying to delete a url from the history upload of the date: " + finalDate)
+        } else {
+            console.log("could not format history upload date")
+        }
 
         const urlToDelete = data["urlToDelete"] // content, index, title, url
 
-        console.log("affected history date: " + String(affected_upload_date))
-        console.log("affected history upload number: " + String(affected_upload_number))
+        console.log("affected history date: " + affected_upload_date)
         console.log("URL to delete from the user history: ")
-        console.log(urlToDelete)
+        console.log(urlToDelete["content"])
+        console.log(urlToDelete["index"])
+        console.log(urlToDelete["title"])
+        console.log(urlToDelete["url"])
 
-        const endpoint = "/" + ``;
+        const endpoint = "/" + `user/history/delete?user_name=` + username + `&index=` + urlToDelete["index"];
         console.log(endpoint)
         console.log("deleting a single URL from a history upload in the backend ...")
 
@@ -378,8 +403,7 @@ const actions = {
             .patch(
                 endpoint,
                 {
-                    user_name: username,
-
+                    // nothing
                 },
                 {
                     headers: { 'Authorization': access_token },
@@ -410,8 +434,7 @@ const actions = {
                 .patch(
                     endpoint,
                     {
-                        user_name: username,
-                        
+                        // nothing
                     },
                     {
                         headers: { 'Authorization': refresh_token },
