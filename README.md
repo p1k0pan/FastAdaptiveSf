@@ -7,7 +7,7 @@ Please visit the [**Wiki**](https://github.com/p1k0pan/FastAdaptiveSf/wiki) of t
 This project consists of the following main parts:
 - The Backend with FastAPI which is mainly realized in the _main.py_ and the folders _db_, _deploy_ and _modules_
 - The Frontend with Vue which is located in the _frontend_ folder
-- The Plugin feature which is a Google Chrome extension located in the folder _chrome_plugin_
+- A Google Chrome extension located in the folder _chrome_plugin_
 - The models & database at: https://huggingface.co/spaces/AdaptiveStoryfinder/medium_query_topk/tree/main
 - The _experiments_ folder which contains more operations which have already been done like modifying the dataset or creating embeddings
 - Some more configurations (for Docker, the Frontend and the Backend) or resource folders and files which relate to anything of the above or even the Wiki section and presentations about this project
