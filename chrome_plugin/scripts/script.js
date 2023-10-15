@@ -1,4 +1,5 @@
-//
+// this file is set as default popup, so everytime click the plugin this script will run,
+// which is fit to call token_verify to verify user everytime they click the plugin 
 
 
 

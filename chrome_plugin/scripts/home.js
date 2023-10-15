@@ -1,4 +1,4 @@
-//
+// manage the function on home_highlighting.html such as highlight function
 
 
 
@@ -24,7 +24,7 @@ window.addEventListener('click', function (event) {
 });
 
 
-//
+// get the current tab the user currently focus on to do further actions 
 async function getCurrentTab() {
   let queryOptions = { active: true, currentWindow: true };
   let [tab] = await chrome.tabs.query(queryOptions);
@@ -33,7 +33,7 @@ async function getCurrentTab() {
 }
 
 
-//
+// send the command to content.js
 function sendMessageToContent(action, tabId) {
   return new Promise((resolve, reject) => {
     chrome.tabs.sendMessage(tabId, { action: action }, function (response) {
@@ -429,7 +429,7 @@ function patchHistory(e, history) {
 }
 
 
-// 
+// change the higlight style when clicked the button
 function changeHighlightStyle(isDisabled, highlightImg, highlightText) {
   if (!isDisabled) {
     highlightImg.src = "../assets/icons/enabled_button.svg"
@@ -446,7 +446,7 @@ function changeHighlightStyle(isDisabled, highlightImg, highlightText) {
 }
 
 
-// 
+// instead of use url to extract content and highlight, this function highlighted with the content extracted from content.js
 function highlightParagraphsContent(e, body) {
   e.preventDefault();
   var res = "0";
