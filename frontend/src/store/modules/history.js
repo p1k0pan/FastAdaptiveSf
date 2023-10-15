@@ -175,11 +175,6 @@ const actions = {
                         
                         // Convert the received histories of a user to a format which can be displayed in a datatable (list of dicts)
                         for (const [key, value] of Object.entries(result)) {
-                        
-                            for (let i = 0; i < value.length; i++) {
-                                value[i].index = value[i].index + 1;
-                            }
-
                             var dict = {
                                 date: key,
                                 upload_number: counter,
