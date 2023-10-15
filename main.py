@@ -280,7 +280,7 @@ async def delete_history(user_name:str,index=-1, date_str="", token=Depends(toke
             with open(file_path, 'r') as f:
                 history = pd.read_json(f)
                 history["date"]=history["date"].astype('str')
-                result = crud.delete_history(index, date_str, history)
+                result = crud.delete_history(int(index), date_str, history)
                 if len(result) != 0:
                     result.to_json(file_path, orient='records', indent=4)
                     return schema.Response(status="Ok", code="200", message="successful delete", result=None)
