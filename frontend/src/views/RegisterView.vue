@@ -67,7 +67,7 @@
 
             <div class="extra">
               <span class=""> <input class="form-check-input" type="checkbox" id="checkbox"
-                  v-model="stayLoggedIn"> Remember me? </span>
+                  v-model="stayLoggedIn" disabled> Remember me? </span>
               <span class="rightSpan"> Already have an account? <a href="/login">Login</a> </span>
             </div>
 

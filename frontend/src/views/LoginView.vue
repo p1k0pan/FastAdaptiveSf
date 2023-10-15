@@ -74,7 +74,7 @@
             <div class="extra">
               <span class="checkboxSpan"> 
                 <input class="form-check-input" type="checkbox" id="checkbox"
-                  v-model="stayLoggedIn">
+                  v-model="stayLoggedIn" disabled>
                   Remember me? 
                 </span>
               <span class="rightSpan"> <b-button variant="link" @click="forgotPassword">Forgot password?</b-button>

@@ -1,5 +1,6 @@
-
 import pandas as pd
+
+
 
 df = pd.read_csv('cleaned_medium_articles_v5.csv')
 
@@ -22,5 +23,3 @@ df = df.drop(columns=columns_to_delete)
 df.to_csv('cleaned_medium_articles_v6')
 
 
-
-# print(df.columns)
