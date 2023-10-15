@@ -1,8 +1,8 @@
-// Utilities that frequently used in the chrome plugin
+// Utilities that are frequently used in the chrome plugin
 
 
 
-// verify the token when successful call detectHItory, when need refresh token call itself again
+// Verify the token and when successful call detectHitory(). When a refresh token is needed call itself again
 function token_verify(is_refresh, access_token, refresh_token, username_stored, redirect = true) {
     const endpoint_root = "http://127.0.0.1:8000/"
     const endpoint_func = `token_verify?refresh=`
