@@ -1153,6 +1153,7 @@ export default Vue.extend({
         access_token: this.$store.getters.getAccessToken,
         refresh_token: this.$store.getters.getRefreshToken,
 
+        affectedUpload: upload,
         upload_date: upload["date"], // upload.date
         upload_number: upload["upload_number"], // upload.upload_number
 
