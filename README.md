@@ -1,6 +1,6 @@
 # FastAdaptiveSf
 
-FastAPI Adaptive Storyfinder
+This is the repository for the Adaptive Storyfinder Project!
 
 Please visit the [**Wiki**](https://github.com/p1k0pan/FastAdaptiveSf/wiki) of this Git Repository and read the [Getting Started](https://github.com/p1k0pan/FastAdaptiveSf/wiki/1.-Getting-Started) section carefully to deploy the system in your device! <br />
 
