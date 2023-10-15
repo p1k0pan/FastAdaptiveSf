@@ -5,7 +5,7 @@ This is the repository for the Adaptive Storyfinder Project!
 Please visit the [**Wiki**](https://github.com/p1k0pan/FastAdaptiveSf/wiki) of this Git Repository and read the [Getting Started](https://github.com/p1k0pan/FastAdaptiveSf/wiki/1.-Getting-Started) section carefully to deploy the system on your device! <br />
 
 This project consists of the following main parts:
-- The Backend with FastAPI which is mainly realized with the _main.py_ and the folders _db_, _deploy_ and _modules_
+- The Backend with FastAPI which is mainly realized in the _main.py_ and the folders _db_, _deploy_ and _modules_
 - The Frontend with Vue which is located in the _frontend_ folder
 - The Plugin feature which is a Google Chrome extension located in the folder _chrome_plugin_
 - The models & database at: https://huggingface.co/spaces/AdaptiveStoryfinder/medium_query_topk/tree/main
