@@ -16,6 +16,7 @@ def create_token(user_name:str, minute:int):
     # result = {"usaer_name": user.user_name, "header": request.headers['authorization']}
     return encoded
 
+# every function should valid token, if valid then continue, if not or need refresh then login again or pass refresh token
 def token_validation(token:str, refresh=False):
     try:
         # Verify the token's signature

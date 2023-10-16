@@ -34,6 +34,7 @@ def create_user(db: Session, user_name: str, password: str):
         db.refresh(_user)
         return ['Ok', '201', 'user create success', _user]
 
+# upload histories
 def update_histories(user_name: str, upload_urls:List, device:str):
 
     directory_name = "history/"  
@@ -108,6 +109,7 @@ def update_histories(user_name: str, upload_urls:List, device:str):
         file.write(str(second_key) + "\n")
     return ['Ok', '200', 'update success', user_name]
 
+# delete histories
 def delete_history(index:int, date_str:str, history:pd.DataFrame):
     if date_str == "":
         # if date is not None that means delete all history with date
@@ -122,6 +124,7 @@ def delete_history(index:int, date_str:str, history:pd.DataFrame):
     history['index'] = history.index
     return history
 
+# using extract function to extract content from url
 def extract_url(url, i, d):
 
     new_history =[]
@@ -162,6 +165,7 @@ def extract_url(url, i, d):
         return (None, None)
     return (new_history, content_to_emb)
 
+# split text into parts that fits in applying model
 def split_text_into_parts(text, max_words_per_part, max_parts):
     words = text.split()
     total_words = len(words)
