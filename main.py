@@ -14,6 +14,7 @@ from gradio_client import Client
 from typing import Union
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
+# trying out haystack to increase the performance (but it did in fact only make the performance worse)
 # from haystack.document_stores.faiss import FAISSDocumentStore
 # from haystack.nodes import EmbeddingRetriever, SentenceTransformersRanker, TransformersSummarizer
 # from haystack import Pipeline
@@ -23,6 +24,9 @@ import time
 import os
 from collections import defaultdict
 from contextlib import asynccontextmanager
+
+
+# FastAPI Setup
 
 corpus_embeddings = None # model from main dataset
 client=None
@@ -71,7 +75,8 @@ for filename in os.listdir(folder_path):
             user_tag_sampler[filename[:-4]]=user_tags
 print(user_tag_sampler.keys())
 
-# connect database
+
+# Connect to the database
 model.Base.metadata.create_all(bind=config.engine)
 def get_db():
     db = config.SessionLocal()
@@ -84,6 +89,8 @@ db_session = Depends(get_db)
 
 app = FastAPI()
 
+
+# Load model + dataset
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global corpus_embeddings
@@ -95,7 +102,6 @@ async def lifespan(app: FastAPI):
     print("start loading model and dataset")
     # df = con.load_corpus()
     corpus_embeddings=con.load_corpus_tensor()
-
 
     # initial haystack document_stores, retriever, ranker
     # assert document_store.faiss_index_factory_str == "Flat"
@@ -121,13 +127,13 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-
+# Define origins (localhost right now)
 origins = [
     "http://localhost",
     "http://localhost:8080",
 ]
 
-# NEW
+# Define middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -137,10 +143,13 @@ app.add_middleware(
 )
 
 
+# General hello world GET
 @app.get("/")
 async def root():
     return {"message": "Hello World from FastAPI"}
 
+
+# Login POST 
 @app.post("/login", tags=["Authorization"])
 async def login_to_create_token(response:Response, user: schema.UserSchema, db: Session =db_session):
     _user = crud.get_user(db, user.user_name)
@@ -164,6 +173,8 @@ async def login_to_create_token(response:Response, user: schema.UserSchema, db: 
                         code="200",
                                    message="login success", result={"user_name": _user.user_name,"access_token": access_token, "refresh_token": refresh_token})
 
+
+# Authorization token verify GET
 @app.get("/token_verify", tags=["Authorization"])
 async def token_verify(response: Response, request:Request,db: Session =db_session, refresh:bool=False):
     try:
@@ -190,6 +201,8 @@ async def token_verify(response: Response, request:Request,db: Session =db_sessi
     except KeyError:
         return schema.Response(status="Failed", code='404', message="Token not found in Header", result=None)
 
+
+# Basic search GET without user history
 @app.get("/search", tags=["Search"])
 async def search_query(query:str=""):
     #example http://127.0.0.1:8000/search?query=start_my_own_restaurant
@@ -197,16 +210,14 @@ async def search_query(query:str=""):
     query = query.replace("_", " ")
 
     T1 = time.time()
-    # pipeline2 = Pipeline()
-    # pipeline2.add_node(component=retriever, name='Retriever', inputs=['Query'])
-    # pipeline2.add_node(component=ranker, name='Ranker', inputs=['Retriever'])
-    # result = pipeline2.run(query=query)
     query_corpus_result= con.search_query(query,corpus_embeddings=corpus_embeddings, client=client,
                                           retriever=retriever, ranker= ranker, df=df)
     T2 = time.time()
     print('Running time: %sms' % ((T2 - T1)*1000))
     return query_corpus_result
 
+
+# Search GET with a user history/ preference
 @app.get("/search_his", tags=["Search"])
 async def search_query_history(query:str="",token=Depends(token_verify)):
     #example http://127.0.0.1:8000/search_his?query=start_my_own_restaurant
@@ -219,17 +230,9 @@ async def search_query_history(query:str="",token=Depends(token_verify)):
 
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
-    # return {"title": "test"}
 
-# @app.get("/highlight", tags=["Search"])
-# async def highlight_paragraph(url:str="",token=Depends(token_verify)):
 
-#     if token.code == "201" or token.code== "200":
-#         result= con.paragraph_highlighting(url, client, token.result["user_name"])
-#         return result
-#     else:
-#         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
-
+# Highlight a paragraph POST
 @app.post("/highlight", tags=["Search"])
 async def highlight_paragraph(request:List[schema.ParagraphSchema],token=Depends(token_verify)):
     if token.code == "201" or token.code== "200":
@@ -239,17 +242,22 @@ async def highlight_paragraph(request:List[schema.ParagraphSchema],token=Depends
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
 
+# All of the users GET
 @app.get('/user/all',tags=["User"])
 async def get_all_user(skip: int = 0, limit: int = 100, db: Session =db_session):
     _users = crud.get_all_user(db, skip, limit)
     return schema.Response(status="Ok", code="200", message="Sucstatus, code, msg, resultcess fetch all data", result=_users)
 
+
+# Single user GET
 @app.get('/user',tags=["User"])
 async def get_user(user_name:str, db: Session =db_session ):
 
     _users = crud.get_user(db, user_name)
     return schema.Response(status="Ok", code="200", message="Success get user", result=_users)
 
+
+# A users history uploads GET
 @app.get('/user/history',tags=["User"])
 async def get_user_history(user_name:str, token=Depends(token_verify)):
     if token.code == "201" or token.code== "200":
@@ -273,6 +281,8 @@ async def get_user_history(user_name:str, token=Depends(token_verify)):
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
+
+# Delete a certain part of a users history PATCH
 @app.patch('/user/history/delete',tags=["User"])
 async def delete_history(user_name:str,index=-1, date_str="", token=Depends(token_verify)):
     if token.code == "201" or token.code== "200":
@@ -313,6 +323,8 @@ async def delete_history(user_name:str,index=-1, date_str="", token=Depends(toke
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
+
+# Set a user POST
 @app.post("/user", tags=["User"])
 async def create_user(request: schema.UserSchema, db: Session =db_session): 
     if request.user_name == None or request.password == None:
@@ -322,6 +334,8 @@ async def create_user(request: schema.UserSchema, db: Session =db_session):
     # detect exception from input
     return schema.Response(status=status, code=code, message=msg, result=result)
 
+
+# Update user histories PATCH
 @app.patch("/user", tags=["User"])
 async def update_histories(request: schema.UserSchema,token=Depends(token_verify)):
     # detect upload_urls exception
@@ -338,6 +352,8 @@ async def update_histories(request: schema.UserSchema,token=Depends(token_verify
     else:
         return schema.Response(status=token.status, code=token.code, message=token.message, result=None)
 
+
+# Get random articles recommendations for the specified tag/topic
 @app.get("/initial_tag_story", tags=["Tag"])
 async def initial_tag_story(tag:str=""):
     if tag=="":
@@ -352,7 +368,8 @@ async def initial_tag_story(tag:str=""):
 
         return result
 
-# get next article which already loaded in a sampler
+
+# Get the next article which already loaded with a sampler
 @app.get("/next_tag_story", tags=["Tag"])
 async def next_story(tag:str="", user_name:str=""):
     if user_name!="":
@@ -381,3 +398,5 @@ async def next_story(tag:str="", user_name:str=""):
             except Exception as e:
                 print(e)
                 return schema.Response(status="Failed", code='400', message='tag is not initialize', result=None)
+
+

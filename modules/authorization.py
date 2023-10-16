@@ -7,6 +7,7 @@ ALGORITHM = "HS256"
 REFRESH_ACESS_MINUTE = 20
 
 
+#  Create the tokens (jwt)
 def create_token(user_name:str, minute:int):
     # exp=datetime.now(tz=timezone.utc) + timedelta(minutes=minute) # add timezone for jwt decode correctly
     exp=datetime.now() + timedelta(minutes=minute) # add timezone for jwt decode correctly
@@ -16,7 +17,8 @@ def create_token(user_name:str, minute:int):
     # result = {"usaer_name": user.user_name, "header": request.headers['authorization']}
     return encoded
 
-# every function should valid token, if valid then continue, if not or need refresh then login again or pass refresh token
+
+# Every function should use a valid token, if its valid then continue, if not or it needs refresh, then login again or pass refresh token
 def token_validation(token:str, refresh=False):
     try:
         # Verify the token's signature
@@ -73,3 +75,5 @@ def token_validation(token:str, refresh=False):
     except:
         print(token)
         return ['Failed', '500', 'Unknown', None]
+
+

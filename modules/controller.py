@@ -8,11 +8,12 @@ import os
 from db import schema
 # from newspaper import Article, Config
 from trafilatura import fetch_url, extract
-# from haystack import Pipeline
+# from haystack import Pipeline # --> we tried to apply haystack but it made the re-ranking slower and not faster as originally expected
 import time
 from sklearn.preprocessing import Normalizer
 import json
 from ast import literal_eval
+
 
 result_num = 50
 
@@ -23,8 +24,11 @@ elif torch.backends.mps.is_available():
 else:
     device = 'cpu'
 
+
+# Embed text (using BI-Encoder)
 def _embed_text(text):
     return bi_encoder.encode(text, convert_to_tensor=True,show_progress_bar=True)
+
 
 bi_encoder = SentenceTransformer('multi-qa-MiniLM-L6-cos-v1', device=device)
 # bi_encoder = SentenceTransformer('multi-qa-mpnet-base-dot-v1', device=device)
@@ -48,19 +52,23 @@ for l in list_topic:
     label_empty_list.append(0)
 
 
+# Load dataset
 def load_corpus():
     dataset_path = 'cleaned_medium_articles_v14.csv'
     print("load corpus dataset")
     df = pd.read_csv(dataset_path)
     return df
 
+
+# Load embeddings
 def load_corpus_tensor():
     tensor_path= 'corpus_embeddings_v6.pt'
     print("load corpus embedding")
     corpus_embeddings = torch.load(tensor_path, map_location=torch.device(device))
     return corpus_embeddings
 
-# abandon
+
+# Abandoned method for randomized articles
 def random_stories(tag:str, client):
 
     try:
@@ -80,7 +88,8 @@ def random_stories(tag:str, client):
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
-# search function with only query
+
+# Search functiontionality with only a query
 def search_query(query:str, corpus_embeddings, client, retriever, ranker, df):
     print(query)
     # print(f'query shape: {query_embedding.shape}')
@@ -108,7 +117,8 @@ def search_query(query:str, corpus_embeddings, client, retriever, ranker, df):
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
-# search function with query and history
+
+# Search functiontionality with a query and a user history/ preference
 def search_query_history(query:str, corpus_embeddings, client, user_name, df):
 
     print(query)
@@ -159,47 +169,8 @@ def search_query_history(query:str, corpus_embeddings, client, user_name, df):
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
-# def paragraph_highlighting(url:str, client, user_name):
 
-#     user_topic_ratio, history_emb = _read_history_embd(user_name)
-#     if history_emb.numel() != 0:
-#         downloaded = fetch_url(url) 
-#         result = extract(downloaded,no_fallback=True)
-#         if result :
-
-#             paragraphs=result.split('\n')
-#             paragraphs.pop(0) # first item is title
-#             print(f"paragraphs len: {len(paragraphs)}")
-
-#             para_emb = _embed_text(paragraphs) #shape: (n,384) n-> numbers of paragraphs
-#             cos_scores = util.pytorch_cos_sim(para_emb, history_emb)
-#             doc_average_score = torch.mean(cos_scores, dim=1).cpu().numpy()
-
-#             # Create a dictionary with order (index) and score
-#             score_order_dict = {i: score for i, score in enumerate(doc_average_score)}
-
-#             # Sort the dictionary based on scores (highest to lowest)
-#             sorted_score_order_dict = {k: v for k, v in sorted(score_order_dict.items(), key=lambda item: item[1], reverse=True)}
-#             print(sorted_score_order_dict)
-
-#             # pop up the first 3 paragraph and score need to over threshold
-#             average = sum(doc_average_score) / len(score_order_dict)
-#             threshold = 0.15
-#             highlighted_paragraph=[]
-#             for key in sorted_score_order_dict:
-#                 if sorted_score_order_dict[key]>threshold and len(highlighted_paragraph)<4:
-#                     highlighted_paragraph.append(paragraphs[key])
-#                 else:
-#                     break
-
-#             return schema.Response(status='Ok', code='200', message='highlight success', result=highlighted_paragraph)
-#         else:
-#             return schema.Response(status='Failed', code='500', message='extract function failed', result=None)
-
-#     else:
-#         return schema.Response(status='Failed', code='400', message='history is null', result=None)
-
-# get cos-sim with paragraphs and user history to decide which pragraphs should be highlighted
+# Get the cos-sim with paragraphs and the user history to decide which pragraphs should be highlighted
 def paragraph_text_highlighting(paragraphs,user_name):
     user_topic_ratio, history_emb = _read_history_embd(user_name)
     if history_emb.numel() != 0:
@@ -235,7 +206,8 @@ def paragraph_text_highlighting(paragraphs,user_name):
     else:
         return schema.Response(status='Failed', code='400', message='history is null', result=None)
 
-# abandon
+
+# Abandon method for trying haystack to "enhance" the re-ranking process
 def _get_hits_from_haystack(query:str, retriever, ranker):
 
     pipeline2 = Pipeline()
@@ -245,7 +217,8 @@ def _get_hits_from_haystack(query:str, retriever, ranker):
 
     return result
 
-# bi-encoder get first candidates
+
+# Lets the Bi-encoder get the first candidates
 def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client, df=None):
     hits = util.semantic_search(question_embedding, corpus_embeddings, top_k=top_k)
     hits = hits[0]  # Get the hits for the first query
@@ -279,6 +252,8 @@ def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client, df=N
     
     return df_result
 
+
+# Abandoned method for getting the first candidates
 def _get_hits(question_embedding, corpus_embeddings, top_k, df):
     """
     this function abandon, replaced with _get_hits_from_HF
@@ -296,7 +271,8 @@ def _get_hits(question_embedding, corpus_embeddings, top_k, df):
     print(df[["index","title"]].values)
     return df.iloc[result_index].copy()
 
-# cross-encoder
+
+# Applying the Cross-encoder
 def _rank_hits_cross_encoder(hits_df,query):
     cross_inp = [[query, value] for value in hits_df.clean_sentence.values]
 
@@ -309,7 +285,8 @@ def _rank_hits_cross_encoder(hits_df,query):
     print(hits_df[["index","title","score"]].values)
     return hits_df.copy()
 
-# history and candidates
+
+# Re-ranking with a history and the calculated candidates
 def _rank_hits_history(user_topic_ratio, history_emb, rerank_emb, positive_df) -> pd.DataFrame:
     cos_scores = util.pytorch_cos_sim(rerank_emb, history_emb)
     # print(f"cos: {type(cos_scores)}")
@@ -349,7 +326,8 @@ def _rank_hits_history(user_topic_ratio, history_emb, rerank_emb, positive_df) -
     print(positive_df.loc[:,("index","title", "score","Cosine Similarity", "topic_score", "final_score")].values)
     return positive_df
 
-# get history embeddings from user
+
+# Get the history embeddings for a user
 def _read_history_embd(user_name:str):
     directory_name='history/'
     user_file = user_name

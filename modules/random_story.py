@@ -3,7 +3,8 @@ import random
 from db import schema
 from io import StringIO
 
-# define sampler to initialize random articles from specific tag
+
+# Define a sampler to initialize random articles from a specific tag/topic
 class DataFrameSampler:
     def __init__(self, dataframe):
         self.dataframe = dataframe.copy()
@@ -28,6 +29,8 @@ class DataFrameSampler:
 
         return pd.DataFrame(sampled_data)
 
+
+# Receive some random tag/topic-related articles
 def random_stories(tag:str,df):
 
     res = df[df['topic2'].apply(lambda x: tag in x)].copy()
@@ -36,4 +39,5 @@ def random_stories(tag:str,df):
         return schema.Response(status='Ok', code='200', message='successful initialize random story sampler', result=dfs)
     else:
         return schema.Response(status='Ok', code='400', message='tag is not in df', result=None)
+
 

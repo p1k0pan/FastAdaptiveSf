@@ -2,9 +2,13 @@ from typing import List, Optional, Generic, TypeVar, Dict
 from pydantic import BaseModel  
 from pydantic.generics import GenericModel
 
+
 T = TypeVar('T')
 
-# define schema used in request or response in fastapi
+
+# Define the schema used for the requests or responses with FastAPI
+
+# Schema for the users
 class UserSchema(BaseModel):
     user_name: Optional[str] = None
     password: Optional[str] = None
@@ -14,6 +18,8 @@ class UserSchema(BaseModel):
     class Config:
         orm_mode = True
 
+
+# Schema for website paragraphs
 class ParagraphSchema(BaseModel):
     # paragraphs: Optional[List[Dict]] = None
     text: Optional[str] = None
@@ -22,32 +28,27 @@ class ParagraphSchema(BaseModel):
     class Config:
         orm_mode = True
 
-# class Request(GenericModel, Generic[T]):
-#     parameter: Optional[T] = Field(...)
 
-
-# class RequestUser(BaseModel):
-#     parameter: UserSchema = Field(...)
-
-
+# General response schema
 class Response(GenericModel, Generic[T]):
     code: str
     status: str
     message: str
     result: Optional[T] = None
 
+
+# Schema for an article
 class ArticleResponse(BaseModel):
     title: Optional[List[str]] = None
     urls: Optional[List[str]] = None
     authors: Optional[List[str]] = None
     timestamp: Optional[List[str]] = None
-    # tags: Optional[List[str]] = None
-    topic2: Optional[List[str]] = None
+    # tags: Optional[List[str]] = None # old default tags
+    topic2: Optional[List[str]] = None # newly generated topics/tags
     text: Optional[List[str]] = None
     thumbnail: Optional[List[str]] = None  
     index: Optional[List[int]] = None  
     positive_index: Optional[int] = None
-
 
     def process_dataset(self, df, positive_index:int=-1):
         self.title = df["title"].tolist()
@@ -90,3 +91,5 @@ class ArticleResponse(BaseModel):
         self.text = texts
         self.thumbnail= thumbnails
         self.index= indices
+
+

@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 import torch
 from . import model, schema
 from typing import List
-# from newspaper import Article, Config
 from modules import controller, clean_dataset
 import pandas as pd
 from trafilatura import fetch_url, extract
@@ -13,6 +12,7 @@ import json
 import os
 from datetime import date
  
+
 # Returns the current local date
 pipe = pipeline("text-classification", model="Yueh-Huan/news-category-classification-distilbert", truncation=True)
 
@@ -34,7 +34,8 @@ def create_user(db: Session, user_name: str, password: str):
         db.refresh(_user)
         return ['Ok', '201', 'user create success', _user]
 
-# upload histories
+
+# Upload histories functionality
 def update_histories(user_name: str, upload_urls:List, device:str):
 
     directory_name = "history/"  
@@ -109,7 +110,8 @@ def update_histories(user_name: str, upload_urls:List, device:str):
         file.write(str(second_key) + "\n")
     return ['Ok', '200', 'update success', user_name]
 
-# delete histories
+
+# Delete histories functionality
 def delete_history(index:int, date_str:str, history:pd.DataFrame):
     if date_str == "":
         # if date is not None that means delete all history with date
@@ -124,7 +126,8 @@ def delete_history(index:int, date_str:str, history:pd.DataFrame):
     history['index'] = history.index
     return history
 
-# using extract function to extract content from url
+
+# Using an extract function to extract content from url
 def extract_url(url, i, d):
 
     new_history =[]
@@ -165,7 +168,8 @@ def extract_url(url, i, d):
         return (None, None)
     return (new_history, content_to_emb)
 
-# split text into parts that fits in applying model
+
+# Split text into parts that fits in the applied model for topic generation
 def split_text_into_parts(text, max_words_per_part, max_parts):
     words = text.split()
     total_words = len(words)
@@ -181,3 +185,5 @@ def split_text_into_parts(text, max_words_per_part, max_parts):
         parts.append(truncated_text)
         
     return parts
+
+

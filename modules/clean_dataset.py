@@ -8,6 +8,7 @@ nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('punkt')
 
+
 STOPWORDS = set(stopwords.words('english'))
 MIN_WORDS = 4
 MAX_WORDS = 200
@@ -19,7 +20,7 @@ PATTERN_PUNC = re.compile(r"[^\w\s]") # matches all non 0-9 A-z whitespace
 
 def clean_text(text):
     """
-    Series of cleaning. String to lower case, remove non words characters and numbers (punctuation, curly brackets etc).
+    Series of cleaning. String with to lower case, then remove non words characters and numbers (punctuation, curly brackets etc).
         text (str): input text
     return (str): modified initial text
     """
@@ -29,6 +30,7 @@ def clean_text(text):
     text = re.sub(PATTERN_RN, ' ', text)
     text = re.sub(PATTERN_PUNC, ' ', text)
     return text
+
 
 def tokenizer(sentence, min_words=MIN_WORDS, max_words=MAX_WORDS, stopwords=STOPWORDS, lemmatize=True):
     """
@@ -51,6 +53,7 @@ def tokenizer(sentence, min_words=MIN_WORDS, max_words=MAX_WORDS, stopwords=STOP
                                                         and w not in stopwords)]
     return tokens    
 
+
 def clean_sentences(df):
     """
     Remove irrelavant characters (in new column clean_sentence).
@@ -65,4 +68,5 @@ def clean_sentences(df):
     df['tok_lem_sentence'] = df['clean_sentence'].apply(
         lambda x: tokenizer(x, min_words=MIN_WORDS, max_words=MAX_WORDS, stopwords=STOPWORDS))
     return df
+
 
