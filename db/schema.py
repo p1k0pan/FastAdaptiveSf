@@ -4,7 +4,7 @@ from pydantic.generics import GenericModel
 
 T = TypeVar('T')
 
-
+# define schema used in request or response in fastapi
 class UserSchema(BaseModel):
     user_name: Optional[str] = None
     password: Optional[str] = None

@@ -254,6 +254,7 @@ async def get_user(user_name:str, db: Session =db_session ):
 async def get_user_history(user_name:str, token=Depends(token_verify)):
     if token.code == "201" or token.code== "200":
         file_path = f"history/{user_name}.json"
+        # get all histories from user and return it aggregated with date
         try:
             with open(file_path, 'r') as f:
                 data = json.load(f)
@@ -330,6 +331,7 @@ async def update_histories(request: schema.UserSchema,token=Depends(token_verify
         if request.user_name == None or request.upload_urls == None:
             return schema.Response(status="Failed", code='400', message='User name or upload file is empty', result=None)
 
+        # get user history
         status, code, msg, result = crud.update_histories(user_name=request.user_name, upload_urls=request.upload_urls, device=device)
         return schema.Response(status=status, code=code, message=msg, result=result)
 
@@ -350,6 +352,7 @@ async def initial_tag_story(tag:str=""):
 
         return result
 
+# get next article which already loaded in a sampler
 @app.get("/next_tag_story", tags=["Tag"])
 async def next_story(tag:str="", user_name:str=""):
     if user_name!="":

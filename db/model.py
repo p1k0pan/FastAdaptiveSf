@@ -6,6 +6,7 @@ from . import config
 
 Base = config.Base
 
+# db model
 class User(Base):
     __tablename__ = "users"
 

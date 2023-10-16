@@ -3,6 +3,7 @@ import random
 from db import schema
 from io import StringIO
 
+# define sampler to initialize random articles from specific tag
 class DataFrameSampler:
     def __init__(self, dataframe):
         self.dataframe = dataframe.copy()

@@ -60,6 +60,7 @@ def load_corpus_tensor():
     corpus_embeddings = torch.load(tensor_path, map_location=torch.device(device))
     return corpus_embeddings
 
+# abandon
 def random_stories(tag:str, client):
 
     try:
@@ -79,6 +80,7 @@ def random_stories(tag:str, client):
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
+# search function with only query
 def search_query(query:str, corpus_embeddings, client, retriever, ranker, df):
     print(query)
     # print(f'query shape: {query_embedding.shape}')
@@ -86,12 +88,15 @@ def search_query(query:str, corpus_embeddings, client, retriever, ranker, df):
     try:
 
         article_response = schema.ArticleResponse()
+        # embed query
         query_embedding = _embed_text(query)
+        # apply bi-encoder
         query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, df=df)
+        # apply cross-encoder
         rerank_result = _rank_hits_cross_encoder(query_corpus_result,query)
         rerank_result = rerank_result.reset_index(drop=True)
 
-        # get the result that scroe>0
+        # get the result that scroe>0 -> relevant to query according to cross-encoder
         positive_indices = rerank_result[rerank_result['score'] > 0].index.tolist()
 
         article_response.process_dataset(rerank_result, positive_indices[-1])
@@ -103,12 +108,14 @@ def search_query(query:str, corpus_embeddings, client, retriever, ranker, df):
     except ConnectionError:
         return schema.Response(status='Failed', code='500', message='connection failed', result=None)
 
+# search function with query and history
 def search_query_history(query:str, corpus_embeddings, client, user_name, df):
 
     print(query)
     # print(f'query shape: {query_embedding.shape}')
 
     try:
+        # same with search_query
         query_embedding = _embed_text(query)
         query_corpus_result = _get_hits_from_HF(query_embedding, corpus_embeddings, result_num,client, df=df)
 
@@ -118,6 +125,7 @@ def search_query_history(query:str, corpus_embeddings, client, user_name, df):
         # get the result that scroe>0
         positive_indices = rerank_result[rerank_result['score'] > 0].index.tolist()
         print("positive indices: ", positive_indices)
+        # split tthe rerank result into positive and negative rows and only integrate history with positive rows
         positive_rows = rerank_result[rerank_result.index.isin(positive_indices)]
         negative_rows = rerank_result[~rerank_result.index.isin(positive_indices)]
         print(positive_rows)
@@ -129,10 +137,13 @@ def search_query_history(query:str, corpus_embeddings, client, user_name, df):
         #     user_keyword_embeddings = _embed_text(user_history.clean_sentence.values)
             # print(f'user history shape: {user_keyword_embeddings.shape}')
 
+        # get user history embedding
         user_topic_ratio, user_keyword_embeddings = _read_history_embd(user_name)
 
         if user_keyword_embeddings.numel() != 0:
+            # cosine similarity with history and candidates
             history_rank = _rank_hits_history(user_topic_ratio, user_keyword_embeddings, query_corpus_result_embedding, positive_rows)
+            # concatenate history rank result with negative rows
             result_df = pd.concat([history_rank, negative_rows])
             result_df = result_df.reset_index(drop=True)
 
@@ -188,6 +199,7 @@ def search_query_history(query:str, corpus_embeddings, client, user_name, df):
 #     else:
 #         return schema.Response(status='Failed', code='400', message='history is null', result=None)
 
+# get cos-sim with paragraphs and user history to decide which pragraphs should be highlighted
 def paragraph_text_highlighting(paragraphs,user_name):
     user_topic_ratio, history_emb = _read_history_embd(user_name)
     if history_emb.numel() != 0:
@@ -223,7 +235,7 @@ def paragraph_text_highlighting(paragraphs,user_name):
     else:
         return schema.Response(status='Failed', code='400', message='history is null', result=None)
 
-
+# abandon
 def _get_hits_from_haystack(query:str, retriever, ranker):
 
     pipeline2 = Pipeline()
@@ -233,6 +245,7 @@ def _get_hits_from_haystack(query:str, retriever, ranker):
 
     return result
 
+# bi-encoder get first candidates
 def _get_hits_from_HF(question_embedding, corpus_embeddings, top_k, client, df=None):
     hits = util.semantic_search(question_embedding, corpus_embeddings, top_k=top_k)
     hits = hits[0]  # Get the hits for the first query
@@ -283,6 +296,7 @@ def _get_hits(question_embedding, corpus_embeddings, top_k, df):
     print(df[["index","title"]].values)
     return df.iloc[result_index].copy()
 
+# cross-encoder
 def _rank_hits_cross_encoder(hits_df,query):
     cross_inp = [[query, value] for value in hits_df.clean_sentence.values]
 
@@ -295,6 +309,7 @@ def _rank_hits_cross_encoder(hits_df,query):
     print(hits_df[["index","title","score"]].values)
     return hits_df.copy()
 
+# history and candidates
 def _rank_hits_history(user_topic_ratio, history_emb, rerank_emb, positive_df) -> pd.DataFrame:
     cos_scores = util.pytorch_cos_sim(rerank_emb, history_emb)
     # print(f"cos: {type(cos_scores)}")
@@ -334,6 +349,7 @@ def _rank_hits_history(user_topic_ratio, history_emb, rerank_emb, positive_df) -
     print(positive_df.loc[:,("index","title", "score","Cosine Similarity", "topic_score", "final_score")].values)
     return positive_df
 
+# get history embeddings from user
 def _read_history_embd(user_name:str):
     directory_name='history/'
     user_file = user_name
